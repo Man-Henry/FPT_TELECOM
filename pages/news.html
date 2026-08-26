@@ -173,6 +173,73 @@
       }
     </script>
     <style>
+      /* Modern Inter Typography for News Hub */
+      :root {
+        --font-sans: "Inter", "Inter Fallback", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+      body, h1, h2, h3, h4, h5, h6, p, a, span {
+        font-family: var(--font-sans) !important;
+      }
+      .section-head {
+        text-align: center;
+        max-width: 860px;
+        margin: 0 auto 36px;
+        padding: 0 16px;
+      }
+      .section-head .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 800;
+        color: #0056d6;
+        background: #e0edff;
+        border: 1px solid #bfdbfe;
+        padding: 5px 16px;
+        border-radius: 20px;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+      }
+      .section-head h1 {
+        font-size: clamp(26px, 4vw, 38px) !important;
+        font-weight: 900 !important;
+        color: #071b42 !important;
+        line-height: 1.25 !important;
+        letter-spacing: -0.025em !important;
+        margin: 0 0 14px 0 !important;
+        text-wrap: balance !important;
+      }
+      .section-head p {
+        font-size: 16px !important;
+        color: #475569 !important;
+        line-height: 1.65 !important;
+        margin: 0 auto !important;
+        max-width: 680px !important;
+        text-wrap: balance !important;
+      }
+      .topic-hub-tag {
+        background: #ffffff;
+        color: #0056d6;
+        padding: 9px 18px;
+        border-radius: 24px;
+        font-size: 13.5px;
+        font-weight: 700;
+        text-decoration: none;
+        border: 1px solid #cbd5e1;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        transition: all 0.25s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .topic-hub-tag:hover {
+        background: #0056d6;
+        color: #ffffff;
+        border-color: #0056d6;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 86, 214, 0.25);
+      }
       /* =========================================================
    NEW FOOTER DESIGN (2026) - FIXED OVERLAP & RESPONSIVE
    ========================================================= */
@@ -462,25 +529,25 @@
             <span>💡</span> Cẩm Nang Tư Vấn Chuyên Sâu Theo Nhu Cầu
           </h3>
           <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-            <a href="topics/lap-mang-fpt-cho-sinh-vien-gia-re.html" style="background:#fff; color:#0056d6; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; text-decoration: none; border: 1px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+            <a href="topics/lap-mang-fpt-cho-sinh-vien-gia-re.html" class="topic-hub-tag">
               🎓 Lắp mạng cho sinh viên
             </a>
-            <a href="topics/chuyen-phong-tro-mang-theo-mang-fpt-duoc-khong.html" style="background:#fff; color:#0056d6; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; text-decoration: none; border: 1px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+            <a href="topics/chuyen-phong-tro-mang-theo-mang-fpt-duoc-khong.html" class="topic-hub-tag">
               📦 Chuyển phòng trọ dời mạng FPT
             </a>
-            <a href="topics/phong-tro-3-den-4-nguoi-dung-chung-wifi-fpt-goi-nao.html" style="background:#fff; color:#0056d6; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; text-decoration: none; border: 1px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+            <a href="topics/phong-tro-3-den-4-nguoi-dung-chung-wifi-fpt-goi-nao.html" class="topic-hub-tag">
               👥 Phòng trọ 3-4 người lắp gói nào?
             </a>
-            <a href="topics/chu-tro-nen-lap-mang-tong-hay-de-khach-tu-lap.html" style="background:#fff; color:#0056d6; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; text-decoration: none; border: 1px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+            <a href="topics/chu-tro-nen-lap-mang-tong-hay-de-khach-tu-lap.html" class="topic-hub-tag">
               🏢 Chủ trọ: Mạng tổng vs lắp riêng
             </a>
-            <a href="topics/giai-phap-wifi-fpt-chiu-tai-day-tro-20-30-phong.html" style="background:#fff; color:#0056d6; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; text-decoration: none; border: 1px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+            <a href="topics/giai-phap-wifi-fpt-chiu-tai-day-tro-20-30-phong.html" class="topic-hub-tag">
               📶 Wi-Fi chịu tải dãy trọ 20-30 phòng
             </a>
-            <a href="topics/chung-cu-toa-nha-co-bi-doc-quyen-nha-mang-khong.html" style="background:#fff; color:#0056d6; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; text-decoration: none; border: 1px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+            <a href="topics/chung-cu-toa-nha-co-bi-doc-quyen-nha-mang-khong.html" class="topic-hub-tag">
               🏗️ Chung cư có bị độc quyền mạng?
             </a>
-            <a href="topics/combo-internet-camera-ai-smarthome-cho-can-ho.html" style="background:#fff; color:#0056d6; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; text-decoration: none; border: 1px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+            <a href="topics/combo-internet-camera-ai-smarthome-cho-can-ho.html" class="topic-hub-tag">
               🤖 Combo Internet + Camera + Smarthome
             </a>
           </div>
