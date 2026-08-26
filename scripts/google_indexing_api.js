@@ -241,7 +241,7 @@ async function main() {
   let accessToken = null;
   if (credentials && !isDryRun) {
     try {
-      console.log(`🔑 Đang tạo chữ ký JWT và xác thực Service Account (${credentials.client_email})...`);
+      console.log("🔑 Đang tạo chữ ký JWT và xác thực Google Service Account...");
       accessToken = await getAccessToken(credentials);
       console.log("✅ Xác thực Google OAuth2 thành công! Bắt đầu gửi URLs...\n");
     } catch (authErr) {
@@ -283,11 +283,11 @@ async function main() {
         });
         successCount++;
       } else {
-        console.error(`❌ ${indexNum} Lỗi (${result.status}) -> ${url}: ${JSON.stringify(result.data)}`);
+        console.error(`❌ ${indexNum} Lỗi HTTP (${result.status}) khi gửi ${url}`);
         errorCount++;
       }
     } catch (err) {
-      console.error(`❌ ${indexNum} Lỗi kết nối -> ${url}: ${err.message}`);
+      console.error(`❌ ${indexNum} Lỗi kết nối khi gửi ${url}`);
       errorCount++;
     }
 

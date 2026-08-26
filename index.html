@@ -1335,10 +1335,16 @@
           var s1 = document.createElement("script");
           s1.src =
             "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js";
+          s1.integrity =
+            "sha512-16esztaSRplJROstbIIdwX3N97V1+pZvV33ABoG1H2OyTttBxEGkTsoIVsiP1iaTtM8b3+hu2kB6pQ4Clr5yug==";
+          s1.crossOrigin = "anonymous";
           s1.onload = function () {
             var s2 = document.createElement("script");
             s2.src =
               "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js";
+            s2.integrity =
+              "sha512-Ic9xkERjyZ1xgJ5svx3y0u3xrvfT/uWmEH7xe9PWoPefDRtQUQhC32OERUwJMICCELhTkytvc298tnXevyP5CQ==";
+            s2.crossOrigin = "anonymous";
             document.body.appendChild(s2);
           };
           document.body.appendChild(s1);
