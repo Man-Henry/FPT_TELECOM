@@ -415,10 +415,12 @@ ${schemaJson}
         margin: 40px 0 24px;
       }
       .section-heading h2 {
-        font-size: 24px;
+        font-size: clamp(22px, 3vw, 32px);
         font-weight: 800;
         color: #071b42;
         margin: 0 0 8px;
+        letter-spacing: -0.02em;
+        line-height: 1.3;
       }
       .section-heading p {
         color: #64748b;
@@ -564,10 +566,12 @@ ${schemaJson}
         text-align: center;
       }
       .topic-contact-section h2 {
-        font-size: 24px;
+        font-size: clamp(22px, 3vw, 32px);
         font-weight: 800;
         color: #071b42;
         margin: 0 0 8px;
+        letter-spacing: -0.02em;
+        line-height: 1.3;
       }
       .topic-contact-section p {
         color: #64748b;
