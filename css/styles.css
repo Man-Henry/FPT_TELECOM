@@ -302,12 +302,42 @@ table {
 .logo {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   text-decoration: none;
   color: #12234c;
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 1px;
+}
+
+.logo-image {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.logo-image img,
+.logo img {
+  display: block;
+  height: 42px;
+  width: auto;
+  max-width: 160px;
+  object-fit: contain;
+}
+
+.auth-badge {
+  font-size: 11px;
+  background: #e0edff;
+  color: var(--blue, #0056d6);
+  padding: 4px 9px;
+  border-radius: 6px;
+  font-weight: 600;
+  border: 1px solid #bfdbfe;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
 }
 
 .logo i {
@@ -1668,9 +1698,12 @@ form .btn {
     margin-right: 0 !important;
   }
 
-  .logo-image img {
-    width: 110px !important;
-    height: auto !important;
+  .logo-image img,
+  .logo img {
+    height: 34px !important;
+    width: auto !important;
+    max-width: 125px !important;
+    object-fit: contain !important;
   }
 
   .auth-badge {
