@@ -338,6 +338,9 @@ function generateLandingPageHtml(topic) {
     <link rel="preload" href="../../assets/fonts/inter-400-vietnamese.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="../../assets/fonts/inter-600-vietnamese.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="../../assets/fonts/inter-700-vietnamese.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
     <link rel="stylesheet" href="../../css/styles.min.css?v=VERSION" />
 
@@ -347,6 +350,9 @@ ${schemaJson}
     </script>
 
     <style>
+      body, h1, h2, h3, h4, h5, h6, p, a, span, button, input, select, textarea {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+      }
       .topic-hero {
         background: linear-gradient(180deg, #071b42 0%, #0056d6 100%);
         color: #fff;

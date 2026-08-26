@@ -105,6 +105,13 @@
   box-sizing: border-box;
 }
 
+html, body, button, input, select, textarea, optgroup,
+h1, h2, h3, h4, h5, h6, p, a, span, b, strong, em, i,
+table, th, td, details, summary, label, small, time, mark,
+nav, header, footer, section, article, figure, figcaption, blockquote, div {
+  font-family: var(--font-sans) !important;
+}
+
 html {
   scroll-behavior: smooth;
   overflow-x: clip;

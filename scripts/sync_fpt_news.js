@@ -139,8 +139,10 @@ function generateArticleHtml(article) {
     <link rel="stylesheet" href="../../css/styles.min.css?v=VERSION" />
 
     <style>
+      body, h1, h2, h3, h4, h5, h6, p, a, span, button, input {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+      }
       body {
-        font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         background-color: #f8fafc;
         margin: 0;
         color: #1e293b;
