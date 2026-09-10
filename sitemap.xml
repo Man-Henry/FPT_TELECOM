@@ -130,7 +130,7 @@
     <priority>0.85</priority>
   </url>
 
-  <!-- Dynamic Article & Promo Posts (25 articles) -->
+  <!-- Dynamic Article & Promo Posts (28 articles) -->
   <url>
     <loc>https://fpttelecomvn.click/pages/posts/4-truong-noi-tru-vung-bien-lao-cai-duoc-lap-dat-phong-stem-hien-dai.html</loc>
     <lastmod>2026-09-10</lastmod>
@@ -168,6 +168,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://fpttelecomvn.click/pages/posts/fpt-camera-brain-duoc-de-cu-tai-vong-so-loai-giai-thuong-ai-awards-2026.html</loc>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://fpttelecomvn.click/pages/posts/fpt-camera-ra-mat-goi-an-tam-khi-cam-viet-hieu-nguoi-viet.html</loc>
     <lastmod>2026-09-10</lastmod>
     <changefreq>monthly</changefreq>
@@ -187,6 +193,12 @@
   </url>
   <url>
     <loc>https://fpttelecomvn.click/pages/posts/fpt-play-san-sang-cho-ngoai-hang-anh-202627.html</loc>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://fpttelecomvn.click/pages/posts/fpt-play-va-tiktok-hop-tac-phat-trien-the-he-cac-nha-sang-tao-noi-dung-the-thao-chuyen-nghiep.html</loc>
     <lastmod>2026-09-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -253,6 +265,12 @@
   </url>
   <url>
     <loc>https://fpttelecomvn.click/pages/posts/san-van-dong-vinfast-135000-cho-lon-nhat-the-gioi.html</loc>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://fpttelecomvn.click/pages/posts/soi-dong-ngay-hoi-fpt-play-mang-cup-ngoai-hang-anh-toi-viet-nam.html</loc>
     <lastmod>2026-09-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
