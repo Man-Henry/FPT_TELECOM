@@ -130,7 +130,7 @@
     <priority>0.85</priority>
   </url>
 
-  <!-- Dynamic Article & Promo Posts (28 articles) -->
+  <!-- Dynamic Article & Promo Posts (29 articles) -->
   <url>
     <loc>https://fpttelecomvn.click/pages/posts/4-truong-noi-tru-vung-bien-lao-cai-duoc-lap-dat-phong-stem-hien-dai.html</loc>
     <lastmod>2026-09-11</lastmod>
@@ -277,6 +277,12 @@
   </url>
   <url>
     <loc>https://fpttelecomvn.click/pages/posts/thu-truong-bo-cong-an-tham-quan-phong-hoc-stem-do-fpt-telecom-dong-hanh-trien-khai-tai-truong-van-hoa-cong-an-nhan-dan-vi-tai-nghe-an.html</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://fpttelecomvn.click/pages/posts/tong-bi-thu-chu-tich-nuoc-tham-trung-tam-nghien-cuu-cong-nghe-cua-tap-doan-thales.html</loc>
     <lastmod>2026-09-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
