@@ -130,7 +130,13 @@
     <priority>0.85</priority>
   </url>
 
-  <!-- Dynamic Article & Promo Posts (30 articles) -->
+  <!-- Dynamic Article & Promo Posts (31 articles) -->
+  <url>
+    <loc>https://fpttelecomvn.click/pages/posts/3-phim-co-trang-khong-the-bo-lo-hua-khai-tren-fpt-play.html</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
   <url>
     <loc>https://fpttelecomvn.click/pages/posts/4-truong-noi-tru-vung-bien-lao-cai-duoc-lap-dat-phong-stem-hien-dai.html</loc>
     <lastmod>2026-09-22</lastmod>
