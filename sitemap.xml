@@ -130,7 +130,7 @@
     <priority>0.85</priority>
   </url>
 
-  <!-- Dynamic Article & Promo Posts (39 articles) -->
+  <!-- Dynamic Article & Promo Posts (40 articles) -->
   <url>
     <loc>https://fpttelecomvn.click/pages/posts/3-phim-co-trang-khong-the-bo-lo-hua-khai-tren-fpt-play.html</loc>
     <lastmod>2026-10-06</lastmod>
@@ -163,6 +163,12 @@
   </url>
   <url>
     <loc>https://fpttelecomvn.click/pages/posts/cong-ty-cua-musk-bat-dau-ban-internet-ve-tinh-tai-viet-nam.html</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://fpttelecomvn.click/pages/posts/cung-binh-chon-chung-ket-cho-fpt-camera-brain-tai-ai-awards-2026.html</loc>
     <lastmod>2026-10-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
