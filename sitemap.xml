@@ -130,7 +130,7 @@
     <priority>0.85</priority>
   </url>
 
-  <!-- Dynamic Article & Promo Posts (50 articles) -->
+  <!-- Dynamic Article & Promo Posts (51 articles) -->
   <url>
     <loc>https://fpttelecomvn.click/pages/posts/3-phim-co-trang-khong-the-bo-lo-hua-khai-tren-fpt-play.html</loc>
     <lastmod>2026-11-09</lastmod>
@@ -343,6 +343,12 @@
   </url>
   <url>
     <loc>https://fpttelecomvn.click/pages/posts/lpbank-la-nha-tai-tro-chinh-vleague-1-mua-giai-202627.html</loc>
+    <lastmod>2026-11-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://fpttelecomvn.click/pages/posts/mung-sinh-nhat-30-nam-tang-30000-diem-fgold-khi-dang-ky-internet-fpt.html</loc>
     <lastmod>2026-11-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
