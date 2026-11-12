@@ -130,7 +130,7 @@
     <priority>0.85</priority>
   </url>
 
-  <!-- Dynamic Article & Promo Posts (51 articles) -->
+  <!-- Dynamic Article & Promo Posts (52 articles) -->
   <url>
     <loc>https://fpttelecomvn.click/pages/posts/3-phim-co-trang-khong-the-bo-lo-hua-khai-tren-fpt-play.html</loc>
     <lastmod>2026-11-12</lastmod>
@@ -271,6 +271,12 @@
   </url>
   <url>
     <loc>https://fpttelecomvn.click/pages/posts/fpt-telecom-dong-hanh-cung-khanh-hoa-nang-cao-an-toan-duong-thuy-phong-ngua-duoi-nuoc.html</loc>
+    <lastmod>2026-11-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://fpttelecomvn.click/pages/posts/fpt-telecom-dong-hanh-cung-vibrant-ho-chi-minh-city-2026-uu-dai-30-cuoc-tang-ma-giam-50-fpt-play.html</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
