@@ -130,9 +130,15 @@
     <priority>0.85</priority>
   </url>
 
-  <!-- Dynamic Article & Promo Posts (54 articles) -->
+  <!-- Dynamic Article & Promo Posts (56 articles) -->
   <url>
     <loc>https://fpttelecomvn.click/pages/posts/3-phim-co-trang-khong-the-bo-lo-hua-khai-tren-fpt-play.html</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://fpttelecomvn.click/pages/posts/3-vai-chinh-an-tuong-cua-lu-duc-hieu-tren-fpt-play.html</loc>
     <lastmod>2026-11-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -355,6 +361,12 @@
   </url>
   <url>
     <loc>https://fpttelecomvn.click/pages/posts/loat-j-drama-moi-tren-fpt-play-tu-moi-tinh-hoc-tro-den-cuoc-hon-nhan-chenh-15-tuoi.html</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://fpttelecomvn.click/pages/posts/loat-phim-han-hot-cua-jung-yong-hwa-kang-hoon.html</loc>
     <lastmod>2026-11-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
