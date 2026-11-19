@@ -130,7 +130,7 @@
     <priority>0.85</priority>
   </url>
 
-  <!-- Dynamic Article & Promo Posts (57 articles) -->
+  <!-- Dynamic Article & Promo Posts (59 articles) -->
   <url>
     <loc>https://fpttelecomvn.click/pages/posts/3-phim-co-trang-khong-the-bo-lo-hua-khai-tren-fpt-play.html</loc>
     <lastmod>2026-11-19</lastmod>
@@ -193,6 +193,12 @@
   </url>
   <url>
     <loc>https://fpttelecomvn.click/pages/posts/cung-binh-chon-chung-ket-cho-fpt-camera-brain-tai-ai-awards-2026.html</loc>
+    <lastmod>2026-11-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://fpttelecomvn.click/pages/posts/dang-ky-internet-fpt-thang-112026-nhan-30000-diem-fgold-doi-qua-nhu-y.html</loc>
     <lastmod>2026-11-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -319,6 +325,12 @@
   </url>
   <url>
     <loc>https://fpttelecomvn.click/pages/posts/giam-them-200k-khi-mua-sam-tai-dien-may-cho-lon-cung-hi-fpt.html</loc>
+    <lastmod>2026-11-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://fpttelecomvn.click/pages/posts/highlands-coffee-tung-uu-dai-ngap-tran-voi-chi-tu-100-fgold.html</loc>
     <lastmod>2026-11-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
