@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ==============================================================================
  * AUTO-SYNC FPT NEWS SCRIPT (Node.js)
  * Tự động thu thập bài viết mới từ https://fpt.vn/tin-tuc và đồng bộ vào website
@@ -260,7 +260,7 @@ function generateArticleHtml(article) {
   <body>
     <div class="topbar">
       <span class="topbar-promo"><span class="pulse-dot"></span><span class="topbar-text-desktop">⚡ Ưu đãi tháng này: miễn phí lắp đặt &amp; tặng thiết bị WiFi 6</span><span class="topbar-text-mobile">⚡ Free lắp đặt &amp; tặng WiFi 6</span></span>
-      <a href="tel:0383900321" class="topbar-hotline">Hotline: <b>0383 900 321</b></a>
+      <a href="tel:0358513269" class="topbar-hotline">Hotline: <b>0358 513 269</b></a>
     </div>
 
     <header class="header sticky-header" id="home">
@@ -307,7 +307,7 @@ function generateArticleHtml(article) {
             </ul>
             <a href="../lien-he.html" class="btn-cta-box">👉 Đăng ký tư vấn ngay</a>
             <p style="font-weight: bold; margin-top: 14px;">
-              Hoặc gọi Hotline tư vấn miễn phí: <a href="tel:0383900321" style="color: #ea580c; text-decoration: none;">0383 900 321</a>
+              Hoặc gọi Hotline tư vấn miễn phí: <a href="tel:0358513269" style="color: #ea580c; text-decoration: none;">0358 513 269</a>
             </p>
           </div>
         </div>
@@ -353,18 +353,7 @@ function generateArticleHtml(article) {
             </ul>
           </div>
           <div class="footer-hotlines">
-            <a href="tel:0358513269" class="footer-hotline-btn">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.02l-2.2 2.2z"/>
-              </svg>
-              <span>0358 513 269</span>
-            </a>
-            <a href="tel:0383900321" class="footer-hotline-btn">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.02l-2.2 2.2z"/>
-              </svg>
-              <span>0383 900 321</span>
-            </a>
+            <a href="tel:0358513269" class="footer-hotline-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.02l-2.2 2.2z"/></svg><span>0358 513 269</span></a>
           </div>
         </div>
         <div class="footer-bottom">
@@ -374,7 +363,7 @@ function generateArticleHtml(article) {
       </div>
     </footer>
     <div class="floating-actions" aria-label="Liên hệ nhanh">
-      <a href="tel:0383900321" class="floating-call" aria-label="Gọi hotline"
+      <a href="tel:0358513269" class="floating-call" aria-label="Gọi hotline"
         >☎ <span>Gọi ngay</span></a
       >
       <button class="chat-toggle-btn" id="chat-toggle" aria-label="Mở chat">
@@ -870,7 +859,7 @@ async function main() {
         }
 
         // Clean any original 19006600 phone numbers or links
-        bodyHtml = bodyHtml.replace(/1900\s?6600/g, "0383 900 321");
+        bodyHtml = bodyHtml.replace(/1900\s?6600/g, "0358 513 269");
 
         const articleObj = {
           title: pageTitle,

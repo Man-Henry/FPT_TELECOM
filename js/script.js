@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+﻿document.addEventListener("DOMContentLoaded", () => {
   // Lazy load image reveal effect
   const lazyImages = document.querySelectorAll('img[loading="lazy"]');
   lazyImages.forEach((img) => {
@@ -1296,7 +1296,7 @@ if (!chatToggle) {
     floatingActions = document.createElement("div");
     floatingActions.className = "floating-actions";
     floatingActions.setAttribute("aria-label", "Liên hệ nhanh");
-    floatingActions.innerHTML = `<a href="tel:0383900321" class="floating-call" aria-label="Gọi hotline">☎ <span>Gọi ngay</span></a>`;
+    floatingActions.innerHTML = `<a href="tel:0358513269" class="floating-call" aria-label="Gọi hotline">☎ <span>Gọi ngay</span></a>`;
     document.body.appendChild(floatingActions);
   }
   const btnHtml = `
@@ -1556,7 +1556,7 @@ if (chatToggle && chatWidget) {
         hotlineBox.className = "chat-hotline-fallback";
         hotlineBox.innerHTML = `
           <p>📞 Cần tư vấn nhanh theo khu vực?</p>
-          <a href="tel:0383900321">GỌI HOTLINE: 0383 900 321</a>
+          <a href="tel:0358513269">GỌI HOTLINE: 0358 513 269</a>
         `;
         bubble.appendChild(hotlineBox);
       }
@@ -2608,7 +2608,7 @@ const modalsHTML = `
     </div>
     
     <button class="btn btn-blue w-100" onclick="closeSuccessModal()">Quay lại trang chủ</button>
-    <div class="support-text">Cần hỗ trợ ngay? Gọi <a href="tel:0383900321">0383 900 321</a></div>
+    <div class="support-text">Cần hỗ trợ ngay? Gọi <a href="tel:0358513269">0358 513 269</a></div>
   </div>
 </div>
 `;

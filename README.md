@@ -1,4 +1,4 @@
-# FPT Telecom - Trợ lý ảo & Live Chat (Hybrid AI)
+﻿# FPT Telecom - Trợ lý ảo & Live Chat (Hybrid AI)
 
 Dự án này là một hệ thống chatbot thông minh kết hợp giữa **Trợ lý ảo AI (LLaMA 3.3)** và **Live Chat trực tiếp qua Telegram**, được xây dựng trên nền tảng **Cloudflare Workers**, **Cloudflare D1**, và **Cloudflare Workers AI**.
 
@@ -90,7 +90,7 @@ Nếu request trả về `{"ok":true}`, dự án của bạn đã sẵn sàng ho
 ## 🔒 Về bảo mật
 - Hệ thống có giới hạn tốc độ (Rate Limit) chống spam.
 - Mã hóa chống cào dữ liệu HTML.
-- **Data Masking**: Tự động mã hóa email và số điện thoại của người dùng trước khi lưu trữ (Loại trừ các SĐT hotline: 0358513269, 0383900321).
+- **Data Masking**: Tự động mã hóa email và số điện thoại của người dùng trước khi lưu trữ (Loại trừ các SĐT hotline: 0358513269, 0358513269).
 
 
 Để chạy dự án và đẩy code lên Git, anh chỉ cần thực hiện các câu lệnh sau trực tiếp trong Terminal của dự án:

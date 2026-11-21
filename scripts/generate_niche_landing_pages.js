@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ==============================================================================
  * PROGRAMMATIC SEO & SCHEMA GRAPH GENERATOR ENGINE (Node.js)
  * Tự động tạo các trang ngách (Landing Pages) chuyên sâu + Schema.org @graph
@@ -682,7 +682,7 @@ ${schemaJson}
         <span class="topbar-text-desktop">⚡ Ưu đãi tháng này: miễn phí lắp đặt &amp; tặng thiết bị WiFi 6</span>
         <span class="topbar-text-mobile">⚡ Free lắp đặt &amp; tặng WiFi 6</span>
       </span>
-      <a href="tel:0383900321" class="topbar-hotline">Hotline: <b>0383 900 321</b></a>
+      <a href="tel:0358513269" class="topbar-hotline">Hotline: <b>0358 513 269</b></a>
     </div>
 
     <!-- Header Navigation -->
@@ -720,8 +720,8 @@ ${schemaJson}
         <button type="button" class="btn btn-orange" onclick="openRegisterModal('${escapeHtml(topic.title)}')">
           ⚡ ĐĂNG KÝ LẮP ĐẶT NHẬN ƯU ĐÃI
         </button>
-        <a href="tel:0383900321" class="btn outline-btn" style="color:#fff;border-color:rgba(255,255,255,0.4);">
-          📞 GỌI TƯ VẤN: 0383 900 321
+        <a href="tel:0358513269" class="btn outline-btn" style="color:#fff;border-color:rgba(255,255,255,0.4);">
+          📞 GỌI TƯ VẤN: 0358 513 269
         </a>
       </div>
     </section>
@@ -910,7 +910,7 @@ ${schemaJson}
               </svg>
               <span>0358 513 269</span>
             </a>
-            <a href="tel:0383900321" class="footer-hotline-btn">
+            <a href="tel:0358513269" class="footer-hotline-btn">
               <svg
                 width="20"
                 height="20"
@@ -921,7 +921,7 @@ ${schemaJson}
                   d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.02l-2.2 2.2z"
                 />
               </svg>
-              <span>0383 900 321</span>
+              <span>0358 513 269</span>
             </a>
           </div>
         </div>
@@ -934,7 +934,7 @@ ${schemaJson}
 
     <!-- Floating Actions Component -->
     <div class="floating-actions" aria-label="Liên hệ nhanh">
-      <a href="tel:0383900321" class="floating-call" aria-label="Gọi hotline"
+      <a href="tel:0358513269" class="floating-call" aria-label="Gọi hotline"
         >☎ <span>Gọi ngay</span></a
       >
       <button class="chat-toggle-btn" id="chat-toggle" aria-label="Mở chat">

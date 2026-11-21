@@ -1,4 +1,4 @@
-# 📑 BÁO CÁO TOÀN DIỆN & CHI TIẾT TỪ TRONG RA NGOÀI DỰ ÁN FPT TELECOM
+﻿# 📑 BÁO CÁO TOÀN DIỆN & CHI TIẾT TỪ TRONG RA NGOÀI DỰ ÁN FPT TELECOM
 
 ---
 
@@ -9,7 +9,7 @@
 * **Kho lưu trữ mã nguồn (GitHub Repo):** [Man-Henry/FPT_TELECOM](https://github.com/Man-Henry/FPT_TELECOM)
 * **Tác giả / Quản trị viên hệ thống:** Trần Văn Mẫn (`ManHenry`)
 * **Email tiếp nhận Lead & Quản trị:** `tvm19624@gmail.com` | `mantv2@fpt.com`
-* **Hotline hỗ trợ & Tư vấn 24/7:** `0383 900 321` – `0358 513 269`
+* **Hotline hỗ trợ & Tư vấn 24/7:** `0358 513 269` – `0358 513 269`
 * **Địa chỉ văn phòng đại lý:** 107-109 Man Thiện, P. Tăng Nhơn Phú, TP. Thủ Đức, TP. Hồ Chí Minh.
 * **Mô hình kiến trúc cốt lõi:** **Jamstack + Serverless Edge Architecture** (Zero Server Cost – Chi phí vận hành máy chủ 0 VNĐ, độ trễ toàn cầu < 50ms, độ sẵn sàng 99.99%).
 
@@ -131,7 +131,7 @@ flowchart TD
   * Thu thập bài viết mới từ `https://fpt.vn/tin-tuc`.
   * Tự động tạo slug không dấu tiếng Việt chuẩn SEO.
   * Tự động sinh file HTML tĩnh trong `pages/posts/` với đầy đủ thẻ Meta, OpenGraph, Canonical, Breadcrumb, Schema.org `NewsArticle`.
-  * Tự động thay thế các hotline gốc của FPT sang hotline đại lý `0383 900 321`.
+  * Tự động thay thế các hotline gốc của FPT sang hotline đại lý `0358 513 269`.
   * Tự động cập nhật danh sách bài viết trên `pages/news.html`, `index.html` và tái tạo lại toàn bộ `sitemap.xml`.
 * **`scripts/compress_images.js`:**
   * Quét toàn bộ thư mục `assets/images/`, sử dụng thư viện `sharp` nén các ảnh `.webp` có dung lượng >300KB với chất lượng tối ưu (quality 72, effort 6), giúp tiết kiệm hàng chục MB băng thông.

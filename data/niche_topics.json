@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "id": "sv_01_re_nhat_khong_cam_ket",
     "slug": "lap-mang-fpt-cho-sinh-vien-gia-re",
@@ -55,7 +55,7 @@
       "Giữ nguyên toàn bộ số tháng trả trước và ưu đãi cước đang hưởng",
       "Thao tác tạo yêu cầu chuyển đổi 100% online trên ứng dụng Hi FPT"
     ],
-    "deep_content": "<h3>1. Quy trình 3 bước chuyển mạng FPT sang phòng trọ mới</h3><ol><li><strong>Bước 1: Giữ lại thiết bị:</strong> Khi trả phòng cũ, bạn chỉ cần mang theo Modem Wi-Fi và bộ nguồn adapter sang địa chỉ mới (dây cáp quang ngoài đường kỹ thuật viên sẽ kéo dây mới 100%).</li><li><strong>Bước 2: Gửi yêu cầu chuyển địa điểm:</strong> Mở ứng dụng <em>Hi FPT</em> chọn mục <em>Hỗ trợ kỹ thuật > Chuyển địa điểm</em>, hoặc gọi nhanh Hotline <strong>0383 900 321</strong>.</li><li><strong>Bước 3: Kỹ thuật viên đấu nối:</strong> Nhân viên FPT tại khu vực mới sẽ liên hệ khảo sát và kéo đường cáp quang mới vào tận phòng trọ trong 24h.</li></ol>",
+    "deep_content": "<h3>1. Quy trình 3 bước chuyển mạng FPT sang phòng trọ mới</h3><ol><li><strong>Bước 1: Giữ lại thiết bị:</strong> Khi trả phòng cũ, bạn chỉ cần mang theo Modem Wi-Fi và bộ nguồn adapter sang địa chỉ mới (dây cáp quang ngoài đường kỹ thuật viên sẽ kéo dây mới 100%).</li><li><strong>Bước 2: Gửi yêu cầu chuyển địa điểm:</strong> Mở ứng dụng <em>Hi FPT</em> chọn mục <em>Hỗ trợ kỹ thuật > Chuyển địa điểm</em>, hoặc gọi nhanh Hotline <strong>0358 513 269</strong>.</li><li><strong>Bước 3: Kỹ thuật viên đấu nối:</strong> Nhân viên FPT tại khu vực mới sẽ liên hệ khảo sát và kéo đường cáp quang mới vào tận phòng trọ trong 24h.</li></ol>",
     "faqs": [
       {
         "q": "Chuyển mạng FPT sang phòng trọ khác có bị mất phí không?",
@@ -67,7 +67,7 @@
       },
       {
         "q": "Thời gian hoàn tất chuyển mạng sang phòng trọ mới mất bao lâu?",
-        "a": "Kể từ thời điểm bạn gửi yêu cầu qua Hotline 0383900321 hoặc app Hi FPT, kỹ thuật viên chi nhánh FPT tại địa chỉ mới sẽ đến triển khai kéo dây và bàn giao tín hiệu trong vòng 24 giờ đến 48 giờ làm việc."
+        "a": "Kể từ thời điểm bạn gửi yêu cầu qua Hotline 0358513269 hoặc app Hi FPT, kỹ thuật viên chi nhánh FPT tại địa chỉ mới sẽ đến triển khai kéo dây và bàn giao tín hiệu trong vòng 24 giờ đến 48 giờ làm việc."
       }
     ]
   },
@@ -183,7 +183,7 @@
       "Quy trình phối hợp kéo cáp ngầm nội bộ chuẩn chỉ, bảo vệ thẩm mỹ căn hộ",
       "Đăng ký khảo sát cổng tín hiệu hộp kỹ thuật (IDF/MDF) chỉ trong 30 phút"
     ],
-    "deep_content": "<h3>1. Quy định pháp luật về hạ tầng viễn thông chung cư</h3><p>Theo Thông tư liên tịch của <strong>Bộ Thông tin và Truyền thông</strong> và <strong>Bộ Xây dựng</strong>, các tòa nhà chung cư, khu đô thị bắt buộc phải thiết kế hạ tầng viễn thông mở cho <strong>ít nhất 2 đến 3 doanh nghiệp viễn thông</strong> cùng cung cấp dịch vụ, nghiêm cấm mọi hình thức thỏa thuận độc quyền gây hạn chế quyền tự do lựa chọn của cư dân.</p><h3>2. Cách kiểm tra căn hộ của bạn đã có sóng FPT hay chưa</h3><p>Bạn chỉ cần cung cấp tên Tòa nhà (Block/Tháp) + Số phòng/Căn hộ gửi qua Zalo/Hotline <strong>0383 900 321</strong>. Hệ thống quản lý hạ tầng GIS của FPT sẽ quét chính xác cổng chờ tại hộp kỹ thuật tầng của bạn và báo kết quả trong 5 phút.</p>",
+    "deep_content": "<h3>1. Quy định pháp luật về hạ tầng viễn thông chung cư</h3><p>Theo Thông tư liên tịch của <strong>Bộ Thông tin và Truyền thông</strong> và <strong>Bộ Xây dựng</strong>, các tòa nhà chung cư, khu đô thị bắt buộc phải thiết kế hạ tầng viễn thông mở cho <strong>ít nhất 2 đến 3 doanh nghiệp viễn thông</strong> cùng cung cấp dịch vụ, nghiêm cấm mọi hình thức thỏa thuận độc quyền gây hạn chế quyền tự do lựa chọn của cư dân.</p><h3>2. Cách kiểm tra căn hộ của bạn đã có sóng FPT hay chưa</h3><p>Bạn chỉ cần cung cấp tên Tòa nhà (Block/Tháp) + Số phòng/Căn hộ gửi qua Zalo/Hotline <strong>0358 513 269</strong>. Hệ thống quản lý hạ tầng GIS của FPT sẽ quét chính xác cổng chờ tại hộp kỹ thuật tầng của bạn và báo kết quả trong 5 phút.</p>",
     "faqs": [
       {
         "q": "Tại sao một số chung cư Ban quản lý chỉ cho dùng 1 nhà mạng duy nhất?",
@@ -245,7 +245,7 @@
       "Khắc phục nhanh tình trạng No Internet trên Windows, iPhone, Android",
       "Hướng dẫn đổi DNS Google 8.8.8.8 và Cloudflare 1.1.1.1 siêu tốc",
       "Cách nhận biết Modem bị treo RAM và khởi động lại đúng cách",
-      "Tổng đài kỹ thuật FPT hỗ trợ từ xa 24/7 qua Hotline 0383 900 321"
+      "Tổng đài kỹ thuật FPT hỗ trợ từ xa 24/7 qua Hotline 0358 513 269"
     ],
     "deep_content": "<h3>5 bước sửa lỗi 'Không có kết nối Internet' chi tiết:</h3><ol><li><strong>Bước 1: Khởi động lại Modem (Power Cycle):</strong> Rút phích cắm nguồn điện modem WiFi ra, chờ khoảng 30 - 60 giây để xả hết điện tích tụ và giải phóng bộ nhớ đệm RAM, sau đó cắm lại nguồn.</li><li><strong>Bước 2: Kiểm tra đèn tín hiệu trên Modem:</strong> Đèn <em>PON / Internet</em> phải sáng xanh ổn định. Nếu đèn <em>LOS nhấp nháy đỏ</em>, đường dây quang bên ngoài bị đứt hoặc suy hao, cần liên hệ kỹ thuật FPT.</li><li><strong>Bước 3: Đổi DNS trên máy tính/điện thoại:</strong> Chuyển DNS tĩnh sang Google DNS (<code>8.8.8.8</code> / <code>8.8.4.4</code>) hoặc Cloudflare (<code>1.1.1.1</code> / <code>1.0.0.1</code>).</li><li><strong>Bước 4: Quên mạng WiFi và kết nối lại:</strong> Vào cài đặt WiFi trên điện thoại > Chọn mạng đang kết nối > Bấm <em>Quên mạng này (Forget Network)</em> và nhập lại mật khẩu.</li><li><strong>Bước 5: Gia hạn lại địa chỉ IP (Renew IP):</strong> Trên máy tính Windows, mở Command Prompt gõ <code>ipconfig /release</code> rồi <code>ipconfig /renew</code>.</li></ol>",
     "faqs": [
@@ -259,7 +259,7 @@
       },
       {
         "q": "Nếu tự làm theo các bước trên vẫn không có mạng thì liên hệ ai?",
-        "a": "Bạn hãy liên hệ ngay Hotline kỹ thuật FPT <strong>0383 900 321</strong> hoặc tạo yêu cầu hỗ trợ trên app <strong>Hi FPT</strong>. Kỹ thuật viên sẽ kiểm tra tín hiệu cổng quang trên hệ thống và cử nhân viên đến tận nhà xử lý trong vòng 2 giờ."
+        "a": "Bạn hãy liên hệ ngay Hotline kỹ thuật FPT <strong>0358 513 269</strong> hoặc tạo yêu cầu hỗ trợ trên app <strong>Hi FPT</strong>. Kỹ thuật viên sẽ kiểm tra tín hiệu cổng quang trên hệ thống và cử nhân viên đến tận nhà xử lý trong vòng 2 giờ."
       }
     ]
   },
@@ -293,7 +293,7 @@
       },
       {
         "q": "Số tổng đài báo hỏng mạng FPT khi bị đèn đỏ LOS là số nào?",
-        "a": "Hãy gọi ngay Hotline <strong>0383 900 321</strong> hoặc <strong>0358 513 269</strong> để được điều phối kỹ thuật viên khu vực gần nhất đến kiểm tra và xử lý."
+        "a": "Hãy gọi ngay Hotline <strong>0358 513 269</strong> hoặc <strong>0358 513 269</strong> để được điều phối kỹ thuật viên khu vực gần nhất đến kiểm tra và xử lý."
       }
     ]
   },
@@ -460,12 +460,12 @@
     "intro": "Mạng internet FPT nhà bạn bỗng nhiên bị mất, modem báo đèn đỏ hoặc tốc độ truy cập chập chờn cần kỹ thuật viên hỗ trợ gấp? Lưu ngay danh bạ số tổng đài chính thức và các kênh hỗ trợ khách hàng nhanh nhất của FPT Telecom dưới đây.",
     "pricing_ids": ["giga_hcm_noithanh", "sky_hcm_noithanh"],
     "key_benefits": [
-      "Hotline trực tiếp chuyên viên kỹ thuật: 0383 900 321 & 0358 513 269",
+      "Hotline trực tiếp chuyên viên kỹ thuật: 0358 513 269",
       "Tổng đài toàn quốc tiếp nhận sự cố 24/7 không ngày nghỉ",
       "Kênh báo hỏng 1-Click trên ứng dụng di động Hi FPT",
       "Cam kết cử kỹ thuật viên xử lý tận nhà trong vòng 2 giờ"
     ],
-    "deep_content": "<h3>Danh bạ các kênh liên hệ FPT Telecom chính thức:</h3><table style='width:100%;border-collapse:collapse;margin:16px 0;font-size:14.5px;'><tr style='background:#0056d6;color:#fff;'><th style='padding:12px;text-align:left;'>Kênh Liên Hệ</th><th style='padding:12px;'>Số Điện Thoại / Link</th><th style='padding:12px;'>Chức Năng Hỗ Trợ</th></tr><tr style='border-bottom:1px solid #e2e8f0;'><td style='padding:12px;font-weight:bold;'>Hotline Kỹ Thuật & Đăng Ký Nhanh</td><td style='padding:12px;text-align:center;color:#ea580c;font-weight:bold;'><a href='tel:0383900321' style='color:#ea580c;'>0383 900 321</a></td><td style='padding:12px;'>Tư vấn gói cước, đăng ký lắp mới, hỗ trợ kỹ thuật khẩn cấp</td></tr><tr style='border-bottom:1px solid #e2e8f0;'><td style='padding:12px;font-weight:bold;'>Hotline Hỗ Trợ Kỹ Thuật 24/7</td><td style='padding:12px;text-align:center;font-weight:bold;'><a href='tel:0358513269' style='color:#0056d6;'>0358 513 269</a></td><td style='padding:12px;'>Xử lý lỗi đứt cáp, đèn đỏ LOS, đổi mật khẩu WiFi</td></tr><tr style='border-bottom:1px solid #e2e8f0;'><td style='padding:12px;font-weight:bold;'>Ứng dụng Hi FPT</td><td style='padding:12px;text-align:center;'>App Store / Google Play</td><td style='padding:12px;'>Báo hỏng 1 chạm, theo dõi tiến độ kỹ thuật viên đến nhà</td></tr><tr style='border-bottom:1px solid #e2e8f0;'><td style='padding:12px;font-weight:bold;'>Hộp Chat Trực Tuyến</td><td style='padding:12px;text-align:center;'>Góc phải màn hình web</td><td style='padding:12px;'>Trợ lý ảo AI & Live Chat với chuyên viên Tiểu Mẫn FPT</td></tr></table>",
+    "deep_content": "<h3>Danh bạ các kênh liên hệ FPT Telecom chính thức:</h3><table style='width:100%;border-collapse:collapse;margin:16px 0;font-size:14.5px;'><tr style='background:#0056d6;color:#fff;'><th style='padding:12px;text-align:left;'>Kênh Liên Hệ</th><th style='padding:12px;'>Số Điện Thoại / Link</th><th style='padding:12px;'>Chức Năng Hỗ Trợ</th></tr><tr style='border-bottom:1px solid #e2e8f0;'><td style='padding:12px;font-weight:bold;'>Hotline Kỹ Thuật & Đăng Ký Nhanh</td><td style='padding:12px;text-align:center;color:#ea580c;font-weight:bold;'><a href='tel:0358513269' style='color:#ea580c;'>0358 513 269</a></td><td style='padding:12px;'>Tư vấn gói cước, đăng ký lắp mới, hỗ trợ kỹ thuật khẩn cấp</td></tr><tr style='border-bottom:1px solid #e2e8f0;'><td style='padding:12px;font-weight:bold;'>Hotline Hỗ Trợ Kỹ Thuật 24/7</td><td style='padding:12px;text-align:center;font-weight:bold;'><a href='tel:0358513269' style='color:#0056d6;'>0358 513 269</a></td><td style='padding:12px;'>Xử lý lỗi đứt cáp, đèn đỏ LOS, đổi mật khẩu WiFi</td></tr><tr style='border-bottom:1px solid #e2e8f0;'><td style='padding:12px;font-weight:bold;'>Ứng dụng Hi FPT</td><td style='padding:12px;text-align:center;'>App Store / Google Play</td><td style='padding:12px;'>Báo hỏng 1 chạm, theo dõi tiến độ kỹ thuật viên đến nhà</td></tr><tr style='border-bottom:1px solid #e2e8f0;'><td style='padding:12px;font-weight:bold;'>Hộp Chat Trực Tuyến</td><td style='padding:12px;text-align:center;'>Góc phải màn hình web</td><td style='padding:12px;'>Trợ lý ảo AI & Live Chat với chuyên viên Tiểu Mẫn FPT</td></tr></table>",
     "faqs": [
       {
         "q": "Báo hỏng mạng FPT vào ban đêm hoặc ngày Lễ / Chủ Nhật có nhân viên sửa không?",

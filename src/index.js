@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Cloudflare Worker — FPT Telecom · CA TRỰC TRÊN TELEGRAM + HYBRID AI (D1)
  *
  * Bindings: DB (D1)
@@ -9,7 +9,7 @@ const MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
 const SYSTEM_INSTRUCTION = `Bạn là "Trợ lý ảo FPT Telecom" - chuyên viên tư vấn dịch vụ viễn thông nhiệt tình, chuyên nghiệp, hỗ trợ khách hàng 24/7.
 - Dịch vụ tư vấn: Internet cáp quang tốc độ cao (WiFi 6/WiFi 7), Truyền hình FPT Play (độc quyền Ngoại Hạng Anh, Cúp C1), FPT Camera AI thông minh, FPT Smart Home.
 - THÔNG TIN LIÊN HỆ & ĐẠI LÝ:
-  + Hotline tư vấn / Zalo 24/7: 0383 900 321 hoặc 0358 513 269.
+  + Hotline tư vấn / Zalo 24/7: 0358 513 269.
   + Địa chỉ văn phòng đại lý: 107-109 Man Thiện, P. Tăng Nhơn Phú, TP. Thủ Đức, TP. Hồ Chí Minh.
   + Thời gian lắp đặt: Triển khai siêu tốc trong ngày hoặc 24h - 48h làm việc.
   + Thủ tục đăng ký đơn giản: Chỉ cần ảnh chụp CMND/CCCD bản gốc (khách cá nhân) hoặc GPKD (doanh nghiệp), ký hợp đồng điện tử online nhanh chóng.
@@ -19,8 +19,8 @@ const SYSTEM_INSTRUCTION = `Bạn là "Trợ lý ảo FPT Telecom" - chuyên vi�
 - CÁCH BÁO GIÁ: Viết rõ ràng dạng "195.000đ/tháng". Hiện tại đang áp dụng chương trình MIỄN PHÍ LẮP ĐẶT cho khách đăng ký mới (tiết kiệm 300.000đ phí hòa mạng niêm yết), tặng thêm Voucher giảm 200.000đ.
 - QUY ĐỊNH BĂNG THÔNG & TỐC ĐỘ: Tốc độ thấp nhất hiện tại của FPT Telecom là từ 300Mbps (gói GIGA 300Mbps - 1Gbps). FPT Telecom đã nâng cấp toàn diện và KHÔNG CÒN các gói 150Mbps cũ nữa. Khi tư vấn gói thấp nhất, rẻ nhất hoặc cơ bản cho gia đình, luôn tư vấn gói GIGA tốc độ 300Mbps.
 - ĐỘ DÀI: Câu hỏi đơn trả lời tối đa 3-4 dòng; chỉ lập bảng khi khách yêu cầu so sánh nhiều gói cước.
-- CHỐT ĐƠN: Khi khách có nhu cầu lắp đặt, xin lại Họ tên + SĐT + Địa chỉ lắp đặt cụ thể để chuyên viên liên hệ khảo sát hạ tầng miễn phí, hoặc hướng dẫn gọi/nhắn Zalo hotline 0383900321 để được hỗ trợ ngay.
-- NGOÀI 5 KHU VỰC: Nếu khách ở tỉnh/thành khác, thông báo lịch sự hiện hệ thống hỗ trợ tra cứu giá trực tiếp tại TP.HCM, Đồng Nai, Vũng Tàu, Bình Dương, Đồng Tháp - Tiền Giang; mời để lại SĐT hoặc gọi 0383900321 để chuyển thông tin tới chi nhánh FPT gần nhất. KHÔNG bịa giá.
+- CHỐT ĐƠN: Khi khách có nhu cầu lắp đặt, xin lại Họ tên + SĐT + Địa chỉ lắp đặt cụ thể để chuyên viên liên hệ khảo sát hạ tầng miễn phí, hoặc hướng dẫn gọi/nhắn Zalo hotline 0358513269 để được hỗ trợ ngay.
+- NGOÀI 5 KHU VỰC: Nếu khách ở tỉnh/thành khác, thông báo lịch sự hiện hệ thống hỗ trợ tra cứu giá trực tiếp tại TP.HCM, Đồng Nai, Vũng Tàu, Bình Dương, Đồng Tháp - Tiền Giang; mời để lại SĐT hoặc gọi 0358513269 để chuyển thông tin tới chi nhánh FPT gần nhất. KHÔNG bịa giá.
 - KHI KHÁCH NHẮC NHÀ MẠNG KHÁC (Viettel, VNPT...): KHÔNG bình luận hay so sánh tiêu cực về đối thủ. Chỉ công nhận ngắn gọn và tập trung vào ưu thế vượt trội của FPT: Băng thông cực đại 1Gbps, Modem WiFi 6/WiFi 7 thế hệ mới, đường truyền ổn định, bản quyền độc quyền Ngoại Hạng Anh trên FPT Play, quản lý tiện lợi qua ứng dụng Hi FPT và chăm sóc khách hàng 24/7.
 - TƯ VẤN CAMERA: Báo kèm phí cloud hàng tháng (35k - 100k/tháng tùy gói) để khách hàng an tâm lưu trữ và bảo mật dữ liệu.
 - NHÀ NHIỀU TẦNG/DIỆN TÍCH RỘNG: Tư vấn lắp thêm modem phụ mở rộng sóng: +20k/tháng cho mỗi modem (đóng trước từ 3 tháng trở lên), hoặc chọn gói SpeedX1 có tặng kèm thiết bị Mesh WiFi 7.
@@ -186,11 +186,7 @@ function maskSensitiveData(text) {
   if (typeof text !== "string") return "";
 
   const excludedPhones = [
-    "0358513269",
-    "0383900321",
-    "+84358513269",
-    "+84383900321",
-  ];
+    "0358513269",    "+84358513269",  ];
 
   // Mã hóa email (ví dụ: abc@gmail.com -> a**@gmail.com)
   let masked = text.replace(
@@ -820,7 +816,7 @@ export default {
               type: "fallback",
               show_hotline: true,
               reply:
-                "Hiện tại hệ thống hỗ trợ trực tuyến đang ưu tiên tư vấn và ưu đãi đặc quyền cho khu vực TP.HCM, Bình Dương, Đồng Nai, Bà Rịa - Vũng Tàu, Tiền Giang và Đồng Tháp. Để được hỗ trợ khảo sát và báo giá chi tiết tại khu vực của anh/chị, xin vui lòng gọi ngay Hotline/Zalo: 0383 900 321 hoặc 0358 513 269 để chi nhánh FPT hỗ trợ ngay ạ!",
+                "Hiện tại hệ thống hỗ trợ trực tuyến đang ưu tiên tư vấn và ưu đãi đặc quyền cho khu vực TP.HCM, Bình Dương, Đồng Nai, Bà Rịa - Vũng Tàu, Tiền Giang và Đồng Tháp. Để được hỗ trợ khảo sát và báo giá chi tiết tại khu vực của anh/chị, xin vui lòng gọi ngay Hotline/Zalo: 0358 513 269 để chi nhánh FPT hỗ trợ ngay ạ!",
               cards: [],
             });
           }
@@ -948,7 +944,7 @@ export default {
           }
 
           // 5. Structured Concise System Prompt
-          const RAG_SYSTEM_PROMPT = `Bạn là Trợ lý AI Tư Vấn Bán Hàng FPT Telecom (Hotline 0383 900 321 / 0358 513 269).
+          const RAG_SYSTEM_PROMPT = `Bạn là Trợ lý AI Tư Vấn Bán Hàng FPT Telecom (Hotline 0358 513 269).
 QUY TẮC BẮT BUỘC (GUARDRAILS):
 1. BÁO GIÁ CHÍNH XÁC: Chỉ báo giá từ [DỮ LIỆU THỰC TẾ]. Tuyệt đối KHÔNG tự bịa giá.
 2. TỐC ĐỘ MIN 300Mbps: Tốc độ thấp nhất hiện tại là 300Mbps (gói GIGA). Không có gói 150Mbps cũ.
