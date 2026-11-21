@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Cloudflare Worker — FPT Telecom · CA TRỰC TRÊN TELEGRAM + HYBRID AI (D1)
  *
  * Bindings: DB (D1)
