@@ -268,7 +268,7 @@ async function getUserLocation() {
 // Google Apps Script Web App Endpoint URL (Send lead to Google Sheet & notify Email)
 const WORKER_LEAD_ENDPOINT = "https://man-chatbot.tvm19624.workers.dev/api/lead";
 const GOOGLE_SHEETS_ENDPOINT =
-  "https://script.google.com/macros/s/AKfycbwg-DMdJd356yFa-VYW68A4hh4-4bWJNG-KsLhvIuKldW5UI0CKdP2SQaAiOM7RvLBU4g/exec";
+  "https://script.google.com/macros/s/AKfycbwvkgJ0GpdzEwh6Us5AFJ8uUlwuO3paCxqhSY8JhAzWur3Ws6KIuLxlrPN4-lqtBDeO/exec";
 
 // Global form submission handler with event delegation (handles both #leadForm and #popupForm)
 document.addEventListener("submit", async (event) => {

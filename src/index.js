@@ -557,7 +557,7 @@ export default {
           try {
             const gasUrl =
               env.GOOGLE_SHEETS_ENDPOINT ||
-              "https://script.google.com/macros/s/AKfycbwg-DMdJd356yFa-VYW68A4hh4-4bWJNG-KsLhvIuKldW5UI0CKdP2SQaAiOM7RvLBU4g/exec";
+              "https://script.google.com/macros/s/AKfycbwvkgJ0GpdzEwh6Us5AFJ8uUlwuO3paCxqhSY8JhAzWur3Ws6KIuLxlrPN4-lqtBDeO/exec";
             const formParams = new URLSearchParams();
             formParams.append("Họ tên", name);
             formParams.append("Số điện thoại", cleanPhone);
