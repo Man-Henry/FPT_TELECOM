@@ -1,4 +1,4 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
   // Lazy load image reveal effect
   const lazyImages = document.querySelectorAll('img[loading="lazy"]');
   lazyImages.forEach((img) => {
