@@ -670,12 +670,15 @@ export default {
               "https://script.google.com/macros/s/AKfycbwvkgJ0GpdzEwh6Us5AFJ8uUlwuO3paCxqhSY8JhAzWur3Ws6KIuLxlrPN4-lqtBDeO/exec";
             const formParams = new URLSearchParams();
             formParams.append("Họ tên", name);
+            formParams.append("Họ Và Tên", name);
             formParams.append("Số điện thoại", cleanPhone);
             formParams.append("Địa chỉ", address);
+            formParams.append("Khu vực", address);
             formParams.append("Gói cước", pkg);
             formParams.append("Ghi chú", note);
             formParams.append("Thời gian liên hệ", timePref);
             formParams.append("Tọa độ", location);
+            formParams.append("Trang đăng ký", "https://fpttelecomvn.click/");
             formParams.append("consent_nd13", consentNd13 ? "1" : "0");
             formParams.append("IP", clientIP);
 

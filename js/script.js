@@ -291,17 +291,32 @@ document.addEventListener("submit", async (event) => {
 
   const formData = new FormData(form);
   const isSupportMode = formData.get("form_type") === "support" || !!formData.get("Nội dung hỗ trợ");
-  const name = formData.get("Họ tên") || "";
+  const name = formData.get("Họ tên") || formData.get("Họ Và Tên") || "";
   const phone = isSupportMode
     ? (formData.get("Thông tin khách hàng") || formData.get("Số điện thoại") || "")
     : (formData.get("Số điện thoại") || "");
+  const address = formData.get("Địa chỉ") || formData.get("Khu vực") || "";
   const pkg = isSupportMode ? "Yêu cầu hỗ trợ CSKH / Kỹ thuật" : (formData.get("Gói cước") || "Tư vấn chung");
   const note = isSupportMode ? (formData.get("Nội dung hỗ trợ") || "") : (formData.get("Ghi chú") || "");
+  const timePref = formData.get("Thời gian liên hệ") || "Gọi ngay bây giờ";
 
-  if (isSupportMode) {
-    formData.set("Số điện thoại", phone);
-    formData.set("Gói cước", pkg);
-    formData.set("Ghi chú", note);
+  // Chuẩn hóa và đồng bộ mọi alias trường dữ liệu cho cả Google Apps Script và Cloudflare Worker
+  formData.set("Họ tên", name);
+  formData.set("Họ Và Tên", name);
+  formData.set("name", name);
+  formData.set("Số điện thoại", phone);
+  formData.set("phone", phone);
+  formData.set("Địa chỉ", address);
+  formData.set("Khu vực", address);
+  formData.set("address", address);
+  formData.set("Gói cước", pkg);
+  formData.set("package", pkg);
+  formData.set("Ghi chú", note);
+  formData.set("note", note);
+  formData.set("Thời gian liên hệ", timePref);
+  formData.set("Trang đăng ký", window.location.href);
+  if (!formData.get("consent_nd13")) {
+    formData.set("consent_nd13", "1");
   }
 
   // Turnstile Bot Protection Token Extraction
@@ -338,26 +353,41 @@ document.addEventListener("submit", async (event) => {
       typeof getUserLocation === "function"
         ? await getUserLocation()
         : "Chưa xác định";
-    formData.append("Tọa độ", locationInfo);
+    formData.set("Tọa độ", locationInfo);
 
-    // Primary Submission to Cloudflare Worker (D1 + Fail-Fast Turnstile + Background Notifications)
+    // Chuẩn bị URLSearchParams để gửi cho Google Apps Script
+    const urlParams = new URLSearchParams();
+    for (const [key, value] of formData.entries()) {
+      urlParams.append(key, value);
+    }
+
+    // 1. GỬI TRỰC TIẾP ĐẾN GOOGLE APPS SCRIPT WEB APP (Bắt buộc chạy song song)
+    // Dùng mode: "no-cors" với Content-Type x-www-form-urlencoded để trình duyệt gửi thành công 100%,
+    // không bị chặn bởi chính sách CORS của Google Apps Script, đảm bảo ghi Google Sheet và gửi email về tvm19624@gmail.com.
+    const gasPromise = fetch(GOOGLE_SHEETS_ENDPOINT, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: urlParams.toString(),
+    }).catch((e) => console.warn("Google Sheets submission notice:", e));
+
+    // 2. GỬI ĐẾN CLOUDFLARE WORKER (Lưu trữ D1, chống spam, thông báo Telegram)
     const workerPromise = fetch(WORKER_LEAD_ENDPOINT, {
       method: "POST",
       body: formData,
+    }).then(async (res) => {
+      if (res && res.ok) {
+        const respData = await res.json().catch(() => null);
+        console.log("Lead stored in Cloudflare D1:", respData);
+      }
+      return res;
     }).catch((e) => console.warn("Worker lead submit notice:", e));
 
-    // Wait for the ultra-fast worker response (< 100ms)
-    const response = await workerPromise;
-    if (response && response.ok) {
-      const respData = await response.json();
-      console.log("Lead successfully stored in Cloudflare D1:", respData);
-    } else {
-      // Fallback directly to Google Sheets if worker was unreachable
-      await fetch(GOOGLE_SHEETS_ENDPOINT, {
-        method: "POST",
-        body: formData,
-      });
-    }
+    // Đợi cả 2 kênh gửi đi hoàn tất (giới hạn tối đa 2.5s để khách hàng không phải chờ lâu)
+    await Promise.race([
+      Promise.allSettled([gasPromise, workerPromise]),
+      new Promise((resolve) => setTimeout(resolve, 2500)),
+    ]);
 
     if (result)
       result.textContent =
@@ -367,7 +397,7 @@ document.addEventListener("submit", async (event) => {
     window.dataLayer.push({
       event: "form_submit",
       package_name: pkg,
-      time_preference: formData.get("Thời gian liên hệ") || "Gọi ngay",
+      time_preference: timePref,
     });
 
     // Close Registration Modal if open
