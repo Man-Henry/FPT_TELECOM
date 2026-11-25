@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="vi">
   <head>
     <meta
@@ -44,7 +44,7 @@
     />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="theme-color" content="#0665f5" />
@@ -215,7 +215,7 @@
               "contactType": "customer service",
               "areaServed": "VN",
               "availableLanguage": "Vietnamese"
-            }],"sameAs": ["https://zalo.me/0358513269"]
+            }],"sameAs": ["https://www.facebook.com/profile.php?id=61596572759217", "https://zalo.me/0358513269"]
         },
         {
           "@context": "https://schema.org",
@@ -1511,6 +1511,30 @@
           }
         }
       </style>
+
+      <section style="background:linear-gradient(135deg,#071b42 0%,#0056d6 100%);color:#fff;padding:42px 20px 38px;text-align:center;">
+        <p style="display:inline-block;margin:0 0 10px;padding:5px 14px;border-radius:999px;background:rgba(255,255,255,0.14);font-size:12px;font-weight:700;color:#fed7aa;">BẢNG GIÁ NIÊM YẾT &amp; PHÂN VÙNG 2026</p>
+        <h1 style="font-size:clamp(24px,3.8vw,36px);font-weight:800;margin:0 auto 10px;max-width:900px;line-height:1.3;">Bảng Giá Cước Internet FPT, Wi-Fi 7 &amp; Combo FPT Play Mới Nhất</h1>
+        <p style="max-width:760px;margin:0 auto 18px;font-size:15px;color:#dbeafe;line-height:1.6;">
+          Giá cước từ <strong>195.000đ/tháng</strong> tùy tỉnh thành &bull; Miễn phí lắp đặt khách mới &bull; Tư vấn minh bạch bởi <a href="ve-chung-toi.html" style="color:#fed7aa;font-weight:700;text-decoration:underline;">Trần Văn Mẫn (Đại lý ủy quyền FPT)</a>
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;margin-bottom:16px;">
+          <button type="button" onclick="openLocationModal()" style="background:#fff;color:#071b42;border:none;padding:9px 18px;border-radius:999px;font-weight:700;font-size:13.5px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+            📍 Khu vực đang xem: <span id="loc-display-1" style="color:#0056d6;">Các Tỉnh / Xã</span> (Đổi khu vực ▾)
+          </button>
+          <a href="../index.html#package-finder" style="background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;padding:9px 18px;border-radius:999px;font-weight:700;font-size:13.5px;text-decoration:none;">
+            ⚡ Gợi ý gói cước theo nhu cầu
+          </a>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;font-size:13px;">
+          <a href="#internet" style="color:#fff;background:rgba(255,255,255,0.12);padding:5px 12px;border-radius:999px;text-decoration:none;">Internet Cá nhân</a>
+          <a href="#truyen-hinh" style="color:#fff;background:rgba(255,255,255,0.12);padding:5px 12px;border-radius:999px;text-decoration:none;">Combo Ngoại Hạng Anh</a>
+          <a href="#f-game" style="color:#fff;background:rgba(255,255,255,0.12);padding:5px 12px;border-radius:999px;text-decoration:none;">Gaming F-Game</a>
+          <a href="#speedx" style="color:#fff;background:rgba(255,255,255,0.12);padding:5px 12px;border-radius:999px;text-decoration:none;">Wi-Fi 7 SpeedX</a>
+          <a href="#camera" style="color:#fff;background:rgba(255,255,255,0.12);padding:5px 12px;border-radius:999px;text-decoration:none;">Camera An Tâm</a>
+          <a href="#doanh-nghiep" style="color:#fff;background:rgba(255,255,255,0.12);padding:5px 12px;border-radius:999px;text-decoration:none;">Doanh nghiệp IP tĩnh</a>
+        </div>
+      </section>
 
       <!-- SECTION 1: INTERNET CÁ NHÂN & GIA ĐÌNH -->
       <section class="section" id="pricing" style="padding-top: 50px">
@@ -5314,6 +5338,16 @@
       <script>
         let currentArea = "xa";
 
+        function openLocationModal() {
+          const modal = document.getElementById("locationModal");
+          if (modal) modal.classList.add("active");
+        }
+
+        function closeLocationModal() {
+          const modal = document.getElementById("locationModal");
+          if (modal) modal.classList.remove("active");
+        }
+
         function setAreaType(area) {
           currentArea = area;
           document
@@ -5339,7 +5373,8 @@
 
         function selectCity(cityName, defaultArea) {
           setAreaType(defaultArea);
-          document.getElementById("loc-display-1").textContent = cityName;
+          const display = document.getElementById("loc-display-1");
+          if (display) display.textContent = cityName;
           closeLocationModal();
         }
 
@@ -5392,8 +5427,8 @@
             24/7:
           </p>
           <div class="contact-phones">
-            <a href="tel:0358513269">☎ 0358 513 269</a>
-            <a href="tel:0358513269" class="sub">☎ 0358 513 269</a>
+            <a href="tel:0358513269">☎ Hotline: 0358 513 269</a>
+            <a href="https://zalo.me/0358513269" target="_blank" rel="noopener noreferrer" class="sub">💬 Chat Zalo tư vấn nhanh 24/7</a>
           </div>
 
           <div class="robot-container">
@@ -5522,7 +5557,7 @@
         <div class="glass-form-wrap">
           <div class="form-status">
             <div class="status-dot"></div>
-            Hơn 143 khách hàng đã đăng ký trong tuần qua
+            Chuyên viên tư vấn FPT trực tuyến — Báo giá chuẩn theo quận/huyện
           </div>
           <form id="leadForm" class="glass-form" action="javascript:void(0);">
             <input type="hidden" name="form_type" id="form_type" value="registration" />
@@ -5779,6 +5814,7 @@
           <div class="footer-col">
             <h4 class="footer-col-title">Hỗ trợ khách hàng</h4>
             <ul class="footer-link-list">
+              <li><a href="ve-chung-toi.html">Về chúng tôi</a></li>
               <li><a href="chinh-sach.html">Chính sách gói cước</a></li>
               <li><a href="news.html">Tin tức</a></li>
               <li><a href="lien-he.html">Liên hệ</a></li>
@@ -5847,15 +5883,6 @@
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
       </button>
-    </div>
-
-    <!-- CRO: Social Proof Toast -->
-    <div class="toast-notification" id="social-proof-toast">
-      <div class="toast-icon">⚡</div>
-      <div class="toast-text">
-        <b id="toast-name">Anh Khang (Q.7)</b>
-        <span id="toast-action">vừa đăng ký gói COMBO VIP</span>
-      </div>
     </div>
 
     <!-- Custom Chat Widget -->
@@ -6111,7 +6138,7 @@
     >
       <div style="flex: 1; margin-right: 20px">
         Chúng tôi sử dụng cookie để cải thiện trải nghiệm của bạn trên trang web
-        này. Bằng cách tiếp tục duyệt web, bạn đồng ý với của chúng tôi.
+        này. Bằng cách tiếp tục duyệt web, bạn đồng ý với <a href="chinh-sach.html#privacy" style="color:#93c5fd;text-decoration:underline;">Chính sách bảo mật</a> của chúng tôi.
       </div>
       <div>
         <button

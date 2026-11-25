@@ -2,13 +2,8 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      http-equiv="Cache-Control"
-      content="no-cache, no-store, must-revalidate"
-    />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, follow" />
     <title>404 - Không Tìm Thấy Trang | FPT Telecom</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -20,56 +15,85 @@
       body {
         font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         text-align: center;
-        padding: 50px 20px;
+        padding: 50px 20px 100px;
         color: #1e293b;
         background-color: #f8fafc;
+        margin: 0;
+      }
+      .notfound-card {
+        max-width: 560px;
+        margin: 40px auto;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 40px 28px;
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
       }
       h1 {
         font-size: 64px;
         font-weight: 800;
-        color: #0665f5;
-        margin: 20px 0;
+        color: #0056d6;
+        margin: 0 0 12px;
+        line-height: 1;
       }
       p {
-        font-size: 18px;
+        font-size: 16px;
         color: #475569;
-        margin-bottom: 24px;
+        margin: 0 0 24px;
+        line-height: 1.6;
       }
-      a {
+      .notfound-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+      }
+      a.btn-primary {
         display: inline-block;
-        background: #0665f5;
+        background: #0056d6;
         color: #ffffff;
-        padding: 12px 28px;
-        border-radius: 8px;
+        padding: 12px 24px;
+        border-radius: 10px;
         text-decoration: none;
-        font-weight: 600;
+        font-weight: 700;
         transition: background 0.2s ease;
       }
-      a:hover {
-        background: #0052cc;
+      a.btn-primary:hover {
+        background: #0044ab;
+      }
+      a.btn-secondary {
+        display: inline-block;
+        background: #eff6ff;
+        color: #0056d6;
+        border: 1px solid #bfdbfe;
+        padding: 11px 18px;
+        border-radius: 10px;
         text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+      }
+      a.btn-secondary:hover {
+        background: #dbeafe;
       }
     </style>
 
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="32x32"
-      href="/assets/images/main/fptlogo.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="16x16"
-      href="/assets/images/main/fptlogo.png"
-    />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/main/fptlogo.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/main/fptlogo.png" />
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" href="/assets/images/main/fptlogo.png" />
   </head>
   <body>
-    <h1>404</h1>
-    <p>Rất tiếc, trang bạn đang tìm kiếm không tồn tại.</p>
-    <p><a href="index.html">Quay về trang chủ</a></p>
+    <main class="notfound-card">
+      <h1>404</h1>
+      <p>Rất tiếc, đường dẫn bạn truy cập không tồn tại hoặc đã được chuyển sang địa chỉ mới. Vui lòng chọn một trong các mục bên dưới hoặc gọi Hotline <strong>0358 513 269</strong> để được hỗ trợ ngay.</p>
+      <div class="notfound-actions">
+        <a href="/" class="btn-primary">Quay về Trang chủ</a>
+        <a href="/pages/bang-gia.html" class="btn-secondary">Xem Bảng giá</a>
+        <a href="/pages/khu-vuc.html" class="btn-secondary">Giá theo Khu vực</a>
+        <a href="/pages/lien-he.html" class="btn-secondary">Liên hệ lắp đặt</a>
+      </div>
+    </main>
+
     <!-- Cookie Consent Banner -->
     <div
       id="cookie-banner"
@@ -90,8 +114,8 @@
       "
     >
       <div style="flex: 1; margin-right: 20px">
-        Chúng tôi sử dụng cookie để cải thiện trải nghiệm của bạn trên trang web
-        này. Bằng cách tiếp tục duyệt web, bạn đồng ý với của chúng tôi.
+        Chúng tôi sử dụng cookie để cải thiện trải nghiệm của bạn trên trang web này. Bằng cách tiếp tục duyệt web, bạn đồng ý với
+        <a href="/pages/chinh-sach.html#privacy" style="color: #93c5fd; text-decoration: underline">Chính sách bảo mật</a> của chúng tôi.
       </div>
       <div>
         <button
@@ -100,11 +124,11 @@
             document.getElementById('cookie-banner').style.display = 'none';
           "
           style="
-            background: #0665f5;
+            background: #0056d6;
             color: white;
             border: none;
             padding: 8px 16px;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
           "

@@ -7109,4 +7109,263 @@ footer {
   box-sizing: border-box !important;
 }
 
+/* ========================================================
+   INTERACTIVE REGIONAL PACKAGE FINDER & E-E-A-T HUBS (2026)
+   ======================================================== */
+.finder-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 56px 24px;
+}
+
+.finder-card {
+  background: #ffffff;
+  border: 1px solid #dbeafe;
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 18px 45px rgba(7, 27, 66, 0.08);
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 28px;
+  align-items: stretch;
+}
+
+.finder-step {
+  margin-bottom: 20px;
+}
+
+.finder-step:last-child {
+  margin-bottom: 0;
+}
+
+.finder-label {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #071b42;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.finder-select {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1.5px solid #cbd5e1;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 14.5px;
+  font-weight: 600;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+}
+
+.finder-select:focus {
+  border-color: #0056d6;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(0, 86, 214, 0.12);
+}
+
+.finder-pills {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.finder-pill {
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  color: #334155;
+  padding: 11px 14px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.finder-pill:hover {
+  border-color: #93c5fd;
+  background: #eff6ff;
+}
+
+.finder-pill.active {
+  background: #0056d6;
+  color: #ffffff;
+  border-color: #0056d6;
+  box-shadow: 0 6px 16px rgba(0, 86, 214, 0.22);
+}
+
+.finder-result {
+  background: linear-gradient(155deg, #071b42 0%, #0f2f73 100%);
+  color: #ffffff;
+  border-radius: 20px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.finder-res-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fed7aa;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 5px 12px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+
+.finder-res-name {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0 0 6px;
+  color: #ffffff;
+  line-height: 1.25;
+}
+
+.finder-res-speed {
+  font-size: 13.5px;
+  color: #93c5fd;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.finder-res-price {
+  font-size: 32px;
+  font-weight: 900;
+  color: #fb923c;
+  line-height: 1.1;
+  margin-bottom: 14px;
+}
+
+.finder-res-price small {
+  font-size: 14px;
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.finder-res-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  font-size: 13.5px;
+  color: #e2e8f0;
+  line-height: 1.65;
+}
+
+.finder-res-list li {
+  margin-bottom: 6px;
+}
+
+.finder-res-note {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12.5px;
+  color: #cbd5e1;
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+
+.hub-tabs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.hub-column-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+}
+
+.hub-column-card h3 {
+  margin: 0 0 14px;
+  font-size: 17px;
+  font-weight: 800;
+  color: #071b42;
+}
+
+.hub-link-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.hub-link-list li {
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.hub-link-list a {
+  color: #1e293b;
+  text-decoration: none;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.hub-link-list a:hover {
+  background: #eff6ff;
+  color: #0056d6;
+}
+
+.eeat-strip {
+  max-width: 1200px;
+  margin: 0 auto 48px;
+  padding: 0 24px;
+}
+
+.eeat-strip-inner {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
+  border: 1px solid #bfdbfe;
+  border-radius: 20px;
+  padding: 26px 28px;
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr;
+  gap: 24px;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(0, 86, 214, 0.06);
+}
+
+.search-result-banner {
+  max-width: 1200px;
+  margin: 24px auto 0;
+  padding: 0 24px;
+}
+
+.search-result-box {
+  background: #ffffff;
+  border: 1.5px solid #93c5fd;
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 8px 24px rgba(0, 86, 214, 0.08);
+}
+
+@media (max-width: 900px) {
+  .finder-card,
+  .eeat-strip-inner {
+    grid-template-columns: 1fr;
+    padding: 22px 18px;
+  }
+  .finder-pills {
+    grid-template-columns: 1fr;
+  }
+}
+
+
 

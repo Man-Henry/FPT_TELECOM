@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ==============================================================================
  * AUTO-SYNC FPT NEWS SCRIPT (Node.js)
  * Tự động thu thập bài viết mới từ https://fpt.vn/tin-tuc và đồng bộ vào website
@@ -94,20 +94,90 @@ async function fetchHtml(url, retries = 2) {
   }
 }
 
+const GENERIC_DESC_PREFIX = "Website chính thức cung cấp đầy đủ";
+
+// Kiểm tra mức độ liên quan chuyên ngành Viễn thông / Internet / FPT Play / Camera
+function isRelevantTelecomArticle(title = "") {
+  const lower = title.toLowerCase();
+  const blockList = [
+    "hứa khải", "lư dục hiểu", "jung yong hwa", "j-drama", "phim hàn", "phim cổ trang",
+    "ao ashi", "anime", "watsons", "highlands", "long châu", "sốt xuất huyết", "vắc xin",
+    "elmich", "shopeepay", "zalopay", "điện máy chợ lớn", "pickleball", "asean cup",
+    "nba", "v.league", "lpbank", "sân vận động", "vinfast", "gtel", "gtinx",
+    "phòng học stem", "bộ công an", "tổng bí thư", "thứ trưởng", "đường thủy",
+    "lao xuống sông", "ts. bùi quang xuân", "khu phố biệt thương", "tình xóm giềng",
+    "iphone 2028", "thói quen chung trong khu phố"
+  ];
+  if (blockList.some((kw) => lower.includes(kw))) return false;
+
+  const allowList = [
+    "internet", "cáp quang", "wi-fi", "wifi", "modem", "mesh", "bảng giá",
+    "khuyến mãi", "gói cước", "lắp mạng", "camera", "an tâm", "ngoại hạng anh",
+    "fpt play", "fpt telecom", "hi fpt", "fgold", "cúp c1", "v.vip", "speedx",
+    "starlink", "sim fpt"
+  ];
+  return allowList.some((kw) => lower.includes(kw));
+}
+
+function cleanPostDescription(rawDesc, bodyHtml, fallbackTitle) {
+  if (rawDesc && !rawDesc.includes(GENERIC_DESC_PREFIX) && rawDesc.trim().length >= 50) {
+    return rawDesc.replace(/\s+/g, " ").trim().slice(0, 160);
+  }
+  const plain = (bodyHtml || "")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/StartFragment|EndFragment/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const candidate = plain.length >= 40 ? plain : fallbackTitle;
+  return candidate.length > 155 ? candidate.slice(0, 152).replace(/\s+\S*$/, "") + "..." : candidate;
+}
+
 // Generate single article HTML
 function generateArticleHtml(article) {
   const cleanTitle = article.title.replace(/"/g, "&quot;");
-  const cleanDesc = article.description.replace(/"/g, "&quot;");
+  const cleanDesc = cleanPostDescription(article.description, article.contentHtml, article.title).replace(/"/g, "&quot;");
   const postUrl = `https://fpttelecomvn.click/pages/posts/${article.slug}.html`;
+  const robotsRule = article.noindex
+    ? "noindex, follow"
+    : "index, follow, max-snippet:-1, max-video-preview:-1, max-image-preview:large";
 
   return `<!doctype html>
 <html lang="vi">
   <head>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
+    <!-- Google Tag Manager (Lazy Loaded for Pagespeed) -->
+    <script>
+      (function () {
+        var gtmLoaded = false;
+        function loadGTM() {
+          if (gtmLoaded) return;
+          gtmLoaded = true;
+          (function (w, d, s, l, i) {
+            w[l] = w[l] || [];
+            w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+            var f = d.getElementsByTagName(s)[0],
+              j = d.createElement(s),
+              dl = l != "dataLayer" ? "&l=" + l : "";
+            j.async = true;
+            j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+            f.parentNode.insertBefore(j, f);
+          })(window, document, "script", "dataLayer", "GTM-KWWKQ7KK");
+          ["scroll", "mousemove", "touchstart", "click"].forEach(function (e) {
+            window.removeEventListener(e, loadGTM);
+          });
+        }
+        ["scroll", "mousemove", "touchstart", "click"].forEach(function (e) {
+          window.addEventListener(e, loadGTM, { passive: true, once: true });
+        });
+        window.addEventListener("load", function () {
+          setTimeout(loadGTM, 3000);
+        });
+      })();
+    </script>
+    <!-- End Google Tag Manager -->
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/main/fptlogo.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/main/fptlogo.png" />
     <link rel="shortcut icon" href="/favicon.ico" />
@@ -115,8 +185,8 @@ function generateArticleHtml(article) {
 
     <title>${cleanTitle} | FPT Telecom</title>
     <meta name="description" content="${cleanDesc}" />
-    <meta name="robots" content="index, follow, max-snippet:-1, max-video-preview:-1, max-image-preview:large" />
-    <meta name="author" content="FPT Telecom - Đại lý ủy quyền" />
+    <meta name="robots" content="${robotsRule}" />
+    <meta name="author" content="Trần Văn Mẫn - Chuyên viên FPT Telecom" />
 
     <link rel="canonical" href="${postUrl}" />
     <link rel="alternate" hreflang="vi-VN" href="${postUrl}" />
@@ -242,9 +312,13 @@ function generateArticleHtml(article) {
       "description": "${cleanDesc}",
       "image": ["${article.image || "https://fpttelecomvn.click/assets/images/main/avata.webp"}"],
       "datePublished": "${article.dateIso || new Date().toISOString()}",
+      "dateModified": "${article.dateIso || new Date().toISOString()}",
       "author": {
-        "@type": "Organization",
-        "name": "FPT Telecom"
+        "@type": "Person",
+        "@id": "https://fpttelecomvn.click/pages/ve-chung-toi.html#author",
+        "name": "Trần Văn Mẫn",
+        "jobTitle": "Chuyên viên Tư vấn Hạ tầng & Dịch vụ FPT Telecom",
+        "url": "https://fpttelecomvn.click/pages/ve-chung-toi.html"
       },
       "publisher": {
         "@type": "Organization",
@@ -258,6 +332,7 @@ function generateArticleHtml(article) {
     </script>
   </head>
   <body>
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KWWKQ7KK" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="topbar">
       <span class="topbar-promo"><span class="pulse-dot"></span><span class="topbar-text-desktop">⚡ Ưu đãi tháng này: miễn phí lắp đặt &amp; tặng thiết bị WiFi 6</span><span class="topbar-text-mobile">⚡ Free lắp đặt &amp; tặng WiFi 6</span></span>
       <a href="tel:0358513269" class="topbar-hotline">Hotline: <b>0358 513 269</b></a>
@@ -288,7 +363,7 @@ function generateArticleHtml(article) {
         <div class="post-header">
           <div class="post-meta">
             <span>📅 ${article.dateStr || getTodayString()}</span>
-            <span>✍️ Nguồn: FPT Telecom</span>
+            <span>✍️ Biên tập: <a href="../ve-chung-toi.html" style="color: #0056d6; font-weight: 600; text-decoration: none;">Trần Văn Mẫn — Chuyên viên FPT Telecom</a></span>
           </div>
           <h1>${article.title}</h1>
         </div>
@@ -297,18 +372,27 @@ function generateArticleHtml(article) {
           ${article.contentHtml}
 
           <div class="post-cta">
-            <h3>⚡ Đăng Ký Lắp Mạng & Dịch Vụ FPT Nhận Ngay Ưu Đãi</h3>
-            <p>Khách hàng đăng ký trực tuyến hôm nay sẽ nhận được trọn bộ ưu đãi:</p>
+            <h3>⚡ Đăng Ký Lắp Mạng &amp; Dịch Vụ FPT Nhận Ngay Ưu Đãi</h3>
+            <p>Khách hàng đăng ký trực tuyến hôm nay tại đại lý ủy quyền FPT sẽ nhận được trọn bộ ưu đãi:</p>
             <ul>
               <li>🚀 <strong>Tặng Modem Wi-Fi 6</strong> thế hệ mới siêu tốc</li>
-              <li>📺 <strong>Tặng Đầu thu Box TV 4K</strong> xem trọn vẹn Ngoại hạng Anh</li>
-              <li>🎁 <strong>Miễn phí 100%</strong> công lắp đặt tận nơi</li>
-              <li>📞 <strong>Hỗ trợ kỹ thuật 24/7</strong> nhanh chóng</li>
+              <li>📺 <strong>Combo FPT Play V.VIP</strong> xem trọn vẹn Ngoại Hạng Anh &amp; Cúp C1</li>
+              <li>🎁 <strong>Miễn phí lắp đặt</strong> cho khách hàng đăng ký mới (thay vì phí hòa mạng 300.000đ)</li>
+              <li>📞 <strong>Hỗ trợ kỹ thuật 24/7</strong> nhanh chóng tại <a href="../khu-vuc.html" style="color:#0056d6;font-weight:600;">toàn bộ các khu vực hỗ trợ</a></li>
             </ul>
-            <a href="../lien-he.html" class="btn-cta-box">👉 Đăng ký tư vấn ngay</a>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px;">
+              <a href="../lien-he.html" class="btn-cta-box" style="margin-top:0;">👉 Đăng ký tư vấn ngay</a>
+              <a href="../../index.html#package-finder" style="background:#fff;color:#0056d6;border:1px solid #bfdbfe;padding:11px 18px;border-radius:8px;font-weight:700;text-decoration:none;">🔍 Tra cứu giá theo quận/huyện</a>
+            </div>
             <p style="font-weight: bold; margin-top: 14px;">
-              Hoặc gọi Hotline tư vấn miễn phí: <a href="tel:0358513269" style="color: #ea580c; text-decoration: none;">0358 513 269</a>
+              Hoặc gọi Hotline/Zalo tư vấn miễn phí: <a href="tel:0358513269" style="color: #ea580c; text-decoration: none;">0358 513 269</a>
             </p>
+            <div style="margin-top:16px;padding-top:14px;border-top:1px dashed #bfdbfe;font-size:13.5px;color:#334155;">
+              <strong>Cẩm nang liên quan:</strong>
+              <a href="../topics/lap-mang-fpt-cho-sinh-vien-gia-re.html" style="color:#0056d6;margin-right:10px;">Gói Sinh viên từ 195K</a> &bull;
+              <a href="../topics/goi-cuoc-wifi-fpt-choi-game-ping-thap.html" style="color:#0056d6;margin:0 10px;">Gói Gaming Ping thấp</a> &bull;
+              <a href="../topics/lap-wifi-cho-nha-3-tang-dat-cuc-phat-o-dau.html" style="color:#0056d6;margin-left:10px;">Đặt Wi-Fi nhà 3 tầng</a>
+            </div>
           </div>
         </div>
       </article>
@@ -362,6 +446,7 @@ function generateArticleHtml(article) {
         </div>
       </div>
     </footer>
+    <!-- Floating Actions Component -->
     <div class="floating-actions" aria-label="Liên hệ nhanh">
       <a href="tel:0358513269" class="floating-call" aria-label="Gọi hotline"
         >☎ <span>Gọi ngay</span></a
@@ -398,15 +483,6 @@ function generateArticleHtml(article) {
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
       </button>
-    </div>
-
-    <!-- CRO: Social Proof Toast -->
-    <div class="toast-notification" id="social-proof-toast">
-      <div class="toast-icon">⚡</div>
-      <div class="toast-text">
-        <b id="toast-name">Anh Khang (Q.7)</b>
-        <span id="toast-action">vừa đăng ký gói COMBO VIP</span>
-      </div>
     </div>
 
     <!-- Custom Chat Widget -->
@@ -542,48 +618,49 @@ function updateHomepageNews() {
   const $news = cheerio.load(newsHtml);
 
   const topArticles = [];
-  $news(".news-grid .news-card")
-    .slice(0, 3)
-    .each((idx, el) => {
-      const $card = $news(el);
-      let linkHref = $card.find("a").first().attr("href") || "";
-      if (linkHref.startsWith("posts/")) {
-        linkHref = "pages/" + linkHref;
-      } else if (
-        !linkHref.startsWith("http") &&
-        !linkHref.startsWith("pages/")
-      ) {
-        linkHref = "pages/posts/" + linkHref.replace(/^(\.\.\/)+/, "");
-      }
+  $news(".news-grid .news-card").each((idx, el) => {
+    if (topArticles.length >= 3) return false;
+    const $card = $news(el);
+    let linkHref = $card.find("a").first().attr("href") || "";
+    if (linkHref.startsWith("posts/")) {
+      linkHref = "pages/" + linkHref;
+    } else if (!linkHref.startsWith("http") && !linkHref.startsWith("pages/")) {
+      linkHref = "pages/posts/" + linkHref.replace(/^(\.\.\/)+/, "");
+    }
 
-      let imgSrc = $card.find("img").attr("src") || "";
-      if (imgSrc.startsWith("../assets/")) {
-        imgSrc = imgSrc.replace("../assets/", "assets/");
-      }
+    const titleText =
+      $card.find("h3 a").text().trim() || $card.find("h3").text().trim();
+    // Chỉ hiển thị trên trang chủ những bài đúng chuyên ngành Viễn thông/Internet/Camera/FPT Play
+    if (!isRelevantTelecomArticle(titleText)) return;
 
-      const imgAlt = $card.find("img").attr("alt") || "Tin tức FPT";
-      const dateText =
-        $card.find(".news-date").text().trim() || getTodayString();
-      const titleText =
-        $card.find("h3 a").text().trim() || $card.find("h3").text().trim();
-      const descText = $card
-        .find(".news-content p")
-        .not(".news-date")
-        .text()
-        .trim();
+    let imgSrc = $card.find("img").attr("src") || "";
+    if (imgSrc.startsWith("../assets/")) {
+      imgSrc = imgSrc.replace("../assets/", "assets/");
+    }
 
-      if (titleText && linkHref) {
-        topArticles.push({
-          link: linkHref,
-          image: imgSrc,
-          alt: imgAlt,
-          date: dateText,
-          title: titleText,
-          description: descText,
-          delayClass: `delay-${(idx + 1) * 100}`,
-        });
-      }
-    });
+    const imgAlt = $card.find("img").attr("alt") || "Tin tức FPT";
+    const dateText = $card.find(".news-date").text().trim() || getTodayString();
+    let descText = $card
+      .find(".news-content p")
+      .not(".news-date")
+      .text()
+      .trim();
+    if (descText.includes(GENERIC_DESC_PREFIX)) {
+      descText = titleText + " — Cập nhật chính sách và ưu đãi lắp mạng FPT mới nhất.";
+    }
+
+    if (titleText && linkHref) {
+      topArticles.push({
+        link: linkHref,
+        image: imgSrc,
+        alt: imgAlt,
+        date: dateText,
+        title: titleText,
+        description: descText,
+        delayClass: `delay-${(topArticles.length + 1) * 100}`,
+      });
+    }
+  });
 
   if (topArticles.length === 0) return;
 
@@ -664,6 +741,12 @@ function generateFullSitemap() {
       lastmod: todayIso,
     },
     {
+      loc: "https://fpttelecomvn.click/pages/ve-chung-toi.html",
+      priority: "0.9",
+      changefreq: "monthly",
+      lastmod: todayIso,
+    },
+    {
       loc: "https://fpttelecomvn.click/pages/chinh-sach.html",
       priority: "0.8",
       changefreq: "monthly",
@@ -677,9 +760,25 @@ function generateFullSitemap() {
     },
   ];
 
-  // Scan all actual post files on disk
+  // Quét các trang khu vực địa phương (Local SEO)
+  const khuVucDir = path.join(REPO_ROOT, "pages", "khu-vuc");
+  const khuVucFiles = fs.existsSync(khuVucDir)
+    ? fs.readdirSync(khuVucDir).filter((f) => f.endsWith(".html"))
+    : [];
+  const localEntries = khuVucFiles.map((file) => ({
+    loc: `https://fpttelecomvn.click/pages/khu-vuc/${file}`,
+    lastmod: todayIso,
+    changefreq: "weekly",
+    priority: "0.9",
+  }));
+
+  // Quét bài viết tin tức (chỉ giữ bài indexable, bỏ qua bài noindex ngoài chủ đề)
   const postFiles = fs.existsSync(POSTS_DIR)
-    ? fs.readdirSync(POSTS_DIR).filter((f) => f.endsWith(".html"))
+    ? fs.readdirSync(POSTS_DIR).filter((f) => {
+        if (!f.endsWith(".html")) return false;
+        const c = fs.readFileSync(path.join(POSTS_DIR, f), "utf8");
+        return !c.includes('content="noindex');
+      })
     : [];
 
   const postEntries = postFiles.map((file) => {
@@ -718,7 +817,7 @@ function generateFullSitemap() {
     };
   });
 
-  const allUrls = [...mainPages, ...topicEntries, ...postEntries];
+  const allUrls = [...mainPages, ...localEntries, ...topicEntries, ...postEntries];
 
   const xmlLines = [
     '<?xml version="1.0" encoding="UTF-8"?>',
@@ -733,17 +832,27 @@ function generateFullSitemap() {
   </url>`,
     ),
     "",
-    `  <!-- Niche Programmatic Landing Pages (${topicEntries.length} topics) -->`,
-    ...topicEntries.map(
-      (p) => `  <url>
-    <loc>${p.loc}</loc>
-    <lastmod>${p.lastmod}</lastmod>
-    <changefreq>${p.changefreq}</changefreq>
-    <priority>${p.priority}</priority>
+    `  <!-- Local SEO Regional Pages (${localEntries.length} regions) -->`,
+    ...localEntries.map(
+      (l) => `  <url>
+    <loc>${l.loc}</loc>
+    <lastmod>${l.lastmod}</lastmod>
+    <changefreq>${l.changefreq}</changefreq>
+    <priority>${l.priority}</priority>
   </url>`,
     ),
     "",
-    `  <!-- Dynamic Article & Promo Posts (${postEntries.length} articles) -->`,
+    `  <!-- Niche Programmatic Landing Pages (${topicEntries.length} topics) -->`,
+    ...topicEntries.map(
+      (t) => `  <url>
+    <loc>${t.loc}</loc>
+    <lastmod>${t.lastmod}</lastmod>
+    <changefreq>${t.changefreq}</changefreq>
+    <priority>${t.priority}</priority>
+  </url>`,
+    ),
+    "",
+    `  <!-- Dynamic Article & Promo Posts (${postEntries.length} indexable articles) -->`,
     ...postEntries.map(
       (p) => `  <url>
     <loc>${p.loc}</loc>
@@ -799,6 +908,10 @@ async function main() {
 
     // Process top 5 newest articles
     for (const item of articleLinks.slice(0, 5)) {
+      if (!isRelevantTelecomArticle(item.title)) {
+        console.log(`⏭️ Bỏ qua bài ngoài chuyên ngành viễn thông: ${item.title}`);
+        continue;
+      }
       // Create clean slug from title without random trailing numbers
       const slug = toSlug(item.title);
       const postFileName = `${slug}.html`;
@@ -834,7 +947,7 @@ async function main() {
         for (const selector of contentContainers) {
           if ($d(selector).length > 0) {
             $d(
-              `${selector} script, ${selector} style, ${selector} iframe, ${selector} form, ${selector} .g-recaptcha, ${selector} .share-box, ${selector} .tag-box, ${selector} nav, ${selector} .form_bordered, ${selector} .form-register`,
+              `${selector} script, ${selector} style, ${selector} iframe, ${selector} form, ${selector} .g-recaptcha, ${selector} .share-box, ${selector} .tag-box, ${selector} nav, ${selector} .form_bordered, ${selector} .form-register, ${selector} h1, ${selector} .toc--label-head, ${selector} .toc--sub-title`,
             ).remove();
             bodyHtml = $d(selector).html();
             break;
@@ -858,13 +971,20 @@ async function main() {
           bodyHtml = paragraphs.slice(0, 8).join("\n");
         }
 
-        // Clean any original 19006600 phone numbers or links
-        bodyHtml = bodyHtml.replace(/1900\s?6600/g, "0358 513 269");
+        // Clean any original 19006600 phone numbers, duplicate H1, and StartFragment artifacts
+        bodyHtml = bodyHtml
+          .replace(/1900\s?6600/g, "0358 513 269")
+          .replace(/<!--\s*(?:StartFragment|EndFragment)\s*-->/gi, "")
+          .replace(/\b(?:StartFragment|EndFragment)\b/gi, "")
+          .replace(/<h1\b[^>]*>[\s\S]*?<\/h1>/gi, "")
+          .replace(/<p>\s*<\/p>/gi, "");
+
+        const cleanDescStr = cleanPostDescription(pageDesc, bodyHtml, pageTitle);
 
         const articleObj = {
           title: pageTitle,
           slug: slug,
-          description: pageDesc.slice(0, 200) + "...",
+          description: cleanDescStr,
           image: ogImage.startsWith("http")
             ? ogImage
             : ogImage
@@ -874,6 +994,7 @@ async function main() {
           dateIso: new Date().toISOString(),
           contentHtml: bodyHtml,
           originalUrl: item.url,
+          noindex: false,
         };
 
         // Write article HTML

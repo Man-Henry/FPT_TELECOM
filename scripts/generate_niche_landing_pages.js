@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ==============================================================================
  * PROGRAMMATIC SEO & SCHEMA GRAPH GENERATOR ENGINE (Node.js)
  * Tự động tạo các trang ngách (Landing Pages) chuyên sâu + Schema.org @graph
@@ -20,12 +20,12 @@ if (!fs.existsSync(TOPICS_OUTPUT_DIR)) {
   fs.mkdirSync(TOPICS_OUTPUT_DIR, { recursive: true });
 }
 
-// Đọc dữ liệu
-const topics = JSON.parse(fs.readFileSync(TOPICS_JSON_PATH, "utf8"));
+// Đọc dữ liệu (xử lý an toàn UTF-8 BOM nếu có)
+const topics = JSON.parse(fs.readFileSync(TOPICS_JSON_PATH, "utf8").replace(/^\uFEFF/, ""));
 let pricingData = [];
 if (fs.existsSync(PRICING_JSON_PATH)) {
   try {
-    pricingData = JSON.parse(fs.readFileSync(PRICING_JSON_PATH, "utf8"));
+    pricingData = JSON.parse(fs.readFileSync(PRICING_JSON_PATH, "utf8").replace(/^\uFEFF/, ""));
   } catch (e) {
     pricingData = [];
   }
@@ -90,30 +90,40 @@ function generateSchemaGraph(topic, pageUrl) {
           caption: "FPT Telecom Logo",
         },
         image: { "@id": "https://fpttelecomvn.click/#logo" },
-        telephone: "+84383900321",
+        telephone: "+84358513269",
         contactPoint: [
           {
             "@type": "ContactPoint",
-            telephone: "+84383900321",
-            contactType: "sales",
+            telephone: "+84358513269",
+            contactType: "customer service",
             areaServed: "VN",
             availableLanguage: ["vi", "en"],
           },
-          {
-            "@type": "ContactPoint",
-            telephone: "+84358513269",
-            contactType: "technical support",
-            areaServed: "VN",
-            availableLanguage: ["vi"],
-          },
+        ],
+        sameAs: [
+          "https://www.facebook.com/profile.php?id=61596572759217",
+          "https://zalo.me/0358513269",
         ],
         address: {
           "@type": "PostalAddress",
           streetAddress: "107-109 Man Thiện, P. Tăng Nhơn Phú",
           addressLocality: "TP. Thủ Đức",
           addressRegion: "TP. Hồ Chí Minh",
+          postalCode: "700000",
           addressCountry: "VN",
         },
+      },
+      {
+        "@type": "Person",
+        "@id": "https://fpttelecomvn.click/pages/ve-chung-toi.html#author",
+        name: "Trần Văn Mẫn",
+        jobTitle: "Chuyên viên Tư vấn Hạ tầng & Dịch vụ FPT Telecom",
+        url: "https://fpttelecomvn.click/pages/ve-chung-toi.html",
+        worksFor: { "@id": "https://fpttelecomvn.click/#organization" },
+        sameAs: [
+          "https://www.facebook.com/profile.php?id=61596572759217",
+          "https://zalo.me/0358513269",
+        ],
       },
       {
         "@type": "WebPage",
@@ -125,9 +135,23 @@ function generateSchemaGraph(topic, pageUrl) {
         isPartOf: { "@id": "https://fpttelecomvn.click/#website" },
         breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
         about: { "@id": "https://fpttelecomvn.click/#organization" },
+        author: { "@id": "https://fpttelecomvn.click/pages/ve-chung-toi.html#author" },
         inLanguage: "vi-VN",
         datePublished: "2026-08-01T08:00:00+07:00",
         dateModified: new Date().toISOString(),
+      },
+      {
+        "@type": "Article",
+        "@id": `${pageUrl}#article`,
+        mainEntityOfPage: { "@id": `${pageUrl}#webpage` },
+        headline: topic.h1,
+        description: topic.meta_desc,
+        image: ["https://fpttelecomvn.click/assets/images/main/avata.webp"],
+        author: { "@id": "https://fpttelecomvn.click/pages/ve-chung-toi.html#author" },
+        publisher: { "@id": "https://fpttelecomvn.click/#organization" },
+        datePublished: "2026-08-01T08:00:00+07:00",
+        dateModified: new Date().toISOString(),
+        inLanguage: "vi-VN",
       },
       {
         "@type": "BreadcrumbList",
@@ -164,6 +188,7 @@ function generateSchemaGraph(topic, pageUrl) {
         "@id": `${pageUrl}#product`,
         name: pkgName,
         description: topic.meta_desc,
+        image: "https://fpttelecomvn.click/assets/images/main/wifi6.webp",
         brand: { "@id": "https://fpttelecomvn.click/#organization" },
         sku: topic.id,
         offers: {
@@ -174,13 +199,6 @@ function generateSchemaGraph(topic, pageUrl) {
           url: pageUrl,
           priceValidUntil: "2026-12-31",
           seller: { "@id": "https://fpttelecomvn.click/#organization" },
-        },
-        aggregateRating: {
-          "@type": "AggregateRating",
-          ratingValue: "4.9",
-          reviewCount: "135",
-          bestRating: "5",
-          worstRating: "1",
         },
       },
     ],
@@ -254,8 +272,10 @@ function generateLandingPageHtml(topic) {
     )
     .join("\n");
 
-  // Render danh sách chủ đề liên quan (Internal Links)
-  const otherTopics = topics.filter((t) => t.id !== topic.id).slice(0, 4);
+  // Render danh sách chủ đề liên quan (Internal Links) — ưu tiên cùng chuyên mục + tổng hợp 6 bài liên quan
+  const sameCat = topics.filter((t) => t.id !== topic.id && t.category === topic.category);
+  const diffCat = topics.filter((t) => t.id !== topic.id && t.category !== topic.category);
+  const otherTopics = [...sameCat, ...diffCat].slice(0, 6);
   const relatedTopicsHtml = otherTopics
     .map(
       (t) => `
@@ -269,9 +289,6 @@ function generateLandingPageHtml(topic) {
   return `<!doctype html>
 <html lang="vi">
   <head>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
     <!-- Google Tag Manager (Lazy Loaded) -->
     <script>
       (function () {
@@ -303,12 +320,12 @@ function generateLandingPageHtml(topic) {
     </script>
     <!-- End Google Tag Manager -->
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>${escapeHtml(topic.title)} | FPT Telecom</title>
     <meta name="description" content="${escapeHtml(topic.meta_desc)}" />
     <meta name="keywords" content="${escapeHtml(topic.target_keyword)}, fpt telecom, lắp mạng fpt 2026, wifi fpt" />
     <meta name="robots" content="index, follow, max-snippet:-1, max-video-preview:-1, max-image-preview:large" />
-    <meta name="author" content="FPT Telecom - Đại lý ủy quyền" />
+    <meta name="author" content="Trần Văn Mẫn - Chuyên viên FPT Telecom" />
 
     <link rel="canonical" href="${pageUrl}" />
     <link rel="alternate" hreflang="vi-VN" href="${pageUrl}" />
@@ -744,8 +761,15 @@ ${schemaJson}
 
       <!-- Phân tích chuyên sâu & Hướng dẫn kỹ thuật (Chống Duplicate Content) -->
       <div class="deep-content-box">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:20px;font-size:13px;color:#475569;">
+          <div>✍️ Biên soạn &amp; kiểm duyệt: <a href="../ve-chung-toi.html" style="color:#0056d6;font-weight:700;text-decoration:none;">Trần Văn Mẫn — Chuyên viên FPT Telecom</a></div>
+          <div>📍 Đại lý ủy quyền: 107-109 Man Thiện, TP. Thủ Đức • ☎ <a href="tel:0358513269" style="color:#ea580c;font-weight:700;text-decoration:none;">0358 513 269</a></div>
+        </div>
         <h2 style="color:#071b42;font-size:22px;font-weight:800;margin-top:0;">Phân Tích Chi Tiết &amp; Lời Khuyên Chuyên Gia FPT</h2>
         ${topic.deep_content || ""}
+        <div style="margin-top:24px;padding:14px 18px;background:#eff6ff;border-left:4px solid #0056d6;border-radius:8px;font-size:13.5px;color:#1e293b;">
+          💡 <strong>Lưu ý về giá theo khu vực:</strong> Giá cước thay đổi tùy khu vực Nội thành / Ngoại thành TP.HCM, Bình Dương, Đồng Nai, Vũng Tàu hoặc Tiền Giang - Đồng Tháp. Xem chi tiết tại <a href="../khu-vuc.html" style="color:#0056d6;font-weight:700;">Trang Khu vực</a> hoặc <a href="../../index.html#package-finder" style="color:#0056d6;font-weight:700;">Công cụ tra cứu giá theo địa chỉ</a>.
+        </div>
       </div>
 
       <!-- Khối FAQ Accordion chuẩn Schema FAQPage -->
@@ -892,6 +916,7 @@ ${schemaJson}
             <h4 class="footer-col-title">Hỗ trợ khách hàng</h4>
             <ul class="footer-link-list">
               <li><a href="../chinh-sach.html">Chính sách gói cước</a></li>
+              <li><a href="../ve-chung-toi.html">Về chúng tôi (E-E-A-T)</a></li>
               <li><a href="../news.html">Tin tức</a></li>
               <li><a href="../lien-he.html">Liên hệ</a></li>
             </ul>
@@ -910,24 +935,11 @@ ${schemaJson}
               </svg>
               <span>0358 513 269</span>
             </a>
-            <a href="tel:0358513269" class="footer-hotline-btn">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.02l-2.2 2.2z"
-                />
-              </svg>
-              <span>0358 513 269</span>
-            </a>
           </div>
         </div>
         <div class="footer-bottom">
-          <span>© 2026 FPT Telecom. All rights reserved.</span>
-          <span>Bản quyền thuộc về Trần Văn Mẫn - ManHenry.</span>
+          <span>© 2026 FPT Telecom - Đại lý ủy quyền.</span>
+          <span>Phụ trách nội dung: <a href="../ve-chung-toi.html" style="color:#cbd8ef;text-decoration:underline;">Trần Văn Mẫn</a>.</span>
         </div>
       </div>
     </footer>
@@ -969,15 +981,6 @@ ${schemaJson}
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
       </button>
-    </div>
-
-    <!-- CRO: Social Proof Toast -->
-    <div class="toast-notification" id="social-proof-toast">
-      <div class="toast-icon">⚡</div>
-      <div class="toast-text">
-        <b id="toast-name">Anh Khang (Q.7)</b>
-        <span id="toast-action">vừa đăng ký gói COMBO VIP</span>
-      </div>
     </div>
 
     <!-- Custom Chat Widget -->
@@ -1122,14 +1125,31 @@ function updateSitemap(generatedSlugs) {
     { loc: "https://fpttelecomvn.click/pages/bang-gia.html", priority: "0.9", changefreq: "weekly" },
     { loc: "https://fpttelecomvn.click/pages/khu-vuc.html", priority: "0.9", changefreq: "weekly" },
     { loc: "https://fpttelecomvn.click/pages/news.html", priority: "0.9", changefreq: "daily" },
+    { loc: "https://fpttelecomvn.click/pages/ve-chung-toi.html", priority: "0.9", changefreq: "monthly" },
     { loc: "https://fpttelecomvn.click/pages/chinh-sach.html", priority: "0.8", changefreq: "monthly" },
     { loc: "https://fpttelecomvn.click/pages/lien-he.html", priority: "0.9", changefreq: "monthly" },
   ];
 
-  // Quét bài viết tin tức
+  // Quét các trang khu vực địa phương (Local SEO)
+  const khuVucDir = path.join(ROOT_DIR, "pages", "khu-vuc");
+  const khuVucFiles = fs.existsSync(khuVucDir)
+    ? fs.readdirSync(khuVucDir).filter((f) => f.endsWith(".html"))
+    : [];
+  const localEntries = khuVucFiles.map((f) => ({
+    loc: `https://fpttelecomvn.click/pages/khu-vuc/${f}`,
+    lastmod: todayIso,
+    changefreq: "weekly",
+    priority: "0.9",
+  }));
+
+  // Quét bài viết tin tức (bỏ qua bài noindex nếu có)
   const postsDir = path.join(ROOT_DIR, "pages", "posts");
   const postFiles = fs.existsSync(postsDir)
-    ? fs.readdirSync(postsDir).filter((f) => f.endsWith(".html"))
+    ? fs.readdirSync(postsDir).filter((f) => {
+        if (!f.endsWith(".html")) return false;
+        const c = fs.readFileSync(path.join(postsDir, f), "utf8");
+        return !c.includes('content="noindex');
+      })
     : [];
 
   const postEntries = postFiles.map((f) => ({
@@ -1149,6 +1169,7 @@ function updateSitemap(generatedSlugs) {
 
   const allEntries = [
     ...mainPages.map((p) => ({ ...p, lastmod: todayIso })),
+    ...localEntries,
     ...topicEntries,
     ...postEntries,
   ];
@@ -1167,6 +1188,18 @@ ${mainPages
   )
   .join("\n")}
 
+  <!-- Local SEO Regional Pages (${localEntries.length} regions) -->
+${localEntries
+  .map(
+    (l) => `  <url>
+    <loc>${l.loc}</loc>
+    <lastmod>${l.lastmod}</lastmod>
+    <changefreq>${l.changefreq}</changefreq>
+    <priority>${l.priority}</priority>
+  </url>`,
+  )
+  .join("\n")}
+
   <!-- Niche Programmatic Landing Pages (${topicEntries.length} topics) -->
 ${topicEntries
   .map(
@@ -1179,7 +1212,7 @@ ${topicEntries
   )
   .join("\n")}
 
-  <!-- Dynamic News & Promotion Articles (${postEntries.length} articles) -->
+  <!-- Dynamic News & Promotion Articles (${postEntries.length} indexable articles) -->
 ${postEntries
   .map(
     (p) => `  <url>

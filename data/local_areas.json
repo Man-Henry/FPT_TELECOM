@@ -1,0 +1,238 @@
+[
+  {
+    "id": "local_hcm",
+    "slug": "lap-mang-fpt-tp-hcm",
+    "region_name": "TP. Hồ Chí Minh",
+    "short_name": "TP.HCM",
+    "title": "Lắp Mạng FPT TP.HCM Tháng 8/2026: Bảng Giá Nội Thành & Ngoại Thành Từ 200K",
+    "h1": "Lắp Mạng Internet FPT TP. Hồ Chí Minh: Phân Vùng & Bảng Giá Mới Nhất",
+    "meta_desc": "Bảng giá lắp mạng FPT tại TP.HCM áp dụng từ 01/08/2026: Ngoại thành (Q5, Q6, Q8, Q9, Gò Vấp, Bình Tân, Q12, Huyện) từ 200K/tháng; Nội thành từ 255K/tháng. Miễn phí lắp đặt.",
+    "badge": "Áp Dụng Từ 01/08/2026 • TP.HCM",
+    "intro": "Tại TP. Hồ Chí Minh, giá cước Internet FPT được chia làm 2 mức Nội thành và Ngoại thành. Đặc biệt nhiều quận nội đô như Quận 5, Quận 6, Quận 8, Gò Vấp, Bình Tân được áp dụng giá Ngoại thành tiết kiệm hơn từ 45.000đ - 55.000đ/tháng.",
+    "address_hint": "Ví dụ: Số nhà, đường, Phường, Quận (Q.7, Gò Vấp, Bình Tân...)",
+    "office": "107-109 Man Thiện, P. Tăng Nhơn Phú, TP. Thủ Đức & hệ thống điểm giao dịch khắp 22 quận/huyện TP.HCM",
+    "highlights": [
+      "Giga 300Mbps Ngoại thành chỉ 200.000đ/tháng (Nội thành 255.000đ)",
+      "Sky 1Gbps Ngoại thành 205.000đ/tháng (Nội thành 265.000đ)",
+      "Combo Sky V.VIP Ngoại Hạng Anh Ngoại thành 239K / Nội thành 269K",
+      "Miễn phí lắp đặt cho khách mới (thay vì phí hòa mạng 300K) + Voucher 200K"
+    ],
+    "zone_breakdown": "<h3>1. Cách phân biệt Nội thành &amp; Ngoại thành TP.HCM (Tránh báo nhầm giá)</h3><ul><li><strong>Khu vực Nội thành TP.HCM:</strong> Quận 1, Quận 3, Quận 4, Quận 7, Quận 10, Quận 11, Tân Bình, Tân Phú, Phú Nhuận, Bình Thạnh và khu vực <strong>Quận 2 cũ</strong> (thuộc TP. Thủ Đức).</li><li><strong>Khu vực Ngoại thành TP.HCM (Giá rẻ hơn):</strong> Quận 5, Quận 6, Quận 8, Quận 9, Quận 12, Bình Tân, Gò Vấp, khu <strong>Quận Thủ Đức cũ</strong>, Huyện Bình Chánh, Hóc Môn, Củ Chi, Nhà Bè, Cần Giờ.</li></ul><p><em>Lưu ý quan trọng:</em> Các quận 5, 6, 8, 9, Gò Vấp, Bình Tân dù mang tên \"Quận\" nhưng vẫn được hưởng chính sách giá <strong>Ngoại thành TP.HCM</strong> rất tiết kiệm.</p>",
+    "pricing_rows": [
+      ["Giga (300 Mbps)", "255.000đ", "200.000đ", "Wi-Fi 6 hai băng tần"],
+      ["Giga Combo Cam / V.VIP (APP)", "255.000đ (Cam)", "220.000đ", "V.VIP Box Ngoại thành +550k Box"],
+      ["Sky (1 Gbps / 300 Mbps)", "265.000đ", "205.000đ", "Bán chạy nhất gia đình/trọ"],
+      ["Sky V.VIP APP / BOX (Ngoại Hạng Anh)", "269.000đ", "239.000đ", "Box tính 550k cho gói có Box"],
+      ["Sky Triple (Net + TV + Cam 1 0đ)", "304.000đ", "249.000đ", "Cam 1: 0đ; Cam 2+: 400k"],
+      ["Meta (1 Gbps Đối Xứng)", "345.000đ", "300.000đ", "V.VIP 369k (Nội) / 339k (Ngoại)"]
+    ],
+    "notes": "Giá đã gồm VAT. Khuyến mãi tháng 8/2026: miễn phí lắp đặt thay vì quy định chung 300.000đ; gói V.VIP Box và Triple Box phụ thu Box 550.000đ. Camera Cloud hàng tháng từ 35.000đ - 100.000đ tùy gói lưu trữ.",
+    "faqs": [
+      {
+        "q": "Ở Quận 5, Quận 6, Quận 8, Gò Vấp, Bình Tân có được tính giá Ngoại thành TP.HCM không?",
+        "a": "Có. Theo bảng giá chính sách từ 01/08/2026 tại TP.HCM, Quận 5, 6, 8, 9, 12, Bình Tân, Gò Vấp, khu Thủ Đức cũ và 5 huyện ngoại thành đều áp dụng khung giá Ngoại thành (Giga 200.000đ/tháng, Sky 205.000đ/tháng)."
+      },
+      {
+        "q": "Phí đầu thu Box và Camera khi lắp Combo tại TP.HCM tính thế nào?",
+        "a": "Với gói Combo có Box (V.VIP BOX, Triple BOX), phí Box là 550.000đ; riêng chọn bản V.VIP APP cài trên Smart TV không tốn phí Box. Với gói có Camera, Camera đầu tiên được tặng 0đ (Cam 2 trở đi 400.000đ) kèm cước Cloud lưu trữ hàng tháng từ 35.000đ - 100.000đ."
+      },
+      {
+        "q": "Đăng ký lắp mạng FPT tại TP.HCM bao lâu kỹ thuật xuống kéo cáp?",
+        "a": "Kỹ thuật viên FPT Telecom tại các trung tâm quận/huyện TP.HCM sẽ liên hệ khảo sát và triển khai kéo cáp hoàn tất trong ngày hoặc tối đa 24h - 48h sau khi ký hợp đồng điện tử."
+      }
+    ]
+  },
+  {
+    "id": "local_thuduc",
+    "slug": "lap-mang-fpt-thu-duc",
+    "region_name": "TP. Thủ Đức",
+    "short_name": "TP. Thủ Đức",
+    "title": "Lắp Mạng FPT TP. Thủ Đức 2026: Điểm Giao Dịch Man Thiện, Giá Từ 200K",
+    "h1": "Lắp Mạng FPT TP. Thủ Đức: Khác Biệt Khu Q2 Cũ vs Q9 &amp; Thủ Đức Cũ",
+    "meta_desc": "Đăng ký lắp wifi FPT tại TP. Thủ Đức: khu Quận 9 cũ, Thủ Đức cũ giá Ngoại thành từ 200K/tháng; khu Quận 2 cũ giá Nội thành từ 255K/tháng. Văn phòng tiếp nhận 107-109 Man Thiện.",
+    "badge": "Văn Phòng Đại Lý 107-109 Man Thiện • Thủ Đức",
+    "intro": "TP. Thủ Đức là địa bàn đặc thù có 2 khung giá khác nhau tùy phường thuộc khu vực Quận 2 cũ hay Quận 9 / Thủ Đức cũ. Điểm tiếp nhận đại lý trực tiếp đặt tại 107-109 Man Thiện giúp xử lý khảo sát chung cư, nhà phố, dãy trọ siêu tốc trong ngày.",
+    "address_hint": "Ví dụ: Vinhomes Grand Park, Đường Man Thiện, Kha Vạn Cân, Thảo Điền...",
+    "office": "107-109 Man Thiện, P. Tăng Nhơn Phú, TP. Thủ Đức, TP. Hồ Chí Minh (Hotline: 0358 513 269)",
+    "highlights": [
+      "Khu Q9 cũ & Q. Thủ Đức cũ áp giá Ngoại thành từ 200K/tháng",
+      "Khu Thảo Điền, An Phú, Thủ Thiêm (Q2 cũ) áp giá Nội thành từ 255K/tháng",
+      "Hỗ trợ nhanh các khu dân cư Vinhomes Grand Park, Làng Đại học, Man Thiện",
+      "Miễn phí lắp đặt + Tặng Modem Wi-Fi 6 hai băng tần"
+    ],
+    "zone_breakdown": "<h3>1. Xác định đúng vùng giá khi lắp mạng ở TP. Thủ Đức</h3><ul><li><strong>Nhóm Ngoại thành (từ 200.000đ/tháng):</strong> Toàn bộ các phường thuộc khu vực <strong>Quận 9 cũ</strong> (Tăng Nhơn Phú, Long Bình, Long Thạnh Mỹ, Phước Long, Hiệp Phú, Phú Hữu...) và khu vực <strong>Quận Thủ Đức cũ</strong> (Linh Trung, Linh Xuân, Hiệp Bình Chánh, Tam Bình, Trường Thọ...).</li><li><strong>Nhóm Nội thành (từ 255.000đ/tháng):</strong> Các phường thuộc khu vực <strong>Quận 2 cũ</strong> (Thảo Điền, An Phú, Bình Trưng, Cát Lái, Thủ Thiêm...).</li></ul><p>Nhân viên tư vấn tại văn phòng Man Thiện sẽ đối chiếu đúng tên phường và mã hạ tầng chung cư/tuyến đường trước khi lên hợp đồng điện tử.</p>",
+    "pricing_rows": [
+      ["Giga (300 Mbps)", "255.000đ", "200.000đ", "Ký bằng CCCD không cần hộ khẩu"],
+      ["Sky (1 Gbps / 300 Mbps)", "265.000đ", "205.000đ", "Khuyên dùng phòng trọ & chung cư"],
+      ["Sky V.VIP APP (FPT Play Ngoại Hạng Anh)", "269.000đ", "239.000đ", "Xem trên Smart TV không cần Box"],
+      ["Sky Triple (Net + FPT Play + Camera)", "304.000đ", "249.000đ", "Cam 1: 0đ + Cloud từ 35k/tháng"],
+      ["Meta (1 Gbps Đối Xứng)", "345.000đ", "300.000đ", "Tối ưu nhà nhiều tầng, livestream"]
+    ],
+    "notes": "Đặc biệt sinh viên Làng Đại học Quốc gia (Linh Trung) và khu công nghệ cao (Man Thiện, Lê Văn Việt) chỉ cần ảnh chụp CCCD chính chủ, được miễn phí hòa mạng 300K.",
+    "faqs": [
+      {
+        "q": "Chung cư tại TP. Thủ Đức (Vinhomes Grand Park, Safira, Masteri...) có bị độc quyền nhà mạng không?",
+        "a": "FPT Telecom đã có hạ tầng cáp quang tại phần lớn chung cư lớn ở TP. Thủ Đức. Bạn chỉ cần nhắn tên chung cư và mã căn qua Zalo 0358 513 269 để nhân viên kiểm tra cổng quang trực tiếp trong 5 phút."
+      },
+      {
+        "q": "Nhà nhiều tầng tại Thủ Đức lắp thêm bộ phát Mesh tính phí sao?",
+        "a": "Bạn có thể lắp thêm modem phụ với mức +20.000đ/tháng/modem (yêu cầu trả trước từ 3 tháng) hoặc chọn các gói F1/F2/F3 đi kèm Access Point chính hãng."
+      }
+    ]
+  },
+  {
+    "id": "local_binhduong",
+    "slug": "lap-mang-fpt-binh-duong",
+    "region_name": "Bình Dương",
+    "short_name": "Bình Dương",
+    "title": "Lắp Mạng FPT Bình Dương 2026: Thủ Dầu Một, Dĩ An, Thuận An Từ 195K",
+    "h1": "Lắp Mạng Internet FPT Bình Dương: Bảng Giá 8 Phường Trung Tâm &amp; Khu Vực Xã",
+    "meta_desc": "Bảng giá lắp wifi FPT tại Bình Dương (Thủ Dầu Một, Dĩ An, Thuận An, Bến Cát, Tân Uyên) từ 195.000đ/tháng. Tặng Camera AI hoặc Access Point Mesh Wi-Fi 6 khi trả trước.",
+    "badge": "Chính Sách Bình Dương • Từ 195K/Tháng",
+    "intro": "Tại Bình Dương, FPT Telecom triển khai hạ tầng rộng khắp các khu công nghiệp, khu dân cư và nhà trọ từ Thủ Dầu Một, Dĩ An, Thuận An đến Tân Uyên, Bến Cát với mức giá từ 195.000đ/tháng cùng chính sách tặng Camera AI hoặc Mesh Wi-Fi 6 cực kỳ hấp dẫn.",
+    "address_hint": "Ví dụ: P. Dĩ An, P. Lái Thiêu, P. Phú Lợi, KCN VSIP, Bến Cát...",
+    "office": "Tiếp nhận đăng ký & khảo sát hạ tầng toàn tỉnh Bình Dương (Hotline: 0358 513 269)",
+    "highlights": [
+      "Gói SKY 1Gbps/300Mbps chỉ 195.000đ/tháng (cả Phường và Xã)",
+      "Trả trước 6 tháng tặng thêm 01 Access Point Wi-Fi 6 / Mesh",
+      "Combo Cam khu vực Xã từ 205K tặng 1 Camera AI (Phí Cloud 35k-100k)",
+      "Hỗ trợ nhanh thủ tục cho công nhân, hộ kinh doanh, dãy trọ KCN"
+    ],
+    "zone_breakdown": "<h3>1. Phân vùng Phường &amp; Xã tại Bình Dương</h3><ul><li><strong>8 Phường trung tâm:</strong> Bình Dương, Chánh Hiệp, Đông Hòa, Lái Thiêu, Phú An, Phú Lợi, Tân Đông Hiệp, Thủ Dầu Một.</li><li><strong>Khu vực Xã (các phường/xã còn lại):</strong> Bến Cát, Tân Uyên, An Phú, Thuận Giao, Dĩ An, Hòa Lợi, Bàu Bàng, Phú Giáo, Dầu Tiếng...</li></ul><p><strong>Lưu ý phí lắp đặt trả sau tại 4 khu vực đặc thù:</strong> Riêng khách hàng đăng ký hình thức <em>trả sau</em> tại <strong>An Phú, Thuận Giao, Dĩ An, Hòa Lợi</strong> có mức phí lắp đặt 500.000đ (chọn trả trước 6 tháng được miễn phí và tặng kèm AP Mesh).</p>",
+    "pricing_rows": [
+      ["Sky Net Only (1 Gbps / 300 Mbps)", "195.000đ", "195.000đ", "Phù hợp gia đình, phòng trọ"],
+      ["F-Game (Tối ưu Gaming)", "229.000đ", "225.000đ", "Định tuyến giảm ping chơi game"],
+      ["Combo VIP (Box 100k) - Sky", "215.000đ", "215.000đ", "Chính sách hiện hành 219k"],
+      ["Combo V.VIP (Box 0đ) - Sky", "279.000đ (HH 239k)", "269.000đ (HH 239k)", "Trọn vẹn Ngoại Hạng Anh"],
+      ["Combo Cam / Triple Cam - Sky (Xã)", "Theo chính sách đề xuất", "205.000đ / 225.000đ", "Tặng 1 Cam + Cloud từ 35k/tháng"],
+      ["Meta Net (1 Gbps Đối Xứng)", "330.000đ", "330.000đ", "Đề xuất 340k tặng 1 Cam + TT6T AP"]
+    ],
+    "notes": "Khách hàng đóng trước 6 tháng được tặng ngay 01 Access Point Wi-Fi 6/Mesh. Khách hàng mua thêm Box/Mesh thứ 2 áp dụng +300.000đ (nếu trả sau) hoặc chọn gói Fx (+30k/tháng từ 6 tháng).",
+    "faqs": [
+      {
+        "q": "Tại Dĩ An, Thuận Giao, An Phú, Hòa Lợi Bình Dương nên đóng trả sau hay trả trước 6 tháng?",
+        "a": "Tại 4 phường này, nếu đóng trả sau phí hòa mạng là 500.000đ. Vì vậy chọn đóng trước từ 6 tháng trở lên giúp bạn tiết kiệm đáng kể, vừa miễn phí hòa mạng vừa được tặng thêm Access Point Wi-Fi 6."
+      },
+      {
+        "q": "Combo Camera ở Bình Dương có mất thêm phí hàng tháng không?",
+        "a": "Các gói tặng Camera vẫn cần tính phí dịch vụ Cloud lưu trữ hàng tháng (từ 35.000đ/tháng gói 7 ngày đến 70.000đ/tháng gói 30 ngày cho 1 camera, hoặc gói Unlimited 50k–100k)."
+      }
+    ]
+  },
+  {
+    "id": "local_dongnai",
+    "slug": "lap-mang-fpt-dong-nai",
+    "region_name": "Đồng Nai",
+    "short_name": "Đồng Nai",
+    "title": "Lắp Mạng FPT Đồng Nai 2026: Biên Hòa, Long Thành, Nhơn Trạch Từ 195K",
+    "h1": "Lắp Mạng Internet FPT Đồng Nai: Bảng Giá DNI1 &amp; DNI2/3/4 Mới Nhất",
+    "meta_desc": "Đăng ký lắp đặt wifi FPT tại Đồng Nai (Biên Hòa, Long Thành, Nhơn Trạch, Trảng Bom) từ 195.000đ/tháng. Voucher TT3T-TT12T đến 200K, nhân 3 băng thông lên tới 1Gbps.",
+    "badge": "Chính Sách Đồng Nai • Từ 195K/Tháng",
+    "intro": "FPT Telecom Đồng Nai triển khai cáp quang siêu tốc với mức cước chỉ từ 195.000đ/tháng cho gói SKY 1Gbps/300Mbps tại TP. Biên Hòa, Long Thành, Nhơn Trạch, Trảng Bom và các huyện, kèm ưu đãi Voucher trả trước 100K–200K.",
+    "address_hint": "Ví dụ: Long Bình, Hố Nai, Tam Phước, Phước Tân, Long Thành, Nhơn Trạch...",
+    "office": "Hỗ trợ triển khai tại TP. Biên Hòa và 100% huyện/thị xã tỉnh Đồng Nai (Hotline: 0358 513 269)",
+    "highlights": [
+      "Sky Net 1Gbps/300Mbps đồng giá chỉ 195.000đ/tháng",
+      "F-Game chuyên game thủ chỉ 225.000đ/tháng",
+      "Combo Sky V.VIP 12 tháng đầu chỉ 239.000đ/tháng (Box 0đ)",
+      "Voucher trả trước: TT3T giảm 100K, TT6T giảm 150K, TT12T giảm 200K"
+    ],
+    "zone_breakdown": "<h3>1. Phân vùng DNI1 và DNI2,3,4 tại Đồng Nai</h3><ul><li><strong>Khu vực DNI1:</strong> Long Bình, Hố Nai, Tam Phước, Phước Tân.</li><li><strong>Khu vực DNI2, 3, 4:</strong> Các khu vực còn lại tại Biên Hòa và huyện Nhơn Trạch, Long Thành, Bình An, Đại Phước, Trảng Bom, Xuân Lộc, Định Quán...</li></ul><p><strong>Phụ phí đặc thù cần lưu ý trước khi lắp:</strong> Nhà trọ đăng ký <em>trả sau</em> ở vùng DNI1, DNI2 phụ thu +200.000đ; điểm lắp vượt cáp &gt;500m phụ thu +200.000đ.</p>",
+    "pricing_rows": [
+      ["Sky Net (1 Gbps / 300 Mbps)", "195.000đ", "195.000đ", "Trả trước tặng voucher 100K-200K"],
+      ["F-Game (1 Gbps / 300 Mbps)", "225.000đ", "225.000đ", "Tối ưu cho game thủ"],
+      ["Combo VIP APP (Sky / F-Game)", "210.000đ / 255.000đ", "205.000đ / 255.000đ", "Meta VIP APP 320.000đ"],
+      ["Combo VIP Box (Box 100k) - Sky", "220.000đ", "215.000đ", "Meta VIP Box 320.000đ"],
+      ["Combo V.VIP (Box 0đ) - Sky", "239.000đ (12T đầu)", "239.000đ (12T đầu)", "Meta V.VIP 369k chỉ áp DNI1"],
+      ["Triple T.T V.VIP (Box 0đ, Cam 1 0đ)", "249.000đ (12T đầu)", "249.000đ (12T đầu)", "Tặng Cam + Box, Cloud tính riêng"]
+    ],
+    "notes": "Gói Fx kèm Access Point trị giá 880K: F1 = 1 AP (từ TT3T), F2 = 2 AP (từ TT6T), F3 = 3 AP (từ TT12T). Gói V.VIP giảm giá 12 tháng đầu (Sky 269k→239k, Meta 399k→369k), sau 12 tháng về giá niêm yết.",
+    "faqs": [
+      {
+        "q": "Nhà trọ ở Long Bình, Hố Nai, Tam Phước, Nhơn Trạch có phụ phí không?",
+        "a": "Với địa chỉ nhà trọ đăng ký trả sau tại khu vực DNI1 và DNI2 sẽ có phụ phí 200.000đ. Bạn có thể chọn trả trước từ 3 tháng để tối ưu chi phí và nhận thêm voucher giảm 100.000đ–200.000đ."
+      },
+      {
+        "q": "Chi phí lắp Combo V.VIP Box ở Đồng Nai hết bao nhiêu?",
+        "a": "Combo Sky V.VIP 12 tháng đầu là 239.000đ/tháng và đầu thu Box được hỗ trợ giá 0đ (tiết kiệm so với phí Box thông thường)."
+      }
+    ]
+  },
+  {
+    "id": "local_vungtau",
+    "slug": "lap-mang-fpt-vung-tau",
+    "region_name": "Bà Rịa - Vũng Tàu",
+    "short_name": "Vũng Tàu",
+    "title": "Lắp Mạng FPT Vũng Tàu 2026: Bảng Giá Khu Vực Phường &amp; Xã Từ 195K",
+    "h1": "Lắp Mạng Internet FPT Bà Rịa - Vũng Tàu: Chính Sách Phường vs Xã",
+    "meta_desc": "Bảng giá lắp wifi FPT tại Bà Rịa - Vũng Tàu mới nhất 2026: Khu vực Xã từ 195K/tháng; Khu vực Phường gói VIP F1 255K (tặng Camera), V.VIP 269K, F-GAME 250K.",
+    "badge": "Chính Sách Bà Rịa - Vũng Tàu",
+    "intro": "Bà Rịa - Vũng Tàu áp dụng chính sách riêng cho nhóm SKY Phường (tập trung các gói hệ sinh thái VIP/V.VIP có Camera và FPT Play cho gia đình, homestay) và SKY Xã với gói Net giá cực tốt từ 195.000đ/tháng.",
+    "address_hint": "Ví dụ: P. Thắng Tam, P. 8 TP. Vũng Tàu, TP. Bà Rịa, TX. Phú Mỹ, Long Điền...",
+    "office": "Hỗ trợ lắp đặt tại TP. Vũng Tàu, TP. Bà Rịa, TX. Phú Mỹ và các huyện (Hotline: 0358 513 269)",
+    "highlights": [
+      "Khu vực Xã: SKY Net chỉ 195.000đ/tháng, Combo VIP APP 205K",
+      "Khu vực Phường: SKY VIP F1 Hệ sinh thái chỉ 255.000đ/tháng (tặng Camera)",
+      "Gói V.VIP xem Ngoại Hạng Anh đồng giá 269.000đ/tháng (đã gồm Box)",
+      "Gói F-GAME 250K & META 1Gbps đối xứng 300K áp dụng chung"
+    ],
+    "zone_breakdown": "<h3>1. Lưu ý cực quan trọng khi chọn gói SKY tại Vũng Tàu</h3><ul><li><strong>Khu vực SKY Phường:</strong> Không bán các gói đơn lẻ/cơ bản (Net Only, VIP-AP, VIP-Box). Khách hàng đăng ký nhóm gói Hệ sinh thái chất lượng cao: <strong>VIP F1 255K (tặng Camera)</strong>, <strong>V.VIP 269K</strong> hoặc <strong>Triple V.VIP + Cam 279K</strong>.</li><li><strong>Khu vực SKY Xã:</strong> Mở bán đầy đủ từ <strong>SKY Net 195K</strong>, VIP-AP 205K, VIP-Box 225K, Combo Cam 225K đến các gói V.VIP.</li><li><strong>F-GAME &amp; META:</strong> Áp dụng bảng giá đồng nhất cho cả Phường và Xã.</li></ul>",
+    "pricing_rows": [
+      ["Sky Net Only (1 Gbps / 300 Mbps)", "Không áp dụng (xem F-Game/VIP F1)", "195.000đ", "Miễn phí lắp đặt khách mới"],
+      ["Sky VIP Hệ Sinh Thái F1 (Tặng Cam)", "255.000đ", "255.000đ", "Tặng kèm Camera (Cloud tính riêng)"],
+      ["Sky V.VIP (Gồm Box Ngoại Hạng Anh)", "269.000đ", "269.000đ", "Không phụ thu phí Box"],
+      ["Sky Triple V.VIP + Camera", "279.000đ", "279.000đ", "Trọn bộ Internet + TV + Cam"],
+      ["F-Game (Gaming 1 Gbps / 300 Mbps)", "250.000đ", "250.000đ", "VIP-AP 260K / VIP-Box 270K"],
+      ["Meta (1 Gbps Đối Xứng)", "300.000đ", "300.000đ", "VIP-AP 310K / VIP-Box 320K"]
+    ],
+    "notes": "Khách hàng đăng ký mới hiện được miễn phí lắp đặt thay vì quy định 300.000đ. Thiết bị lắp thêm (AP/Camera ngoài khuyến mãi): 500.000đ/thiết bị. Homestay/nhà nghỉ nên chọn VIP F1 hoặc Meta để đảm bảo phủ sóng và an ninh.",
+    "faqs": [
+      {
+        "q": "Tại sao ở trung tâm phường Vũng Tàu không đăng ký được gói Sky Net 195k?",
+        "a": "Khu vực Phường tại Vũng Tàu áp dụng gói Hệ sinh thái (như VIP F1 255K tặng Camera hoặc V.VIP 269K có Truyền hình) hoặc các gói F-Game 250K / Meta 300K. Chính sách 195K chỉ mở cho khu vực Xã."
+      },
+      {
+        "q": "Phí Box cho gói V.VIP tại Vũng Tàu có phải đóng thêm 550k không?",
+        "a": "Không. Tại Vũng Tàu, phí Box của gói V.VIP đã bao gồm trong chính sách gói cước (269.000đ/tháng)."
+      }
+    ]
+  },
+  {
+    "id": "local_taynamb",
+    "slug": "lap-mang-fpt-tien-giang-dong-thap",
+    "region_name": "Tiền Giang - Đồng Tháp",
+    "short_name": "Đồng Tháp - Tiền Giang",
+    "title": "Lắp Mạng FPT Tiền Giang &amp; Đồng Tháp 2026: Gói SKY 1Gbps Chỉ 195K",
+    "h1": "Lắp Mạng Internet FPT Tiền Giang &amp; Đồng Tháp: Ưu Đãi Modem &amp; Camera An Tâm",
+    "meta_desc": "Đăng ký lắp wifi FPT tại Tiền Giang & Đồng Tháp (Mỹ Tho, Cai Lậy, Gò Công, Cao Lãnh, Sa Đéc, Hồng Ngự): SKY 1Gbps 195K, Combo V.VIP Ngoại Hạng Anh 220K-239K, thêm Camera chỉ +10K.",
+    "badge": "Chính Sách Tây Nam Bộ • Từ 195K",
+    "intro": "Khu vực Tiền Giang và Đồng Tháp sở hữu chính sách giá dễ tiếp cận bậc nhất: SKY 1Gbps chỉ 195.000đ/tháng, nâng Combo V.VIP có ngay Camera chỉ cộng thêm 10.000đ/tháng, hoặc chọn Combo Sky An Tâm 7 đã bao gồm sẵn phí Cloud Camera.",
+    "address_hint": "Ví dụ: TP. Mỹ Tho, TX. Cai Lậy, TP. Cao Lãnh, TP. Sa Đéc, Hồng Ngự...",
+    "office": "Hỗ trợ đăng ký & lắp đặt tại TP. Mỹ Tho, Cao Lãnh, Sa Đéc và các huyện lân cận (Hotline: 0358 513 269)",
+    "highlights": [
+      "SKY Net 1Gbps/300Mbps giá chỉ 195.000đ/tháng (đã gồm VAT)",
+      "Combo V.VIP APP Giga 220K / Sky 239K xem trọn Ngoại Hạng Anh",
+      "Thêm Camera an ninh trên gói V.VIP chỉ cộng +10.000đ/tháng",
+      "Combo Sky An Tâm 7 (Camera Play4/IQ4S) đã gồm trọn gói Cloud 7 ngày"
+    ],
+    "zone_breakdown": "<h3>1. Đặc quyền ưu đãi tại Tiền Giang &amp; Đồng Tháp</h3><ul><li><strong>Lắp thêm Modem phủ sóng cho nhà vườn/nhà rộng:</strong> Chỉ <strong>+20.000đ/tháng</strong> cho mỗi modem thêm (yêu cầu đóng trước từ 3 tháng, không mất phí lắp).</li><li><strong>Nâng cấp Combo V.VIP kèm Camera:</strong> Chỉ cần cộng thêm <strong>+10.000đ/tháng</strong> so với gói V.VIP tương ứng để nhận thêm 01 Camera an ninh chính hãng FPT.</li><li><strong>Khách cần combo Camera trọn gói không lo cước Cloud:</strong> Chọn <strong>Combo Sky An Tâm 7</strong> (255k dùng Play4 trong nhà hoặc 265k dùng IQ4S ngoài trời — đã bao gồm phí Cloud hàng tháng).</li></ul>",
+    "pricing_rows": [
+      ["Sky Net (1 Gbps / 300 Mbps)", "195.000đ", "195.000đ", "Tất cả huyện/TP Đồng Tháp - Tiền Giang"],
+      ["Combo Giga V.VIP APP", "220.000đ", "220.000đ", "Cộng +10k/tháng để kèm 1 Camera"],
+      ["Combo Sky V.VIP APP", "239.000đ", "239.000đ", "Cộng +10k/tháng để kèm 1 Camera"],
+      ["Combo Sky An Tâm 7 (Play4 trong nhà)", "255.000đ", "255.000đ", "Đã bao gồm Cloud, không phát sinh"],
+      ["Combo Sky An Tâm 7 (IQ4S ngoài trời)", "265.000đ", "265.000đ", "Đã bao gồm Cloud, chịu nắng mưa"]
+    ],
+    "notes": "Mức phí lắp đặt quy định chung là 300.000đ nhưng khách đăng ký mới hiện đang được miễn phí lắp đặt. Toàn bộ giá đã gồm VAT.",
+    "faqs": [
+      {
+        "q": "Gói Combo Sky An Tâm 7 ở Tiền Giang - Đồng Tháp có mất thêm tiền Cloud hàng tháng không?",
+        "a": "Không. Khác với camera mua lẻ, gói Combo Sky An Tâm 7 (255.000đ với Cam trong nhà Play4 hoặc 265.000đ với Cam ngoài trời IQ4S) đã gộp sẵn gói lưu trữ Cloud 7 ngày vào cước hàng tháng."
+      },
+      {
+        "q": "Nhà vườn dài và rộng tại quê thì làm sao bắt Wi-Fi phủ hết nhà?",
+        "a": "Bạn chỉ cần đăng ký trả trước từ 3 tháng và thêm modem phụ với mức +20.000đ/tháng cho mỗi modem mở rộng, không tốn thêm công lắp đặt."
+      }
+    ]
+  }
+]
