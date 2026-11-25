@@ -1440,7 +1440,8 @@ ${retrievedContext || SYSTEM_INSTRUCTION}`;
 
       return json({ error: "Not Found" }, 404);
     } catch (err) {
-      return json({ error: "Lỗi máy chủ: " + (err?.message || err) }, 500);
+      console.error("Unhandled worker error:", err);
+      return json({ error: "Đã xảy ra lỗi máy chủ, vui lòng thử lại sau." }, 500);
     }
   },
 };

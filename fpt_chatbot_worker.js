@@ -253,11 +253,13 @@ export default {
       const out = await env.AI.run(PRIMARY, { messages: payload, max_tokens: 400 });
       return json({ reply: out.response ?? out, model: PRIMARY });
     } catch (e) {
+      console.error("Primary AI error:", e);
       try {
         const out = await env.AI.run(FALLBACK, { messages: payload, max_tokens: 400 });
         return json({ reply: out.response ?? out, model: FALLBACK, fallback: true });
       } catch (e2) {
-        return json({ error: "AI unavailable", detail: String(e2) }, 502);
+        console.error("Fallback AI error:", e2);
+        return json({ error: "AI unavailable" }, 502);
       }
     }
   },

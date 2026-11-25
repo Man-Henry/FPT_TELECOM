@@ -123,11 +123,11 @@ function cleanPostDescription(rawDesc, bodyHtml, fallbackTitle) {
   if (rawDesc && !rawDesc.includes(GENERIC_DESC_PREFIX) && rawDesc.trim().length >= 50) {
     return rawDesc.replace(/\s+/g, " ").trim().slice(0, 160);
   }
-  const plain = (bodyHtml || "")
-    .replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/StartFragment|EndFragment/gi, " ")
+  const $plain = cheerio.load(bodyHtml || "");
+  $plain("script, style, noscript, iframe").remove();
+  const plain = $plain.root()
+    .text()
+    .replace(/\b(?:StartFragment|EndFragment)\b/gi, " ")
     .replace(/\s+/g, " ")
     .trim();
   const candidate = plain.length >= 40 ? plain : fallbackTitle;
@@ -971,13 +971,24 @@ async function main() {
           bodyHtml = paragraphs.slice(0, 8).join("\n");
         }
 
-        // Clean any original 19006600 phone numbers, duplicate H1, and StartFragment artifacts
-        bodyHtml = bodyHtml
-          .replace(/1900\s?6600/g, "0358 513 269")
-          .replace(/<!--\s*(?:StartFragment|EndFragment)\s*-->/gi, "")
-          .replace(/\b(?:StartFragment|EndFragment)\b/gi, "")
-          .replace(/<h1\b[^>]*>[\s\S]*?<\/h1>/gi, "")
-          .replace(/<p>\s*<\/p>/gi, "");
+        // Clean phone numbers, comments, duplicate headings, and empty paragraphs using Cheerio DOM
+        const $clean = cheerio.load(bodyHtml || "", null, false);
+        $clean("h1, script, style, noscript, iframe").remove();
+        $clean("*").addBack().contents().each((idx, node) => {
+          if (node.type === "comment") {
+            $clean(node).remove();
+          } else if (node.type === "text" && node.data) {
+            node.data = node.data
+              .replace(/1900\s?6600/g, "0358 513 269")
+              .replace(/\b(?:StartFragment|EndFragment)\b/gi, "");
+          }
+        });
+        $clean("p").each((idx, el) => {
+          if (!$clean(el).text().trim() && $clean(el).find("img, figure, video, table").length === 0) {
+            $clean(el).remove();
+          }
+        });
+        bodyHtml = $clean.html().replace(/1900\s?6600/g, "0358 513 269");
 
         const cleanDescStr = cleanPostDescription(pageDesc, bodyHtml, pageTitle);
 
