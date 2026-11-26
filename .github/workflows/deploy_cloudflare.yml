@@ -9,11 +9,23 @@ permissions:
 
 jobs:
   deploy-cloudflare-pages:
-    if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Check Cloudflare Secrets
+        id: check_cf
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CF_TOKEN" ] && [ -n "$CF_ACCOUNT" ]; then
+            echo "ready=true" >> $GITHUB_OUTPUT
+          else
+            echo "ready=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Chưa cấu hình CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID trong GitHub Secrets; bỏ qua bước đẩy Cloudflare Pages."
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -51,6 +63,7 @@ jobs:
           PY
 
       - name: Publish to Cloudflare Pages
+        if: steps.check_cf.outputs.ready == 'true'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
