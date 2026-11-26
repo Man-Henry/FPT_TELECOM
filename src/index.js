@@ -981,7 +981,7 @@ export default {
               equipment: pkg.metadata?.equipment || "",
               contract: pkg.metadata?.contract || "",
               is_popular: pkg.metadata?.is_popular ? 1 : 0,
-              version: pkg.metadata?.version || "2026-08-23",
+              version: pkg.metadata?.version || "2026-08-26",
               text: pkg.text,
             },
           }));
@@ -1021,8 +1021,8 @@ export default {
 
       // ========== 5. ĐÓNG PHIÊN CHỦ ĐỘNG (Switch về AI) ==========
       if (p === "/api/close" && request.method === "POST") {
-        const { session } = await request.json();
-        const sid = clip(session, 64);
+        const closeBody = await request.json().catch(() => null);
+        const sid = clip(closeBody?.session, 64);
         if (!sid) return json({ error: "Thiếu phiên" }, 400);
 
         // Đóng session trên D1
@@ -1063,7 +1063,11 @@ export default {
           return json({ error: "Gửi quá nhanh. Vui lòng chậm lại!" }, 429);
         }
 
-        const { session, text, history = [], mode } = await request.json();
+        const chatReq = await request.json().catch(() => null);
+        if (!chatReq || typeof chatReq !== "object") {
+          return json({ error: "Payload JSON không hợp lệ." }, 400);
+        }
+        const { session, text, history = [], mode } = chatReq;
         const sid = clip(session, 64),
           body = clip(text).trim();
         if (!sid || !body)
@@ -1184,10 +1188,10 @@ export default {
             regionFilter = "toan_quoc";
           }
 
-          // 2. Cloudflare Cache API (truy vấn đơn 1 lượt và tách khóa theo vùng)
+          // 2. Cloudflare Cache API (truy vấn đơn 1 lượt, tách khóa theo vùng & phiên bản bảng giá)
           const cache = caches.default;
           const cacheUrl = new URL(
-            `https://fpt-edge-cache.local/api/chat?q=${encodeURIComponent(normQ)}&r=${encodeURIComponent(regionFilter || "all")}`,
+            `https://fpt-edge-cache.local/api/chat?v=20260826&q=${encodeURIComponent(normQ)}&r=${encodeURIComponent(regionFilter || "all")}`,
           );
           const cacheKey = new Request(cacheUrl.toString(), { method: "GET" });
 
@@ -1247,15 +1251,19 @@ export default {
                   });
                 }
 
-                if (vecResult?.matches?.length > 0) {
-                  retrievedContext = vecResult.matches
+                const freshMatches = (vecResult?.matches || []).filter(
+                  (m) => String(m.metadata?.version || "") >= "2026-08-26",
+                );
+
+                if (freshMatches.length > 0) {
+                  retrievedContext = freshMatches
                     .map((m, idx) => {
                       const meta = m.metadata || {};
                       return `[GÓI ${idx + 1}]: ${meta.name} | Tốc độ: ${meta.speed} | Giá: ${meta.price} | KM: ${meta.promo} | Thiết bị: ${meta.equipment} | Chi tiết: ${meta.text}`;
                     })
                     .join("\n\n");
 
-                  matchedCards = vecResult.matches.map((m) => {
+                  matchedCards = freshMatches.map((m) => {
                     const meta = m.metadata || {};
                     return {
                       id: m.id,
