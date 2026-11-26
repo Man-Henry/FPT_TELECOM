@@ -216,7 +216,8 @@ document.querySelectorAll('a[href="#contact"]').forEach((link) =>
       const finalPackage = packageName.includes("GIGA")
         ? "GIGA / SKY"
         : packageName;
-      document.querySelector('[name="package"]').value = finalPackage;
+      const pkgField = document.querySelector('[name="Gói cước"], [name="package"]');
+      if (pkgField) pkgField.value = finalPackage;
 
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
@@ -355,12 +356,16 @@ document.addEventListener("submit", async (event) => {
     : formData.get("Ghi chú") || "";
   const timePref = formData.get("Thời gian liên hệ") || "Gọi ngay bây giờ";
 
-  // Validate SĐT nhanh trên Client trước khi gọi API
+  // Validate SĐT nhanh trên Client trước khi gọi API (hỗ trợ Mã hợp đồng ở chế độ Yêu cầu hỗ trợ)
   const cleanPhone = phone.replace(/\s+/g, "");
-  if (!/^(0|\+84)[3-9][0-9]{8}$/.test(cleanPhone)) {
+  const isPhoneValid = /^(0|\+84)[3-9][0-9]{8}$/.test(cleanPhone);
+  const isContractValid = isSupportMode && /^[A-Za-z0-9._/-]{5,30}$/.test(cleanPhone);
+  if (!isPhoneValid && !isContractValid) {
     showFormFeedback(
       form,
-      "Số điện thoại chưa đúng định dạng 10 số Việt Nam (ví dụ: 0987654321). Vui lòng kiểm tra lại.",
+      isSupportMode
+        ? "Vui lòng nhập Số điện thoại 10 số hoặc Mã hợp đồng FPT hợp lệ (vd: 0987654321 hoặc SGN123456)."
+        : "Số điện thoại chưa đúng định dạng 10 số Việt Nam (ví dụ: 0987654321). Vui lòng kiểm tra lại.",
       true,
     );
     if (submitButton) {
@@ -1530,7 +1535,8 @@ if (chatToggle && chatWidget) {
         // Lọc dấu tiếng Việt và ký tự đặc biệt để làm ID an toàn
         const safeName = name
           .normalize("NFD")
-          .replace(/[\\u0300-\\u036f]/g, "")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[đĐ]/g, "d")
           .replace(/[^a-zA-Z0-9]/g, "");
         const randomStr = window.crypto
           .getRandomValues(new Uint32Array(1))[0]
@@ -1650,6 +1656,24 @@ if (chatToggle && chatWidget) {
     // Chuyển sang chế độ kết nối nhân viên
     window.switchToLiveChat = async function () {
       if (chatMode === "live" || isClosed) return;
+      if (!sessionId) {
+        const nameOverlayEl = document.getElementById("chat-name-overlay");
+        const nameInputEl = document.getElementById("chat-name-input");
+        const typedName = (nameInputEl && nameInputEl.value.trim()) || "Khach";
+        const safe = typedName
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[đĐ]/g, "d")
+          .replace(/[^a-zA-Z0-9]/g, "");
+        const rnd = window.crypto
+          .getRandomValues(new Uint32Array(1))[0]
+          .toString(36)
+          .substring(0, 6);
+        sessionId = (safe || "Khach") + "_" + rnd;
+        localStorage.setItem("chat_visitor_name", typedName);
+        localStorage.setItem("chat_session_id", sessionId);
+        if (nameOverlayEl) nameOverlayEl.remove();
+      }
       chatMode = "live";
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({ event: "chat_live_switch" });
@@ -1766,7 +1790,20 @@ if (chatToggle && chatWidget) {
               try {
                 const parsed = JSON.parse(payloadStr);
                 if (parsed.chunk || parsed.text) {
-                  accumulatedText += (parsed.chunk || parsed.text);
+                  let rawChunk = parsed.chunk || parsed.text;
+                  if (typeof rawChunk === "string" && rawChunk.includes("data:")) {
+                    const extracted = [];
+                    for (const sub of rawChunk.split("\n")) {
+                      const st = sub.trim();
+                      if (!st.startsWith("data:") || st.includes("[DONE]")) continue;
+                      try {
+                        const j = JSON.parse(st.slice(5).trim());
+                        if (j.response) extracted.push(j.response);
+                      } catch (e) {}
+                    }
+                    if (extracted.length > 0) rawChunk = extracted.join("");
+                  }
+                  accumulatedText += rawChunk;
                   bubble.textContent = accumulatedText;
                   chatMessages.scrollTop = chatMessages.scrollHeight;
                 }
@@ -1777,10 +1814,21 @@ if (chatToggle && chatWidget) {
             }
           }
 
-          // Format bold markers & markdown formatting
+          // Format bold markers, clean fallback JSON if needed, & render response
           if (accumulatedText) {
+            let finalReply = accumulatedText;
+            const trimmedAcc = accumulatedText.trim();
+            if (trimmedAcc.startsWith("{")) {
+              try {
+                const parsedAcc = JSON.parse(trimmedAcc);
+                if (typeof parsedAcc.reply === "string") finalReply = parsedAcc.reply;
+                if ((!streamCards || streamCards.length === 0) && Array.isArray(parsedAcc.cards)) {
+                  streamCards = parsedAcc.cards;
+                }
+              } catch (e) {}
+            }
             bubble.innerHTML = "";
-            const parts = accumulatedText.split(/(\*\*.*?\*\*|\n)/g);
+            const parts = finalReply.split(/(\*\*.*?\*\*|\n)/g);
             parts.forEach((part) => {
               if (!part) return;
               if (part === "\n") {
@@ -1798,7 +1846,7 @@ if (chatToggle && chatWidget) {
               }
             });
 
-            chatHistory.push({ role: "model", text: accumulatedText });
+            chatHistory.push({ role: "model", text: finalReply });
           }
 
           // Render 3D Pricing Cards if returned

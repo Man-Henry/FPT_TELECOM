@@ -524,14 +524,22 @@ export default {
           );
         }
 
-        // Validate SĐT theo chuẩn Regex VN (Requirement 1.2.2)
-        const cleanPhone = rawPhone.replace(/\s+/g, "");
+        const isSupportReq = body.form_type === "support";
+        const supportIdentifier = clip(body["Thông tin khách hàng"] || "", 50).trim();
+        const candidateContact = isSupportReq && supportIdentifier ? supportIdentifier : rawPhone;
+
+        // Validate SĐT theo chuẩn Regex VN (hoặc Mã hợp đồng nếu là form Yêu cầu hỗ trợ)
+        const cleanPhone = candidateContact.replace(/\s+/g, "");
         const phoneRegex = /^(0|\+84)[3-9][0-9]{8}$/;
-        if (!phoneRegex.test(cleanPhone)) {
+        const contractRegex = /^[A-Za-z0-9._/-]{5,30}$/;
+        const isValidPhone = phoneRegex.test(cleanPhone);
+        const isValidSupportRef = isSupportReq && contractRegex.test(cleanPhone);
+        if (!isValidPhone && !isValidSupportRef) {
           return json(
             {
-              error:
-                "Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 số (ví dụ: 0987654321 hoặc +84358513269).",
+              error: isSupportReq
+                ? "Vui lòng nhập Số điện thoại 10 số hoặc Mã hợp đồng hợp lệ."
+                : "Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 số (ví dụ: 0987654321 hoặc +84358513269).",
             },
             400,
           );
@@ -627,26 +635,30 @@ export default {
                 `🔒 <b>Nghị định 13:</b> ${consentNd13 ? "✅ Đã đồng ý" : "❌ Chưa"}\n` +
                 `🌐 <b>IP:</b> <code>${clientIP}</code>`;
 
+              const tgPayload = {
+                chat_id: tgChatId,
+                text: tgMsg,
+                parse_mode: "HTML",
+              };
+              if (isValidPhone) {
+                tgPayload.reply_markup = {
+                  inline_keyboard: [
+                    [
+                      {
+                        text: `📞 Gọi ngay cho ${name}`,
+                        url: `tel:${cleanPhone}`,
+                      },
+                    ],
+                  ],
+                };
+              }
+
               await fetch(
                 `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`,
                 {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    chat_id: tgChatId,
-                    text: tgMsg,
-                    parse_mode: "HTML",
-                    reply_markup: {
-                      inline_keyboard: [
-                        [
-                          {
-                            text: `📞 Gọi ngay cho ${name}`,
-                            url: `tel:${cleanPhone}`,
-                          },
-                        ],
-                      ],
-                    },
-                  }),
+                  body: JSON.stringify(tgPayload),
                 },
               );
             }
@@ -872,6 +884,41 @@ export default {
         ).all();
 
         return json({ ok: true, sessions: sessRows.results || [] });
+      }
+
+      if (p === "/api/sessions/reply" && request.method === "POST") {
+        if (!checkAdmin(request, env))
+          return json({ error: "Sai mật khẩu hoặc thiếu quyền." }, 401);
+
+        const body = await request.json().catch(() => ({}));
+        const sid = clip(body.session || "", 64).trim();
+        const replyText = clip(body.text || "", 2000).trim();
+        if (!sid || !replyText) {
+          return json({ error: "Thiếu mã phiên hoặc nội dung trả lời." }, 400);
+        }
+
+        const sess = await env.DB.prepare(
+          "SELECT id, status FROM sessions WHERE id = ?",
+        )
+          .bind(sid)
+          .first();
+        if (!sess || sess.status === "closed") {
+          return json({ error: "Phiên chat không tồn tại hoặc đã đóng." }, 404);
+        }
+
+        const nowMs = Date.now();
+        await env.DB.prepare(
+          "INSERT INTO messages (session_id, sender, text, created_at) VALUES (?, ?, ?, ?)",
+        )
+          .bind(sid, "owner", replyText, nowMs)
+          .run();
+        await env.DB.prepare(
+          "UPDATE sessions SET last_active_at = ? WHERE id = ?",
+        )
+          .bind(nowMs, sid)
+          .run();
+
+        return json({ ok: true, session: sid, created_at: nowMs });
       }
 
       // ========== 4. SEED KNOWLEDGE VECTOR DATABASE (API /api/seed-knowledge - Admin) ==========
@@ -1137,7 +1184,7 @@ export default {
             regionFilter = "toan_quoc";
           }
 
-          // 2. Cloudflare Cache API (chỉ cache truy vấn đơn 1 lượt và tách khóa theo vùng)
+          // 2. Cloudflare Cache API (truy vấn đơn 1 lượt và tách khóa theo vùng)
           const cache = caches.default;
           const cacheUrl = new URL(
             `https://fpt-edge-cache.local/api/chat?q=${encodeURIComponent(normQ)}&r=${encodeURIComponent(regionFilter || "all")}`,
@@ -1148,7 +1195,7 @@ export default {
             request.headers.get("Accept")?.includes("text/event-stream") ||
             url.searchParams.get("stream") === "true";
 
-          if (!isSseRequested && !hasConversationHistory) {
+          if (!hasConversationHistory) {
             try {
               const cachedRes = await cache.match(cacheKey);
               if (cachedRes) {
@@ -1266,21 +1313,35 @@ ${retrievedContext || SYSTEM_INSTRUCTION}${isNationalListedQuery ? "\n\n[LƯU Ý
             { role: "user", content: body },
           ];
 
-          // 6. SSE Streaming Support
+          // 6. SSE Streaming Support (Giải mã chuẩn SSE Workers AI -> trả văn bản tiếng Việt mượt)
           if (isSseRequested) {
+            const STREAM_SYSTEM_PROMPT = `Bạn là Trợ lý AI Tư Vấn Bán Hàng FPT Telecom (Hotline 0358 513 269).
+QUY TẮC BẮT BUỘC:
+1. BÁO GIÁ CHÍNH XÁC: Chỉ báo giá từ [DỮ LIỆU THỰC TẾ]. Tuyệt đối KHÔNG tự bịa giá. Nếu khách chưa nêu rõ khu vực khi hỏi giá chi tiết, hãy hỏi lại Tỉnh/Thành và Quận/Huyện.
+2. TỐC ĐỘ MIN 300Mbps: Tốc độ thấp nhất hiện tại là 300Mbps (gói GIGA). Không có gói 150Mbps cũ.
+3. PHONG CÁCH: Xưng 'em', gọi 'anh/chị', trả lời trực tiếp bằng tiếng Việt tự nhiên, ngắn gọn (2-4 câu), KHÔNG xuất JSON hay markdown code block.
+
+[DỮ LIỆU THỰC TẾ]:
+${retrievedContext || SYSTEM_INSTRUCTION}${isNationalListedQuery ? "\n\n[LƯU Ý TỈNH NGOÀI 5 VÙNG MIỀN NAM]: Khách hỏi khu vực toàn quốc (Hà Nội/Đà Nẵng/tỉnh khác). Hãy báo giá theo BẢNG GIÁ NIÊM YẾT WEBSITE (Khối 8 & Khối 5 mục A) và mời khách gọi/nhắn Zalo 0358 513 269 để chuyển đúng chi nhánh kiểm tra khuyến mãi tại địa phương." : ""}`;
+
+            const streamMessages = [
+              { role: "system", content: STREAM_SYSTEM_PROMPT },
+              ...messages.slice(1),
+            ];
+
             let aiStream;
             try {
               aiStream = await env.AI.run(MODEL, {
-                messages,
-                max_tokens: 800,
+                messages: streamMessages,
+                max_tokens: 700,
                 temperature: 0.2,
                 stream: true,
               });
             } catch (errStream) {
               console.warn("Primary streaming AI failed, falling back to", FALLBACK, errStream);
               aiStream = await env.AI.run(FALLBACK, {
-                messages,
-                max_tokens: 800,
+                messages: streamMessages,
+                max_tokens: 700,
                 temperature: 0.2,
                 stream: true,
               });
@@ -1292,20 +1353,78 @@ ${retrievedContext || SYSTEM_INSTRUCTION}${isNationalListedQuery ? "\n\n[LƯU Ý
 
             ctx.waitUntil(
               (async () => {
+                let fullReply = "";
                 try {
                   const reader = aiStream.getReader();
+                  const decoder = new TextDecoder();
+                  let sseBuffer = "";
+
+                  const processSseLine = async (rawLine) => {
+                    const trimmed = rawLine.trim();
+                    if (!trimmed) return;
+                    if (trimmed.startsWith("data:")) {
+                      const dataStr = trimmed.slice(5).trim();
+                      if (!dataStr || dataStr === "[DONE]") return;
+                      try {
+                        const evt = JSON.parse(dataStr);
+                        const token =
+                          typeof evt?.response === "string"
+                            ? evt.response
+                            : typeof evt?.choices?.[0]?.delta?.content === "string"
+                              ? evt.choices[0].delta.content
+                              : "";
+                        if (token) {
+                          fullReply += token;
+                          await writer.write(
+                            encoder.encode(`data: ${JSON.stringify({ chunk: token })}\n\n`),
+                          );
+                        }
+                      } catch (parseErr) {}
+                    } else {
+                      fullReply += trimmed;
+                      await writer.write(
+                        encoder.encode(`data: ${JSON.stringify({ chunk: trimmed })}\n\n`),
+                      );
+                    }
+                  };
+
                   while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
-                    const chunkStr = new TextDecoder().decode(value);
-                    const sseMsg = `data: ${JSON.stringify({ chunk: chunkStr })}\n\n`;
-                    await writer.write(encoder.encode(sseMsg));
+                    sseBuffer += decoder.decode(value, { stream: true });
+                    const lines = sseBuffer.split("\n");
+                    sseBuffer = lines.pop() || "";
+                    for (const rawLine of lines) {
+                      await processSseLine(rawLine);
+                    }
                   }
+                  sseBuffer += decoder.decode();
+                  if (sseBuffer.trim()) {
+                    await processSseLine(sseBuffer);
+                  }
+
                   if (matchedCards.length > 0) {
                     const cardsMsg = `data: ${JSON.stringify({ cards: matchedCards.slice(0, 3) })}\n\n`;
                     await writer.write(encoder.encode(cardsMsg));
                   }
                   await writer.write(encoder.encode("data: [DONE]\n\n"));
+
+                  if (!hasConversationHistory && fullReply.trim()) {
+                    const cachePayload = {
+                      type: "recommendation",
+                      reply: fullReply.trim(),
+                      cards: matchedCards.slice(0, 3),
+                    };
+                    const cacheResponse = new Response(JSON.stringify(cachePayload), {
+                      status: 200,
+                      headers: {
+                        "Content-Type": "application/json; charset=utf-8",
+                        "Cache-Control": "public, s-maxage=3600",
+                        "Access-Control-Allow-Origin": "*",
+                      },
+                    });
+                    await cache.put(cacheKey, cacheResponse);
+                  }
                 } catch (sErr) {
                   console.error("SSE stream writing error:", sErr);
                 } finally {

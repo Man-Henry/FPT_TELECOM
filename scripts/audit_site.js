@@ -94,8 +94,10 @@ function main() {
   );
   assert(
     workerSrc.includes('p === "/api/leads" && request.method === "PATCH"') &&
-      workerSrc.includes('p === "/api/sessions" && request.method === "GET"'),
-    "Mini-CRM endpoints (PATCH /api/leads & GET /api/sessions) present in Worker",
+      workerSrc.includes('p === "/api/sessions" && request.method === "GET"') &&
+      workerSrc.includes('p === "/api/sessions/reply" && request.method === "POST"') &&
+      workerSrc.includes("STREAM_SYSTEM_PROMPT"),
+    "Mini-CRM endpoints (PATCH /api/leads, GET /api/sessions, POST /api/sessions/reply) & SSE text stream present in Worker",
   );
   assert(
     workerSrc.includes("CREATE TABLE IF NOT EXISTS audit_logs") &&

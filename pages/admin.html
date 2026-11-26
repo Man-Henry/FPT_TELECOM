@@ -265,8 +265,16 @@
           <div class="sessions-layout">
             <div id="sessionsList"></div>
             <div class="card" style="background:#f8fafc;">
-              <h4 id="sessionDetailTitle" style="margin:0 0 12px;">Chọn 1 phiên bên trái để xem hội thoại</h4>
-              <div id="sessionMessages"></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+                <h4 id="sessionDetailTitle" style="margin:0;">Chọn 1 phiên bên trái để xem hội thoại</h4>
+                <button id="closeSessionBtn" type="button" class="btn btn-ghost" style="display:none;padding:6px 12px;font-size:12px;">Đóng phiên</button>
+              </div>
+              <div id="sessionMessages" style="max-height:380px;overflow-y:auto;padding-right:4px;"></div>
+              <form id="sessionReplyForm" style="display:none;margin-top:12px;gap:8px;align-items:center;">
+                <input id="sessionReplyInput" type="text" placeholder="Nhập phản hồi gửi trực tiếp tới khách trên web..." required style="flex:1;" />
+                <button type="submit" class="btn btn-primary" style="white-space:nowrap;">Gửi trả lời</button>
+              </form>
+              <div id="sessionFeedback" class="status-banner"></div>
             </div>
           </div>
         </div>
@@ -511,6 +519,44 @@
           }
         }
 
+        let activeSessionId = null;
+
+        async function openSessionDetail(s) {
+          activeSessionId = s.id;
+          const detailTitle = document.getElementById("sessionDetailTitle");
+          const box = document.getElementById("sessionMessages");
+          const replyForm = document.getElementById("sessionReplyForm");
+          const closeBtn = document.getElementById("closeSessionBtn");
+          const sessFb = document.getElementById("sessionFeedback");
+          setBanner(sessFb, "", false);
+          detailTitle.textContent = `Hội thoại: ${s.id} (${s.status === "closed" ? "Đã đóng" : "Đang mở"})`;
+          box.textContent = "Đang tải tin nhắn...";
+          try {
+            const detail = await apiFetch(`/api/sessions?session=${encodeURIComponent(s.id)}`);
+            box.textContent = "";
+            (detail.messages || []).forEach((m) => {
+              const b = document.createElement("div");
+              const cls = m.sender === "owner" ? "msg-owner" : m.sender === "ai" ? "msg-ai" : "msg-visitor";
+              const label = m.sender === "owner" ? "NV" : m.sender === "ai" ? "AI" : "Khách";
+              const ts = m.created_at ? new Date(m.created_at).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) : "";
+              b.className = `msg-bubble-crm ${cls}`;
+              b.textContent = `[${label}${ts ? " " + ts : ""}]: ${m.text}`;
+              box.appendChild(b);
+            });
+            if ((detail.messages || []).length === 0) {
+              box.textContent = "Chưa có tin nhắn nào trong phiên này.";
+            }
+            box.scrollTop = box.scrollHeight;
+            const isActive = s.status !== "closed";
+            replyForm.style.display = isActive ? "flex" : "none";
+            closeBtn.style.display = isActive ? "inline-flex" : "none";
+          } catch (err) {
+            box.textContent = `Không tải được hội thoại: ${err.message}`;
+            replyForm.style.display = "none";
+            closeBtn.style.display = "none";
+          }
+        }
+
         async function loadSessions() {
           const listEl = document.getElementById("sessionsList");
           listEl.textContent = "Đang tải...";
@@ -519,7 +565,7 @@
             listEl.textContent = "";
             (data.sessions || []).forEach((s) => {
               const item = document.createElement("div");
-              item.className = "session-item";
+              item.className = "session-item" + (activeSessionId === s.id ? " active" : "");
               const head = document.createElement("div");
               head.style.cssText = "display:flex;justify-content:space-between;font-weight:700;font-size:13px;";
               head.textContent = `${s.id} (${s.message_count || 0} tin)`;
@@ -528,21 +574,10 @@
               sub.textContent = `${s.status} • ${s.last_message || "Chưa có tin nhắn"}`;
               item.appendChild(head);
               item.appendChild(sub);
-              item.addEventListener("click", async () => {
+              item.addEventListener("click", () => {
                 document.querySelectorAll(".session-item").forEach((x) => x.classList.remove("active"));
                 item.classList.add("active");
-                const detail = await apiFetch(`/api/sessions?session=${encodeURIComponent(s.id)}`);
-                document.getElementById("sessionDetailTitle").textContent = `Hội thoại: ${s.id}`;
-                const box = document.getElementById("sessionMessages");
-                box.textContent = "";
-                (detail.messages || []).forEach((m) => {
-                  const b = document.createElement("div");
-                  const cls = m.sender === "owner" ? "msg-owner" : m.sender === "ai" ? "msg-ai" : "msg-visitor";
-                  const label = m.sender === "owner" ? "NV" : m.sender === "ai" ? "AI" : "Khách";
-                  b.className = `msg-bubble-crm ${cls}`;
-                  b.textContent = `[${label}]: ${m.text}`;
-                  box.appendChild(b);
-                });
+                openSessionDetail(s);
               });
               listEl.appendChild(item);
             });
@@ -550,6 +585,43 @@
             listEl.textContent = `Lỗi tải sessions: ${err.message}`;
           }
         }
+
+        document.getElementById("sessionReplyForm").addEventListener("submit", async (e) => {
+          e.preventDefault();
+          if (!activeSessionId) return;
+          const input = document.getElementById("sessionReplyInput");
+          const sessFb = document.getElementById("sessionFeedback");
+          const msg = input.value.trim();
+          if (!msg) return;
+          try {
+            await apiFetch("/api/sessions/reply", {
+              method: "POST",
+              body: JSON.stringify({ session: activeSessionId, text: msg }),
+            });
+            input.value = "";
+            setBanner(sessFb, "Đã gửi phản hồi tới khách hàng.", false);
+            await openSessionDetail({ id: activeSessionId, status: "active" });
+            loadSessions();
+          } catch (err) {
+            setBanner(sessFb, `Gửi thất bại: ${err.message}`, true);
+          }
+        });
+
+        document.getElementById("closeSessionBtn").addEventListener("click", async () => {
+          if (!activeSessionId) return;
+          const sessFb = document.getElementById("sessionFeedback");
+          try {
+            await apiFetch("/api/close", {
+              method: "POST",
+              body: JSON.stringify({ session: activeSessionId }),
+            });
+            setBanner(sessFb, `Đã đóng phiên ${activeSessionId}.`, false);
+            await openSessionDetail({ id: activeSessionId, status: "closed" });
+            loadSessions();
+          } catch (err) {
+            setBanner(sessFb, `Đóng phiên thất bại: ${err.message}`, true);
+          }
+        });
 
         function enterCrm() {
           loginPanel.style.display = "none";
@@ -654,11 +726,23 @@
           const st = document.getElementById("maintStatus");
           try {
             const parsed = JSON.parse(document.getElementById("seedJsonInput").value);
-            const r = await apiFetch("/api/seed-knowledge", {
-              method: "POST",
-              body: JSON.stringify(parsed),
-            });
-            setBanner(st, `Đã đồng bộ thành công ${r.count} vector vào ${r.index}!`, false);
+            const list = Array.isArray(parsed) ? parsed : (parsed.packages || []);
+            if (list.length === 0) {
+              setBanner(st, "Danh sách gói cước trống.", true);
+              return;
+            }
+            let totalSynced = 0;
+            let lastIndex = "fpt-pricing-index";
+            for (let i = 0; i < list.length; i += 50) {
+              const chunk = list.slice(i, i + 50);
+              const r = await apiFetch("/api/seed-knowledge", {
+                method: "POST",
+                body: JSON.stringify(chunk),
+              });
+              totalSynced += r.count || chunk.length;
+              if (r.index) lastIndex = r.index;
+            }
+            setBanner(st, `Đã đồng bộ thành công ${totalSynced} vector vào ${lastIndex}!`, false);
           } catch (err) {
             setBanner(st, `Seed thất bại: ${err.message}`, true);
           }

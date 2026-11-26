@@ -89,7 +89,7 @@ function doPost(e) {
     return ContentService.createTextOutput(
       JSON.stringify({
         result: "error",
-        error: err.toString(),
+        error: "Đã xảy ra lỗi xử lý hệ thống, vui lòng thử lại sau.",
       })
     ).setMimeType(ContentService.MimeType.JSON);
   } finally {
