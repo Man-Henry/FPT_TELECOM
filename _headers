@@ -26,6 +26,11 @@
   Cache-Control: public, max-age=31536000, immutable
   Access-Control-Allow-Origin: *
 
+# Trang quản trị Mini-CRM nội bộ (không cache & chặn lập chỉ mục)
+/pages/admin.html
+  Cache-Control: no-store, no-cache, must-revalidate
+  X-Robots-Tag: noindex, nofollow
+
 # Security Headers (all pages)
 /*
   X-Frame-Options: SAMEORIGIN
@@ -34,5 +39,5 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=(self)
   X-XSS-Protection: 1; mode=block
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://www.googletagmanager.com https://cdnjs.cloudflare.com https://unpkg.com https://code.highcharts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://man-chatbot.tvm19624.workers.dev https://script.google.com https://get.geojs.io https://challenges.cloudflare.com https://www.google-analytics.com https://code.highcharts.com https://unpkg.com; worker-src 'self' blob:; child-src 'self' blob:; frame-src 'self' https://challenges.cloudflare.com https://www.googletagmanager.com; upgrade-insecure-requests;
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://www.googletagmanager.com https://cdnjs.cloudflare.com https://unpkg.com https://code.highcharts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://fpttelecomvn.click https://man-chatbot.tvm19624.workers.dev https://script.google.com https://get.geojs.io https://challenges.cloudflare.com https://www.google-analytics.com https://code.highcharts.com https://unpkg.com; worker-src 'self' blob:; child-src 'self' blob:; frame-src 'self' https://challenges.cloudflare.com https://www.googletagmanager.com; upgrade-insecure-requests;
 

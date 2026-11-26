@@ -7,6 +7,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { rebuildSitemap } = require("./lib/sitemap");
 
 const ROOT_DIR = path.resolve(__dirname, "..");
 const LOCAL_JSON_PATH = path.join(ROOT_DIR, "data", "local_areas.json");
@@ -120,25 +121,29 @@ function renderLocalPage(area) {
   const pageUrl = `https://fpttelecomvn.click/pages/khu-vuc/${area.slug}.html`;
   const schemaJson = generateSchema(area, pageUrl);
   const colHeader1 =
-    area.id === "local_dongnai"
+    area.id === "local_dongnai" || area.id === "local_bien_hoa_long_thanh"
       ? "Khu vực DNI1"
-      : area.id === "local_binhduong"
-        ? "8 Phường Trung Tâm"
+      : area.id === "local_binhduong" || area.id === "local_di_an_thuan_an"
+        ? "Phường Trung Tâm / Lái Thiêu"
         : area.id === "local_vungtau"
           ? "Khu vực Phường"
           : area.id === "local_taynamb"
             ? "Tiền Giang"
-            : "Nội thành / Q2 cũ";
+            : area.id === "local_q7_nhabe_binhchanh"
+              ? "Quận 7 (Nội thành)"
+              : "Nội thành / Q2 cũ";
   const colHeader2 =
-    area.id === "local_dongnai"
+    area.id === "local_dongnai" || area.id === "local_bien_hoa_long_thanh"
       ? "Khu vực DNI2,3,4"
-      : area.id === "local_binhduong"
-        ? "Khu vực Xã còn lại"
+      : area.id === "local_binhduong" || area.id === "local_di_an_thuan_an"
+        ? "Khu vực Xã & An Phú/Dĩ An"
         : area.id === "local_vungtau"
           ? "Khu vực Xã"
           : area.id === "local_taynamb"
             ? "Đồng Tháp"
-            : "Ngoại thành / Thủ Đức cũ";
+            : area.id === "local_q7_nhabe_binhchanh"
+              ? "Nhà Bè / Bình Chánh (Ngoại thành)"
+              : "Ngoại thành / Thủ Đức cũ";
 
   const rowsHtml = (area.pricing_rows || [])
     .map(
@@ -579,3 +584,5 @@ areas.forEach((area, i) => {
   fs.writeFileSync(path.join(OUTPUT_DIR, `${area.slug}.html`), html, "utf8");
   console.log(`✅ [${i + 1}/${areas.length}] Generated pages/khu-vuc/${area.slug}.html`);
 });
+
+rebuildSitemap(ROOT_DIR, "https://fpttelecomvn.click");

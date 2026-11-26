@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Mini-CRM Quản Trị Leads &amp; AI Knowledge | FPT Telecom</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/main/fptlogo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #f1f5f9;
+        --surface: #ffffff;
+        --ink: #0f172a;
+        --muted: #64748b;
+        --primary: #0056d6;
+        --orange: #ea580c;
+        --border: #e2e8f0;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+      }
+      .topbar-crm {
+        background: linear-gradient(135deg, #071b42 0%, #0056d6 100%);
+        color: #fff;
+        padding: 14px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .topbar-crm h1 { margin: 0; font-size: 18px; font-weight: 800; }
+      .wrap { max-width: 1280px; margin: 24px auto; padding: 0 20px 60px; }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+      }
+      .auth-box { max-width: 480px; margin: 48px auto; }
+      label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: #334155; }
+      input, select, textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: inherit;
+        outline: none;
+        background: #fff;
+      }
+      input:focus, select:focus, textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(0, 86, 214, 0.12);
+      }
+      .btn {
+        border: none;
+        border-radius: 10px;
+        padding: 10px 16px;
+        font-weight: 700;
+        font-size: 13.5px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .btn-primary { background: var(--primary); color: #fff; }
+      .btn-orange { background: var(--orange); color: #fff; }
+      .btn-ghost { background: #e2e8f0; color: var(--ink); }
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 14px;
+        margin-bottom: 20px;
+      }
+      .kpi-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px;
+      }
+      .kpi-card small { color: var(--muted); font-weight: 600; font-size: 12px; }
+      .kpi-card b { display: block; font-size: 26px; margin-top: 4px; color: #071b42; }
+      .tabs-bar {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+      }
+      .tab-btn {
+        background: #fff;
+        border: 1px solid var(--border);
+        padding: 9px 16px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 13.5px;
+        cursor: pointer;
+      }
+      .tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+      .toolbar {
+        display: grid;
+        grid-template-columns: 1.5fr 220px auto;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .table-wrap { overflow-x: auto; }
+      table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+      th, td { padding: 11px 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+      th { background: #f8fafc; font-weight: 700; color: #334155; white-space: nowrap; }
+      .badge-st {
+        display: inline-block;
+        padding: 3px 9px;
+        border-radius: 999px;
+        font-size: 11.5px;
+        font-weight: 700;
+      }
+      .st-new { background: #dbeafe; color: #1d4ed8; }
+      .st-contacted { background: #fef3c7; color: #b45309; }
+      .st-surveyed { background: #ede9fe; color: #6d28d9; }
+      .st-installed { background: #dcfce7; color: #15803d; }
+      .st-cancelled { background: #fee2e2; color: #b91c1c; }
+      .status-banner {
+        margin-top: 12px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        display: none;
+      }
+      .sessions-layout {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 16px;
+      }
+      .session-item {
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        margin-bottom: 10px;
+        cursor: pointer;
+      }
+      .session-item:hover, .session-item.active { border-color: var(--primary); background: #eff6ff; }
+      .msg-bubble-crm {
+        padding: 9px 12px;
+        border-radius: 10px;
+        margin-bottom: 8px;
+        font-size: 13.5px;
+        max-width: 82%;
+      }
+      .msg-visitor { background: #e2e8f0; color: #0f172a; }
+      .msg-ai { background: #fef3c7; color: #78350f; }
+      .msg-owner { background: #0056d6; color: #fff; margin-left: auto; }
+      .dup-badge {
+        display: inline-block;
+        background: #fee2e2;
+        color: #b91c1c;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 800;
+        padding: 2px 8px;
+      }
+      @media (max-width: 860px) {
+        .toolbar, .sessions-layout { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar-crm">
+      <div>
+        <h1>FPT Telecom Mini-CRM (Cloudflare D1)</h1>
+        <small style="opacity:0.85;">Quản trị Lead đăng ký, Live Chat &amp; Vectorize AI</small>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <a href="../index.html" class="btn btn-ghost">← Về trang chủ</a>
+        <button id="logoutBtn" type="button" class="btn btn-orange" style="display:none;">Đăng xuất</button>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <!-- Login Form -->
+      <section id="loginPanel" class="card auth-box">
+        <h2 style="margin:0 0 8px;">Đăng nhập Quản trị Nội bộ</h2>
+        <p style="font-size:13.5px;color:var(--muted);margin:0 0 18px;">
+          Xác thực trực tiếp bằng <code>ADMIN_TOKEN</code> đã cấu hình trên Cloudflare Worker (hoặc Cloudflare Access).
+        </p>
+        <form id="loginForm">
+          <div style="margin-bottom:14px;">
+            <label for="apiBaseInput">API Endpoint Base</label>
+            <input id="apiBaseInput" type="url" value="https://man-chatbot.tvm19624.workers.dev" required />
+          </div>
+          <div style="margin-bottom:16px;">
+            <label for="adminTokenInput">Admin Token *</label>
+            <input id="adminTokenInput" type="password" placeholder="Nhập ADMIN_TOKEN trong Cloudflare Secrets" required />
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Truy cập Mini-CRM →</button>
+          <div id="loginStatus" class="status-banner"></div>
+        </form>
+      </section>
+
+      <!-- Main CRM Workspace -->
+      <section id="crmApp" style="display:none;">
+        <div class="kpi-grid" id="kpiGrid">
+          <div class="kpi-card"><small>Tổng Lead D1</small><b id="kpiTotal">0</b></div>
+          <div class="kpi-card"><small>Hôm nay (GMT+7)</small><b id="kpiToday" style="color:#ea580c;">0</b></div>
+          <div class="kpi-card"><small>Mới tiếp nhận</small><b id="kpiNew" style="color:#1d4ed8;">0</b></div>
+          <div class="kpi-card"><small>Đang liên hệ</small><b id="kpiContacted" style="color:#b45309;">0</b></div>
+          <div class="kpi-card"><small>Đã khảo sát</small><b id="kpiSurveyed" style="color:#6d28d9;">0</b></div>
+          <div class="kpi-card"><small>Đã ký lắp đặt</small><b id="kpiInstalled" style="color:#15803d;">0</b></div>
+        </div>
+
+        <div class="tabs-bar">
+          <button type="button" class="tab-btn active" data-tab="leads">📋 Danh sách Khách Hàng (Leads)</button>
+          <button type="button" class="tab-btn" data-tab="sessions">💬 Phiên Live Chat D1</button>
+          <button type="button" class="tab-btn" data-tab="vectorize">🧠 Bảo trì D1 &amp; Seed AI</button>
+        </div>
+
+        <!-- TAB 1: LEADS -->
+        <div id="tab-leads" class="card">
+          <div class="toolbar" style="grid-template-columns: 1.5fr 220px auto auto;">
+            <input id="leadSearchInput" type="search" placeholder="Tìm nhanh theo SĐT, họ tên, địa chỉ, gói cước..." />
+            <select id="leadStatusFilter">
+              <option value="all">Tất cả trạng thái</option>
+              <option value="new">Mới tiếp nhận</option>
+              <option value="contacted">Đang liên hệ</option>
+              <option value="surveyed">Đã khảo sát hạ tầng</option>
+              <option value="installed">Đã ký / Lắp xong</option>
+              <option value="cancelled">Hủy / Ngoài vùng</option>
+              <option value="duplicates">⚠️ Chỉ hiện SĐT trùng lặp</option>
+            </select>
+            <button id="refreshLeadsBtn" type="button" class="btn btn-primary">↻ Tải lại</button>
+            <button id="exportCsvBtn" type="button" class="btn btn-ghost">📥 Xuất CSV</button>
+          </div>
+          <div id="crmFeedback" class="status-banner"></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID / Thời gian</th>
+                  <th>Khách hàng &amp; Liên hệ</th>
+                  <th>Gói cước &amp; Địa chỉ</th>
+                  <th>Trạng thái xử lý</th>
+                  <th>Ghi chú nhân viên</th>
+                </tr>
+              </thead>
+              <tbody id="leadsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 2: SESSIONS -->
+        <div id="tab-sessions" class="card" style="display:none;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <h3 style="margin:0;">Các phiên Live Chat gần đây</h3>
+            <button id="refreshSessionsBtn" type="button" class="btn btn-primary">↻ Làm mới</button>
+          </div>
+          <div class="sessions-layout">
+            <div id="sessionsList"></div>
+            <div class="card" style="background:#f8fafc;">
+              <h4 id="sessionDetailTitle" style="margin:0 0 12px;">Chọn 1 phiên bên trái để xem hội thoại</h4>
+              <div id="sessionMessages"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: VECTORIZE & DB MAINTENANCE -->
+        <div id="tab-vectorize" class="card" style="display:none;">
+          <h3 style="margin:0 0 8px;">Đồng bộ CSDL &amp; Kiến thức Giá AI (Vectorize)</h3>
+          <p style="font-size:13.5px;color:var(--muted);margin:0 0 16px;">
+            Dùng để cập nhật bảng D1 (<code>/api/_migrate</code>) và nạp nhanh danh sách từ <code>data/fpt_pricing_2026.json</code> (tối đa 50 gói/lượt) lên Vectorize <code>fpt-pricing-index</code>.
+          </p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+            <button id="runMigrateBtn" type="button" class="btn btn-ghost">⚙️ Chạy /api/_migrate</button>
+            <button id="loadLocalPricingBtn" type="button" class="btn btn-primary">📥 Tải data/fpt_pricing_2026.json hiện hành</button>
+            <button id="runSeedBtn" type="button" class="btn btn-orange">🚀 Đẩy lên Vectorize (/api/seed-knowledge)</button>
+          </div>
+          <textarea id="seedJsonInput" rows="10" placeholder="Dán mảng JSON gói cước hoặc bấm 'Tải data/fpt_pricing_2026.json hiện hành'..."></textarea>
+          <div id="maintStatus" class="status-banner"></div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      (function () {
+        const SESSION_TOKEN_KEY = "fpt_crm_admin_token";
+        const SESSION_API_KEY = "fpt_crm_api_base";
+
+        const loginPanel = document.getElementById("loginPanel");
+        const crmApp = document.getElementById("crmApp");
+        const loginForm = document.getElementById("loginForm");
+        const apiBaseInput = document.getElementById("apiBaseInput");
+        const adminTokenInput = document.getElementById("adminTokenInput");
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        const STATUS_LABELS = {
+          new: "Mới tiếp nhận",
+          contacted: "Đang liên hệ",
+          surveyed: "Đã khảo sát",
+          installed: "Đã lắp đặt",
+          cancelled: "Hủy / Ngoài vùng",
+        };
+
+        function getConfig() {
+          return {
+            apiBase: (sessionStorage.getItem(SESSION_API_KEY) || "https://man-chatbot.tvm19624.workers.dev").replace(/\/+$/, ""),
+            token: sessionStorage.getItem(SESSION_TOKEN_KEY) || "",
+          };
+        }
+
+        function setBanner(el, msg, isErr) {
+          el.textContent = msg || "";
+          el.style.display = msg ? "block" : "none";
+          el.style.background = isErr ? "#fef2f2" : "#f0fdf4";
+          el.style.color = isErr ? "#b91c1c" : "#15803d";
+          el.style.border = isErr ? "1px solid #fecaca" : "1px solid #bbf7d0";
+        }
+
+        async function apiFetch(path, options = {}) {
+          const { apiBase, token } = getConfig();
+          const headers = new Headers(options.headers || {});
+          headers.set("Authorization", `Bearer ${token}`);
+          if (options.body && !headers.has("Content-Type")) {
+            headers.set("Content-Type", "application/json");
+          }
+          const res = await fetch(`${apiBase}${path}`, { ...options, headers });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            throw new Error(data.error || `HTTP ${res.status}`);
+          }
+          return data;
+        }
+
+        let currentLeadsCache = [];
+
+        function normalizePhoneKey(p) {
+          return String(p || "").replace(/\s+/g, "").replace(/^\+84/, "0");
+        }
+
+        function csvCell(v) {
+          const s = String(v == null ? "" : v).replace(/"/g, '""');
+          return `"${s}"`;
+        }
+
+        async function loadLeads() {
+          const q = encodeURIComponent(document.getElementById("leadSearchInput").value.trim());
+          const rawStatus = document.getElementById("leadStatusFilter").value;
+          const serverStatus = rawStatus === "duplicates" ? "all" : encodeURIComponent(rawStatus);
+          const feedback = document.getElementById("crmFeedback");
+          try {
+            const data = await apiFetch(`/api/leads?status=${serverStatus}&q=${q}`);
+            const stats = data.stats || {};
+            document.getElementById("kpiTotal").textContent = stats.total || 0;
+            document.getElementById("kpiToday").textContent = stats.today || 0;
+            document.getElementById("kpiNew").textContent = stats.new || 0;
+            document.getElementById("kpiContacted").textContent = stats.contacted || 0;
+            document.getElementById("kpiSurveyed").textContent = stats.surveyed || 0;
+            document.getElementById("kpiInstalled").textContent = stats.installed || 0;
+
+            const allLeads = data.leads || [];
+            const phoneCounts = new Map();
+            allLeads.forEach((l) => {
+              const pk = normalizePhoneKey(l.phone);
+              if (pk) phoneCounts.set(pk, (phoneCounts.get(pk) || 0) + 1);
+            });
+
+            const displayedLeads = rawStatus === "duplicates"
+              ? allLeads.filter((l) => (phoneCounts.get(normalizePhoneKey(l.phone)) || 0) > 1)
+              : allLeads;
+            currentLeadsCache = displayedLeads;
+
+            const tbody = document.getElementById("leadsTableBody");
+            tbody.textContent = "";
+
+            displayedLeads.forEach((lead) => {
+              const tr = document.createElement("tr");
+              const pkCount = phoneCounts.get(normalizePhoneKey(lead.phone)) || 1;
+
+              // Col 1: ID + Date
+              const tdId = document.createElement("td");
+              const idBold = document.createElement("strong");
+              idBold.textContent = `#${lead.id}`;
+              const dateDiv = document.createElement("div");
+              dateDiv.style.cssText = "font-size:12px;color:#64748b;margin-top:4px;";
+              dateDiv.textContent = lead.created_at ? new Date(lead.created_at).toLocaleString("vi-VN") : "";
+              tdId.appendChild(idBold);
+              tdId.appendChild(dateDiv);
+
+              // Col 2: Name + Phone + Duplicate indicator + Action links
+              const tdContact = document.createElement("td");
+              const nameEl = document.createElement("div");
+              nameEl.style.fontWeight = "700";
+              nameEl.textContent = lead.name || "Khách Hàng";
+              const phoneEl = document.createElement("div");
+              phoneEl.style.cssText = "margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;";
+              const cleanTel = (lead.phone || "").replace(/[^0-9+]/g, "");
+              const telLink = document.createElement("a");
+              telLink.href = `tel:${cleanTel}`;
+              telLink.textContent = lead.phone || "";
+              telLink.style.cssText = "color:#0056d6;font-weight:800;text-decoration:none;";
+              const zaloLink = document.createElement("a");
+              zaloLink.href = `https://zalo.me/${cleanTel.replace(/^\+84/, "0")}`;
+              zaloLink.target = "_blank";
+              zaloLink.rel = "noopener noreferrer";
+              zaloLink.textContent = "Zalo";
+              zaloLink.className = "badge-st st-new";
+              zaloLink.style.textDecoration = "none";
+              phoneEl.appendChild(telLink);
+              phoneEl.appendChild(zaloLink);
+              if (pkCount > 1) {
+                const dupSpan = document.createElement("span");
+                dupSpan.className = "dup-badge";
+                dupSpan.textContent = `Trùng x${pkCount}`;
+                phoneEl.appendChild(dupSpan);
+              }
+              tdContact.appendChild(nameEl);
+              tdContact.appendChild(phoneEl);
+
+              // Col 3: Package + Address + Note
+              const tdPkg = document.createElement("td");
+              const pkgBadge = document.createElement("div");
+              pkgBadge.style.cssText = "font-weight:700;color:#ea580c;";
+              pkgBadge.textContent = lead.package || "Tư vấn chung";
+              const addrDiv = document.createElement("div");
+              addrDiv.style.cssText = "font-size:12.5px;color:#334155;margin-top:3px;";
+              addrDiv.textContent = lead.address || "";
+              const noteDiv = document.createElement("div");
+              noteDiv.style.cssText = "font-size:12px;color:#64748b;margin-top:3px;";
+              noteDiv.textContent = lead.note && lead.note !== "Không có" ? `Nhu cầu: ${lead.note}` : "";
+              tdPkg.appendChild(pkgBadge);
+              tdPkg.appendChild(addrDiv);
+              if (noteDiv.textContent) tdPkg.appendChild(noteDiv);
+
+              // Col 4: Status selector
+              const tdStatus = document.createElement("td");
+              const stSel = document.createElement("select");
+              Object.entries(STATUS_LABELS).forEach(([k, label]) => {
+                const opt = document.createElement("option");
+                opt.value = k;
+                opt.textContent = label;
+                if ((lead.status || "new") === k) opt.selected = true;
+                stSel.appendChild(opt);
+              });
+
+              // Col 5: Staff note + save button
+              const tdNote = document.createElement("td");
+              const staffInput = document.createElement("input");
+              staffInput.type = "text";
+              staffInput.placeholder = "Ghi chú chốt đơn / hạ tầng...";
+              staffInput.value = lead.staff_note || "";
+              staffInput.style.marginBottom = "6px";
+              const saveBtn = document.createElement("button");
+              saveBtn.type = "button";
+              saveBtn.className = "btn btn-ghost";
+              saveBtn.style.padding = "6px 10px";
+              saveBtn.textContent = "Lưu";
+
+              const saveChanges = async () => {
+                saveBtn.disabled = true;
+                try {
+                  await apiFetch("/api/leads", {
+                    method: "PATCH",
+                    body: JSON.stringify({
+                      id: lead.id,
+                      status: stSel.value,
+                      staff_note: staffInput.value,
+                    }),
+                  });
+                  setBanner(feedback, `Đã cập nhật Lead #${lead.id} (${STATUS_LABELS[stSel.value]}).`, false);
+                  loadLeads();
+                } catch (err) {
+                  setBanner(feedback, err.message, true);
+                } finally {
+                  saveBtn.disabled = false;
+                }
+              };
+              stSel.addEventListener("change", saveChanges);
+              saveBtn.addEventListener("click", saveChanges);
+
+              tdStatus.appendChild(stSel);
+              tdNote.appendChild(staffInput);
+              tdNote.appendChild(saveBtn);
+
+              tr.appendChild(tdId);
+              tr.appendChild(tdContact);
+              tr.appendChild(tdPkg);
+              tr.appendChild(tdStatus);
+              tr.appendChild(tdNote);
+              tbody.appendChild(tr);
+            });
+
+            if (displayedLeads.length === 0) {
+              const emptyTr = document.createElement("tr");
+              const emptyTd = document.createElement("td");
+              emptyTd.colSpan = 5;
+              emptyTd.style.textAlign = "center";
+              emptyTd.style.color = "#64748b";
+              emptyTd.textContent = "Chưa có dữ liệu khớp bộ lọc.";
+              emptyTr.appendChild(emptyTd);
+              tbody.appendChild(emptyTr);
+            }
+          } catch (err) {
+            setBanner(feedback, `Không tải được Leads: ${err.message}`, true);
+          }
+        }
+
+        async function loadSessions() {
+          const listEl = document.getElementById("sessionsList");
+          listEl.textContent = "Đang tải...";
+          try {
+            const data = await apiFetch("/api/sessions");
+            listEl.textContent = "";
+            (data.sessions || []).forEach((s) => {
+              const item = document.createElement("div");
+              item.className = "session-item";
+              const head = document.createElement("div");
+              head.style.cssText = "display:flex;justify-content:space-between;font-weight:700;font-size:13px;";
+              head.textContent = `${s.id} (${s.message_count || 0} tin)`;
+              const sub = document.createElement("div");
+              sub.style.cssText = "font-size:12px;color:#64748b;margin-top:4px;";
+              sub.textContent = `${s.status} • ${s.last_message || "Chưa có tin nhắn"}`;
+              item.appendChild(head);
+              item.appendChild(sub);
+              item.addEventListener("click", async () => {
+                document.querySelectorAll(".session-item").forEach((x) => x.classList.remove("active"));
+                item.classList.add("active");
+                const detail = await apiFetch(`/api/sessions?session=${encodeURIComponent(s.id)}`);
+                document.getElementById("sessionDetailTitle").textContent = `Hội thoại: ${s.id}`;
+                const box = document.getElementById("sessionMessages");
+                box.textContent = "";
+                (detail.messages || []).forEach((m) => {
+                  const b = document.createElement("div");
+                  const cls = m.sender === "owner" ? "msg-owner" : m.sender === "ai" ? "msg-ai" : "msg-visitor";
+                  const label = m.sender === "owner" ? "NV" : m.sender === "ai" ? "AI" : "Khách";
+                  b.className = `msg-bubble-crm ${cls}`;
+                  b.textContent = `[${label}]: ${m.text}`;
+                  box.appendChild(b);
+                });
+              });
+              listEl.appendChild(item);
+            });
+          } catch (err) {
+            listEl.textContent = `Lỗi tải sessions: ${err.message}`;
+          }
+        }
+
+        function enterCrm() {
+          loginPanel.style.display = "none";
+          crmApp.style.display = "block";
+          logoutBtn.style.display = "inline-flex";
+          loadLeads();
+        }
+
+        loginForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const loginStatus = document.getElementById("loginStatus");
+          const apiBase = apiBaseInput.value.trim().replace(/\/+$/, "");
+          const token = adminTokenInput.value.trim();
+          sessionStorage.setItem(SESSION_API_KEY, apiBase);
+          sessionStorage.setItem(SESSION_TOKEN_KEY, token);
+          try {
+            await apiFetch("/api/leads?limit=1");
+            setBanner(loginStatus, "", false);
+            enterCrm();
+          } catch (err) {
+            sessionStorage.removeItem(SESSION_TOKEN_KEY);
+            setBanner(loginStatus, `Đăng nhập thất bại: ${err.message}`, true);
+          }
+        });
+
+        logoutBtn.addEventListener("click", () => {
+          sessionStorage.removeItem(SESSION_TOKEN_KEY);
+          crmApp.style.display = "none";
+          logoutBtn.style.display = "none";
+          loginPanel.style.display = "block";
+        });
+
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            const t = btn.getAttribute("data-tab");
+            ["leads", "sessions", "vectorize"].forEach((k) => {
+              document.getElementById(`tab-${k}`).style.display = k === t ? "block" : "none";
+            });
+            if (t === "sessions") loadSessions();
+          });
+        });
+
+        let searchDebounce = null;
+        document.getElementById("leadSearchInput").addEventListener("input", () => {
+          clearTimeout(searchDebounce);
+          searchDebounce = setTimeout(loadLeads, 350);
+        });
+        document.getElementById("refreshLeadsBtn").addEventListener("click", loadLeads);
+        document.getElementById("leadStatusFilter").addEventListener("change", loadLeads);
+        document.getElementById("exportCsvBtn").addEventListener("click", () => {
+          const rows = [
+            ["ID", "Thời gian", "Họ tên", "Số điện thoại", "Gói cước", "Địa chỉ", "Ghi chú khách", "Trạng thái", "Ghi chú NV"],
+            ...currentLeadsCache.map((l) => [
+              l.id,
+              l.created_at ? new Date(l.created_at).toLocaleString("vi-VN") : "",
+              l.name,
+              l.phone ? "'" + l.phone : "",
+              l.package,
+              l.address,
+              l.note,
+              STATUS_LABELS[l.status || "new"] || l.status,
+              l.staff_note || "",
+            ]),
+          ];
+          const csv = "\uFEFF" + rows.map((r) => r.map(csvCell).join(",")).join("\n");
+          const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `fpt-leads-${new Date().toISOString().split("T")[0]}.csv`;
+          a.click();
+          URL.revokeObjectURL(url);
+        });
+        document.getElementById("refreshSessionsBtn").addEventListener("click", loadSessions);
+
+        document.getElementById("runMigrateBtn").addEventListener("click", async () => {
+          const st = document.getElementById("maintStatus");
+          try {
+            const r = await apiFetch("/api/_migrate");
+            setBanner(st, r.note || "Đã chạy migrate thành công.", false);
+          } catch (err) {
+            setBanner(st, err.message, true);
+          }
+        });
+
+        document.getElementById("loadLocalPricingBtn").addEventListener("click", async () => {
+          const st = document.getElementById("maintStatus");
+          try {
+            const res = await fetch("../data/fpt_pricing_2026.json");
+            const txt = await res.text();
+            document.getElementById("seedJsonInput").value = txt;
+            const arr = JSON.parse(txt);
+            setBanner(st, `Đã tải ${arr.length} gói từ data/fpt_pricing_2026.json.`, false);
+          } catch (err) {
+            setBanner(st, `Không đọc được JSON: ${err.message}`, true);
+          }
+        });
+
+        document.getElementById("runSeedBtn").addEventListener("click", async () => {
+          const st = document.getElementById("maintStatus");
+          try {
+            const parsed = JSON.parse(document.getElementById("seedJsonInput").value);
+            const r = await apiFetch("/api/seed-knowledge", {
+              method: "POST",
+              body: JSON.stringify(parsed),
+            });
+            setBanner(st, `Đã đồng bộ thành công ${r.count} vector vào ${r.index}!`, false);
+          } catch (err) {
+            setBanner(st, `Seed thất bại: ${err.message}`, true);
+          }
+        });
+
+        if (getConfig().token) {
+          enterCrm();
+        }
+      })();
+    </script>
+  </body>
+</html>

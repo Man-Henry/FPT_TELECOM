@@ -4,6 +4,9 @@
   "scripts": {
     "sync": "node scripts/sync_fpt_news.js",
     "sync-news": "node scripts/sync_fpt_news.js",
+    "sync:pricing": "node scripts/sync_pricing.js",
+    "fix:html": "node scripts/repair_html_hygiene.js",
+    "audit:repo": "node scripts/audit_site.js",
     "build:seo": "node scripts/generate_niche_landing_pages.js",
     "build:local": "node scripts/generate_local_pages.js",
     "build:css": "npx clean-css-cli -o css/styles.min.css css/styles.css",
@@ -11,7 +14,7 @@
     "compress:images": "node scripts/compress_images.js",
     "index:google": "node scripts/google_indexing_api.js --new",
     "index:google:all": "node scripts/google_indexing_api.js --all",
-    "build": "node scripts/sync_fpt_news.js && node scripts/generate_local_pages.js && node scripts/generate_niche_landing_pages.js && npx clean-css-cli -o css/styles.min.css css/styles.css && npx terser js/script.js -o js/script.min.js --compress --mangle"
+    "build": "node scripts/sync_pricing.js && node scripts/sync_fpt_news.js && node scripts/generate_local_pages.js && node scripts/generate_niche_landing_pages.js && node scripts/repair_html_hygiene.js && npx clean-css-cli -o css/styles.min.css css/styles.css && npx terser js/script.js -o js/script.min.js --compress --mangle"
   },
   "dependencies": {
     "cheerio": "^1.2.0"

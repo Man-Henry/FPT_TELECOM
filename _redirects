@@ -3,9 +3,13 @@ http://fpttelecomvn.click/* https://fpttelecomvn.click/:splat 301!
 http://www.fpttelecomvn.click/* https://fpttelecomvn.click/:splat 301!
 https://www.fpttelecomvn.click/* https://fpttelecomvn.click/:splat 301!
 
+# 301 Redirect cho bài giá cũ tháng 7/2026 về Bảng giá mới nhất
+/pages/posts/bang-gia-internet-fpt-thang-7-2026.html /pages/bang-gia.html 301!
+/pages/posts/khuyen-mai-fpt-thang-7-2026.html /pages/bang-gia.html#pricing 301!
+
 # 301 Redirects cho bài viết tin tức sang thư mục /pages/posts/
-/pages/bang-gia-internet-fpt-thang-7-2026.html /pages/posts/bang-gia-internet-fpt-thang-7-2026.html 301!
-/pages/khuyen-mai-fpt-thang-7-2026.html /pages/posts/khuyen-mai-fpt-thang-7-2026.html 301!
+/pages/bang-gia-internet-fpt-thang-7-2026.html /pages/bang-gia.html 301!
+/pages/khuyen-mai-fpt-thang-7-2026.html /pages/bang-gia.html#pricing 301!
 /pages/co-nen-bat-wifi-lien-tuc-24-7.html /pages/posts/co-nen-bat-wifi-lien-tuc-24-7.html 301!
 /pages/cong-ty-cua-musk-bat-dau-ban-internet-ve-tinh-tai-viet-nam.html /pages/posts/cong-ty-cua-musk-bat-dau-ban-internet-ve-tinh-tai-viet-nam.html 301!
 /pages/iphone-2028-5-thay-doi-dot-pha.html /pages/posts/iphone-2028-5-thay-doi-dot-pha.html 301!

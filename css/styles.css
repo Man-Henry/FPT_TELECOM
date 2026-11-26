@@ -7174,6 +7174,62 @@ footer {
   gap: 10px;
 }
 
+.finder-pills-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.finder-extra-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.finder-sublabel {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 5px;
+}
+
+.finder-select-sm {
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
+.finder-breakdown {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
+}
+
+.fb-row,
+.fb-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+  color: #e2e8f0;
+}
+
+.fb-total {
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.25);
+  font-size: 14.5px;
+  color: #ffffff;
+}
+
+.fb-total strong {
+  color: #fb923c;
+  font-size: 17px;
+}
+
 .finder-pill {
   border: 1.5px solid #e2e8f0;
   background: #f8fafc;
@@ -7362,7 +7418,8 @@ footer {
     grid-template-columns: 1fr;
     padding: 22px 18px;
   }
-  .finder-pills {
+  .finder-pills,
+  .finder-pills-4 {
     grid-template-columns: 1fr;
   }
 }

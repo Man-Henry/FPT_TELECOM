@@ -1,5 +1,6 @@
 User-agent: *
-Disallow:
+Disallow: /pages/admin.html
+Allow: /
 
 User-agent: GPTBot
 Allow: /

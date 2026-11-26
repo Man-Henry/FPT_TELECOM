@@ -22,7 +22,7 @@ Hệ thống đã được lập trình sẵn để tự động bắt thông ti
 2. Trên thanh công cụ, chọn: **Tiện ích mở rộng** *(Extensions)* ➔ **Apps Script**.
 
 ### Bước 2: Dán mã mới nhất
-1. Mở tệp [`google-apps-script.js`](./google-apps-script.js) (hoặc [`google-apps-script/Code.gs`](./google-apps-script/Code.gs)) trong kho lưu trữ này.
+1. Mở tệp [`google-apps-script/Code.gs`](./google-apps-script/Code.gs) trong kho lưu trữ này.
 2. Sao chép toàn bộ nội dung và dán thay thế mã trong trình soạn thảo Apps Script.
 3. Kiểm tra biến email ở đầu tệp:
    ```javascript

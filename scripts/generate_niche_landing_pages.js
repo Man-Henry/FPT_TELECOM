@@ -8,6 +8,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { rebuildSitemap } = require("./lib/sitemap");
 
 const ROOT_DIR = path.resolve(__dirname, "..");
 const TOPICS_JSON_PATH = path.join(ROOT_DIR, "data", "niche_topics.json");
@@ -1116,118 +1117,9 @@ ${schemaJson}
 </html>`;
 }
 
-// Hàm cập nhật sitemap.xml tự động
-function updateSitemap(generatedSlugs) {
-  const todayIso = new Date().toISOString().split("T")[0];
-
-  const mainPages = [
-    { loc: "https://fpttelecomvn.click/", priority: "1.0", changefreq: "daily" },
-    { loc: "https://fpttelecomvn.click/pages/bang-gia.html", priority: "0.9", changefreq: "weekly" },
-    { loc: "https://fpttelecomvn.click/pages/khu-vuc.html", priority: "0.9", changefreq: "weekly" },
-    { loc: "https://fpttelecomvn.click/pages/news.html", priority: "0.9", changefreq: "daily" },
-    { loc: "https://fpttelecomvn.click/pages/ve-chung-toi.html", priority: "0.9", changefreq: "monthly" },
-    { loc: "https://fpttelecomvn.click/pages/chinh-sach.html", priority: "0.8", changefreq: "monthly" },
-    { loc: "https://fpttelecomvn.click/pages/lien-he.html", priority: "0.9", changefreq: "monthly" },
-  ];
-
-  // Quét các trang khu vực địa phương (Local SEO)
-  const khuVucDir = path.join(ROOT_DIR, "pages", "khu-vuc");
-  const khuVucFiles = fs.existsSync(khuVucDir)
-    ? fs.readdirSync(khuVucDir).filter((f) => f.endsWith(".html"))
-    : [];
-  const localEntries = khuVucFiles.map((f) => ({
-    loc: `https://fpttelecomvn.click/pages/khu-vuc/${f}`,
-    lastmod: todayIso,
-    changefreq: "weekly",
-    priority: "0.9",
-  }));
-
-  // Quét bài viết tin tức (bỏ qua bài noindex nếu có)
-  const postsDir = path.join(ROOT_DIR, "pages", "posts");
-  const postFiles = fs.existsSync(postsDir)
-    ? fs.readdirSync(postsDir).filter((f) => {
-        if (!f.endsWith(".html")) return false;
-        const c = fs.readFileSync(path.join(postsDir, f), "utf8");
-        return !c.includes('content="noindex');
-      })
-    : [];
-
-  const postEntries = postFiles.map((f) => ({
-    loc: `https://fpttelecomvn.click/pages/posts/${f}`,
-    lastmod: todayIso,
-    changefreq: "monthly",
-    priority: "0.8",
-  }));
-
-  // Quét các trang topics vừa tạo
-  const topicEntries = generatedSlugs.map((slug) => ({
-    loc: `https://fpttelecomvn.click/pages/topics/${slug}.html`,
-    lastmod: todayIso,
-    changefreq: "weekly",
-    priority: "0.85",
-  }));
-
-  const allEntries = [
-    ...mainPages.map((p) => ({ ...p, lastmod: todayIso })),
-    ...localEntries,
-    ...topicEntries,
-    ...postEntries,
-  ];
-
-  const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Core Static Pages -->
-${mainPages
-  .map(
-    (p) => `  <url>
-    <loc>${p.loc}</loc>
-    <lastmod>${todayIso}</lastmod>
-    <changefreq>${p.changefreq}</changefreq>
-    <priority>${p.priority}</priority>
-  </url>`,
-  )
-  .join("\n")}
-
-  <!-- Local SEO Regional Pages (${localEntries.length} regions) -->
-${localEntries
-  .map(
-    (l) => `  <url>
-    <loc>${l.loc}</loc>
-    <lastmod>${l.lastmod}</lastmod>
-    <changefreq>${l.changefreq}</changefreq>
-    <priority>${l.priority}</priority>
-  </url>`,
-  )
-  .join("\n")}
-
-  <!-- Niche Programmatic Landing Pages (${topicEntries.length} topics) -->
-${topicEntries
-  .map(
-    (t) => `  <url>
-    <loc>${t.loc}</loc>
-    <lastmod>${t.lastmod}</lastmod>
-    <changefreq>${t.changefreq}</changefreq>
-    <priority>${t.priority}</priority>
-  </url>`,
-  )
-  .join("\n")}
-
-  <!-- Dynamic News & Promotion Articles (${postEntries.length} indexable articles) -->
-${postEntries
-  .map(
-    (p) => `  <url>
-    <loc>${p.loc}</loc>
-    <lastmod>${p.lastmod}</lastmod>
-    <changefreq>${p.changefreq}</changefreq>
-    <priority>${p.priority}</priority>
-  </url>`,
-  )
-  .join("\n")}
-</urlset>
-`;
-
-  fs.writeFileSync(SITEMAP_PATH, sitemapContent, "utf8");
-  console.log(`🗺️ Updated sitemap.xml with ${allEntries.length} total verified URLs.`);
+// Hàm cập nhật sitemap.xml tự động (dùng module dùng chung scripts/lib/sitemap.js)
+function updateSitemap() {
+  rebuildSitemap(ROOT_DIR, "https://fpttelecomvn.click");
 }
 
 // Chạy hàm chính

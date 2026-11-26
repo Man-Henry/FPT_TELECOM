@@ -216,8 +216,8 @@ LƯU Ý CHUNG KHỐI 8: các gói F1/F2/F3 đi kèm Access Point giúp phủ só
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Methods": "GET, POST, PATCH, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, x-admin-token, x-turnstile-token",
   "Access-Control-Max-Age": "86400",
 };
 
@@ -271,9 +271,9 @@ function checkAdmin(request, env) {
   const url = new URL(request.url);
   const paramToken = url.searchParams.get("token") || "";
   const token = (headerToken || paramToken).trim();
-  if (!token) return false;
-  if (env.ADMIN_TOKEN && safeEqual(token, env.ADMIN_TOKEN)) return true;
-  if (safeEqual(token, "fpttelecom2026_admin_secret")) return true;
+  const configuredSecret = (env.ADMIN_TOKEN || env.ADMIN_SECRET || "").trim();
+  if (!token || !configuredSecret) return false;
+  if (safeEqual(token, configuredSecret)) return true;
   return false;
 }
 
@@ -393,6 +393,28 @@ export default {
         ).run();
 
         await env.DB.prepare(
+          `
+          CREATE TABLE IF NOT EXISTS audit_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            action TEXT NOT NULL,
+            count INTEGER NOT NULL,
+            user_ip TEXT,
+            created_at INTEGER NOT NULL
+          )
+        `,
+        ).run();
+
+        // Bổ sung cột phục vụ Mini-CRM nếu bảng leads cũ chưa có
+        for (const alterSql of [
+          "ALTER TABLE leads ADD COLUMN staff_note TEXT DEFAULT ''",
+          "ALTER TABLE leads ADD COLUMN updated_at INTEGER",
+        ]) {
+          try {
+            await env.DB.prepare(alterSql).run();
+          } catch (e) {}
+        }
+
+        await env.DB.prepare(
           `CREATE INDEX IF NOT EXISTS idx_session ON messages(session_id, id)`,
         ).run();
         await env.DB.prepare(
@@ -407,7 +429,7 @@ export default {
 
         return json({
           ok: true,
-          note: "Bảng đã sẵn sàng (sessions + messages + leads).",
+          note: "Bảng đã sẵn sàng (sessions + messages + leads + audit_logs).",
         });
       }
 
@@ -509,7 +531,7 @@ export default {
           return json(
             {
               error:
-                "Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 số (ví dụ: 0987654321 hoặc +84383900321).",
+                "Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 số (ví dụ: 0987654321 hoặc +84358513269).",
             },
             400,
           );
@@ -536,6 +558,26 @@ export default {
         }
 
         const userAgent = clip(request.headers.get("User-Agent") || "", 300);
+
+        // Chống gửi trùng lặp trong vòng 5 phút gần nhất (cùng SĐT & gói cước)
+        try {
+          const recentDup = await env.DB.prepare(
+            "SELECT id FROM leads WHERE phone = ? AND package = ? AND created_at > ? LIMIT 1",
+          )
+            .bind(cleanPhone, pkg, now - 5 * 60 * 1000)
+            .first();
+          if (recentDup) {
+            return json({
+              success: true,
+              duplicate_recent: true,
+              lead_id: recentDup.id,
+              message:
+                "Yêu cầu của bạn đã được hệ thống tiếp nhận trước đó. Chuyên viên FPT sẽ liên hệ ngay!",
+            });
+          }
+        } catch (dupErr) {
+          console.warn("Duplicate check skipped:", dupErr);
+        }
 
         // 1. Ghi ngay lập tức vào D1 Database
         const insertRes = await env.DB.prepare(
@@ -703,16 +745,133 @@ export default {
         return successResponse;
       }
 
-      // ========== 3. XEM DANH SÁCH LEADS (API /api/leads - Admin) ==========
+      // ========== 3. XEM & QUẢN TRỊ LEADS + SESSIONS (Mini-CRM - Admin) ==========
       if (p === "/api/leads" && request.method === "GET") {
         if (!checkAdmin(request, env))
           return json({ error: "Sai mật khẩu hoặc thiếu quyền." }, 401);
 
-        const rows = await env.DB.prepare(
-          "SELECT * FROM leads ORDER BY created_at DESC LIMIT 100",
+        const statusFilter = clip(url.searchParams.get("status") || "", 30).trim();
+        const searchQ = clip(url.searchParams.get("q") || "", 100).trim();
+        const limit = Math.min(
+          200,
+          Math.max(1, parseInt(url.searchParams.get("limit") || "100", 10) || 100),
+        );
+
+        let sql = "SELECT * FROM leads";
+        const conditions = [];
+        const bindings = [];
+
+        if (statusFilter && statusFilter !== "all") {
+          conditions.push("status = ?");
+          bindings.push(statusFilter);
+        }
+        if (searchQ) {
+          const like = `%${searchQ}%`;
+          conditions.push("(name LIKE ? OR phone LIKE ? OR address LIKE ? OR package LIKE ?)");
+          bindings.push(like, like, like, like);
+        }
+        if (conditions.length > 0) {
+          sql += " WHERE " + conditions.join(" AND ");
+        }
+        sql += " ORDER BY created_at DESC LIMIT ?";
+        bindings.push(limit);
+
+        const rows = await env.DB.prepare(sql).bind(...bindings).all();
+
+        // Thống kê tổng quan phục vụ KPI Cards
+        const statsRows = await env.DB.prepare(
+          "SELECT status, COUNT(*) as cnt FROM leads GROUP BY status",
+        ).all();
+        const startOfDay = new Date();
+        startOfDay.setUTCHours(0, 0, 0, 0);
+        const todayRow = await env.DB.prepare(
+          "SELECT COUNT(*) as cnt FROM leads WHERE created_at >= ?",
+        )
+          .bind(startOfDay.getTime() - 7 * 3600 * 1000)
+          .first();
+
+        const stats = {
+          total: 0,
+          new: 0,
+          contacted: 0,
+          surveyed: 0,
+          installed: 0,
+          cancelled: 0,
+          today: todayRow?.cnt || 0,
+        };
+        for (const r of statsRows.results || []) {
+          const st = r.status || "new";
+          stats.total += r.cnt;
+          if (Object.prototype.hasOwnProperty.call(stats, st)) {
+            stats[st] = r.cnt;
+          }
+        }
+
+        return json({ ok: true, leads: rows.results || [], stats });
+      }
+
+      if (p === "/api/leads" && request.method === "PATCH") {
+        if (!checkAdmin(request, env))
+          return json({ error: "Sai mật khẩu hoặc thiếu quyền." }, 401);
+
+        const body = await request.json().catch(() => ({}));
+        const id = parseInt(body.id, 10);
+        const status = clip(body.status || "", 30).trim();
+        const staffNote = clip(body.staff_note ?? "", 500);
+        const allowedStatuses = [
+          "new",
+          "contacted",
+          "surveyed",
+          "installed",
+          "cancelled",
+        ];
+
+        if (!id || !allowedStatuses.includes(status)) {
+          return json({ error: "Dữ liệu cập nhật trạng thái không hợp lệ." }, 400);
+        }
+
+        const nowMs = Date.now();
+        await env.DB.prepare(
+          "UPDATE leads SET status = ?, staff_note = ?, updated_at = ? WHERE id = ?",
+        )
+          .bind(status, staffNote, nowMs, id)
+          .run();
+
+        try {
+          await env.DB.prepare(
+            "INSERT INTO audit_logs (action, count, user_ip, created_at) VALUES (?, ?, ?, ?)",
+          )
+            .bind(`lead_status_${status}`, id, clientIP, nowMs)
+            .run();
+        } catch (e) {}
+
+        return json({ ok: true, id, status, staff_note: staffNote, updated_at: nowMs });
+      }
+
+      if (p === "/api/sessions" && request.method === "GET") {
+        if (!checkAdmin(request, env))
+          return json({ error: "Sai mật khẩu hoặc thiếu quyền." }, 401);
+
+        const sid = clip(url.searchParams.get("session") || "", 64).trim();
+        if (sid) {
+          const msgs = await env.DB.prepare(
+            "SELECT id, sender, text, created_at FROM messages WHERE session_id = ? ORDER BY id ASC LIMIT 200",
+          )
+            .bind(sid)
+            .all();
+          return json({ ok: true, session: sid, messages: msgs.results || [] });
+        }
+
+        const sessRows = await env.DB.prepare(
+          `SELECT s.id, s.status, s.created_at, s.last_active_at,
+                  (SELECT COUNT(*) FROM messages m WHERE m.session_id = s.id) as message_count,
+                  (SELECT text FROM messages m WHERE m.session_id = s.id ORDER BY m.id DESC LIMIT 1) as last_message
+           FROM sessions s
+           ORDER BY s.last_active_at DESC
+           LIMIT 50`,
         ).all();
 
-        return json({ ok: true, leads: rows.results });
+        return json({ ok: true, sessions: sessRows.results || [] });
       }
 
       // ========== 4. SEED KNOWLEDGE VECTOR DATABASE (API /api/seed-knowledge - Admin) ==========
@@ -887,6 +1046,20 @@ export default {
               .run();
           }
 
+          if (isNewLiveSession && Array.isArray(history) && history.length > 0) {
+            const contextTurns = history.slice(-6);
+            for (let hi = 0; hi < contextTurns.length; hi++) {
+              const turn = contextTurns[hi];
+              if (!turn || typeof turn.text !== "string") continue;
+              const hSender = turn.role === "model" ? "ai" : "visitor";
+              await env.DB.prepare(
+                "INSERT INTO messages (session_id, sender, text, created_at) VALUES (?,?,?,?)",
+              )
+                .bind(sid, hSender, maskSensitiveData(clip(turn.text, 1000)), nowMs - (contextTurns.length - hi))
+                .run();
+            }
+          }
+
           const maskedBody = maskSensitiveData(body);
           await env.DB.prepare(
             "INSERT INTO messages (session_id, sender, text, created_at) VALUES (?,?,?,?)",
@@ -918,53 +1091,18 @@ export default {
 
           const qLower = body.toLowerCase().trim();
           const normQ = qLower.replace(/[?!.,]/g, "").replace(/\s+/g, " ");
+          const hasConversationHistory =
+            Array.isArray(history) && history.length > 0;
 
-          // 1. Kiểm tra nếu khách hỏi khu vực ngoài phạm vi (Test case T4)
-          const isOutsideArea =
-            /\b(hà nội|ha noi|đà nẵng|da nang|hải phòng|hai phong|quảng ninh|bắc ninh|nghệ an|thanh hóa|huế|nha trang)\b/i.test(
+          // 1. Trích xuất vùng địa lý & nhận diện tỉnh ngoài 5 khu vực trọng điểm
+          const isNationalListedQuery =
+            /\b(hà nội|ha noi|đà nẵng|da nang|hải phòng|hai phong|quảng ninh|bắc ninh|nghệ an|thanh hóa|huế|nha trang|cần thơ|can tho)\b/i.test(
               qLower,
             ) &&
             !/\b(hồ chí minh|hcm|sài gòn|thủ đức|bình dương|đồng nai|vũng tàu|tiền giang|đồng tháp)\b/i.test(
               qLower,
             );
 
-          if (isOutsideArea) {
-            return json({
-              type: "fallback",
-              show_hotline: true,
-              reply:
-                "Hiện tại hệ thống hỗ trợ trực tuyến đang ưu tiên tư vấn và ưu đãi đặc quyền cho khu vực TP.HCM, Bình Dương, Đồng Nai, Bà Rịa - Vũng Tàu, Tiền Giang và Đồng Tháp. Để được hỗ trợ khảo sát và báo giá chi tiết tại khu vực của anh/chị, xin vui lòng gọi ngay Hotline/Zalo: 0358 513 269 để chi nhánh FPT hỗ trợ ngay ạ!",
-              cards: [],
-            });
-          }
-
-          // 2. Cloudflare Cache API (caches.default) - Semantic / Exact Match Edge Cache
-          const cache = caches.default;
-          const cacheUrl = new URL(
-            `https://fpt-edge-cache.local/api/chat?q=${encodeURIComponent(normQ)}`,
-          );
-          const cacheKey = new Request(cacheUrl.toString(), { method: "GET" });
-
-          const isSseRequested =
-            request.headers.get("Accept")?.includes("text/event-stream") ||
-            url.searchParams.get("stream") === "true";
-
-          if (!isSseRequested) {
-            try {
-              const cachedRes = await cache.match(cacheKey);
-              if (cachedRes) {
-                const cachedJson = await cachedRes.json();
-                return json(cachedJson, 200, {
-                  "X-Edge-Cache": "HIT",
-                  "Cache-Control": "public, s-maxage=3600",
-                });
-              }
-            } catch (cErr) {
-              console.warn("Edge cache read warning:", cErr);
-            }
-          }
-
-          // 3. Entity & Region Extraction (Metadata filtering)
           let regionFilter = null;
 
           if (
@@ -995,6 +1133,34 @@ export default {
             )
           ) {
             regionFilter = "tien_giang_dong_thap";
+          } else if (isNationalListedQuery) {
+            regionFilter = "toan_quoc";
+          }
+
+          // 2. Cloudflare Cache API (chỉ cache truy vấn đơn 1 lượt và tách khóa theo vùng)
+          const cache = caches.default;
+          const cacheUrl = new URL(
+            `https://fpt-edge-cache.local/api/chat?q=${encodeURIComponent(normQ)}&r=${encodeURIComponent(regionFilter || "all")}`,
+          );
+          const cacheKey = new Request(cacheUrl.toString(), { method: "GET" });
+
+          const isSseRequested =
+            request.headers.get("Accept")?.includes("text/event-stream") ||
+            url.searchParams.get("stream") === "true";
+
+          if (!isSseRequested && !hasConversationHistory) {
+            try {
+              const cachedRes = await cache.match(cacheKey);
+              if (cachedRes) {
+                const cachedJson = await cachedRes.json();
+                return json(cachedJson, 200, {
+                  "X-Edge-Cache": "HIT",
+                  "Cache-Control": "public, s-maxage=3600",
+                });
+              }
+            } catch (cErr) {
+              console.warn("Edge cache read warning:", cErr);
+            }
           }
 
           // 4. RAG Retrieval via Vectorize (@cf/baai/bge-m3)
@@ -1083,7 +1249,7 @@ QUY TẮC BẮT BUỘC (GUARDRAILS):
 }
 
 [DỮ LIỆU THỰC TẾ]:
-${retrievedContext || SYSTEM_INSTRUCTION}`;
+${retrievedContext || SYSTEM_INSTRUCTION}${isNationalListedQuery ? "\n\n[LƯU Ý TỈNH NGOÀI 5 VÙNG MIỀN NAM]: Khách hỏi khu vực toàn quốc (Hà Nội/Đà Nẵng/tỉnh khác). Hãy báo giá theo BẢNG GIÁ NIÊM YẾT WEBSITE (Khối 8 & Khối 5 mục A) và mời khách gọi/nhắn Zalo 0358 513 269 để chuyển đúng chi nhánh kiểm tra khuyến mãi tại địa phương." : ""}`;
 
           const messages = [
             { role: "system", content: RAG_SYSTEM_PROMPT },
@@ -1220,22 +1386,24 @@ ${retrievedContext || SYSTEM_INSTRUCTION}`;
             }
           }
 
-          // Save into Cloudflare Edge Cache (caches.default) with TTL = 1 hour
-          try {
-            const cacheResponse = new Response(
-              JSON.stringify(responsePayload),
-              {
-                status: 200,
-                headers: {
-                  "Content-Type": "application/json; charset=utf-8",
-                  "Cache-Control": "public, s-maxage=3600",
-                  "Access-Control-Allow-Origin": "*",
+          // Save into Cloudflare Edge Cache (caches.default) for single-turn Q&A with TTL = 1 hour
+          if (!hasConversationHistory) {
+            try {
+              const cacheResponse = new Response(
+                JSON.stringify(responsePayload),
+                {
+                  status: 200,
+                  headers: {
+                    "Content-Type": "application/json; charset=utf-8",
+                    "Cache-Control": "public, s-maxage=3600",
+                    "Access-Control-Allow-Origin": "*",
+                  },
                 },
-              },
-            );
-            ctx.waitUntil(cache.put(cacheKey, cacheResponse));
-          } catch (pErr) {
-            console.warn("Edge cache put error:", pErr);
+              );
+              ctx.waitUntil(cache.put(cacheKey, cacheResponse));
+            } catch (pErr) {
+              console.warn("Edge cache put error:", pErr);
+            }
           }
 
           return json(responsePayload, 200, {

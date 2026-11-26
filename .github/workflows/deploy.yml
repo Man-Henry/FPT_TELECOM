@@ -27,6 +27,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 1.5. Cài đặt Node.js & build CSS/JS minified + đồng bộ dữ liệu giá
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --prefer-offline || npm install --no-save
+
+      - name: Sync Pricing & Build Minified Assets
+        run: |
+          npm run sync:pricing
+          npm run fix:html
+          npm run build:css
+          npm run build:js
+          npm run audit:repo
+
       # 2. Tạo version từ mã commit
       - name: Create version
         run: |

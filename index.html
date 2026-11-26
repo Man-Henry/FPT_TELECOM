@@ -697,14 +697,57 @@
                 <button type="button" class="finder-pill" data-pf-need="game">🎮 Chơi Game / Wi-Fi 7 XGS-PON</button>
               </div>
             </div>
+
+            <div class="finder-step">
+              <span class="finder-label">4. Dự toán chi phí đóng ban đầu &amp; Thiết bị mở rộng</span>
+              <div class="finder-pills finder-pills-4" id="pf-term-pills">
+                <button type="button" class="finder-pill active" data-pf-term="1">Trả sau hàng tháng</button>
+                <button type="button" class="finder-pill" data-pf-term="3">Trả trước 3T</button>
+                <button type="button" class="finder-pill" data-pf-term="6">Trả trước 6T</button>
+                <button type="button" class="finder-pill" data-pf-term="12">Trả trước 12T</button>
+              </div>
+              <div class="finder-extra-grid">
+                <div>
+                  <label class="finder-sublabel" for="pf-modem-opt">Modem phụ phủ sóng (+20k/tháng, từ TT3T)</label>
+                  <select id="pf-modem-opt" class="finder-select finder-select-sm">
+                    <option value="0">0 Modem phụ (Chỉ dùng 1 Modem chính)</option>
+                    <option value="1">+1 Modem phụ (+20.000đ/tháng)</option>
+                    <option value="2">+2 Modem phụ (+40.000đ/tháng)</option>
+                  </select>
+                </div>
+                <div id="pf-box-row" style="display:none;">
+                  <label class="finder-sublabel" for="pf-box-opt">Đầu thu truyền hình FPT Play</label>
+                  <select id="pf-box-opt" class="finder-select finder-select-sm">
+                    <option value="app">Dùng App Smart TV (0đ phí Box)</option>
+                    <option value="box">Lấy Đầu thu FPT Play Box</option>
+                  </select>
+                </div>
+                <div id="pf-cloud-row" style="display:none;">
+                  <label class="finder-sublabel" for="pf-cloud-opt">Gói Cloud lưu trữ Camera/tháng</label>
+                  <select id="pf-cloud-opt" class="finder-select finder-select-sm">
+                    <option value="35000">1 Cam • 7 ngày (+35.000đ/tháng)</option>
+                    <option value="40000">1 Cam • 15 ngày (+40.000đ/tháng)</option>
+                    <option value="70000">1 Cam • 30 ngày (+70.000đ/tháng)</option>
+                    <option value="50000">Unlimited Max • 7 ngày (+50.000đ/tháng)</option>
+                    <option value="100000">Unlimited Max • 30 ngày (+100.000đ/tháng)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="finder-result" aria-live="polite">
             <div>
-              <span class="finder-res-badge">GỢI Ý TỐI ƯU NHẤT CHO BẠN</span>
+              <span class="finder-res-badge">DỰ TOÁN CHI PHÍ &amp; GÓI TỐI ƯU</span>
               <h3 class="finder-res-name" id="pf-res-name">Internet Sky (Ngoại thành TP.HCM)</h3>
               <div class="finder-res-speed" id="pf-res-speed">⚡ 1 Gbps / 300 Mbps</div>
               <div class="finder-res-price" id="pf-res-price">205.000đ <small>/tháng (đã gồm VAT)</small></div>
+              <div class="finder-breakdown" id="pf-res-breakdown">
+                <div class="fb-row"><span>Cước gói chính (1 tháng):</span><strong id="fb-plan-cost">205.000đ</strong></div>
+                <div class="fb-row"><span>Phí lắp đặt (QĐ 300.000đ):</span><strong id="fb-install-cost" style="color:#4ade80;">0đ (Miễn phí)</strong></div>
+                <div class="fb-row" id="fb-addon-row" style="display:none;"><span id="fb-addon-label">Phụ kiện / Box / Cloud:</span><strong id="fb-addon-cost">0đ</strong></div>
+                <div class="fb-total"><span>Tổng dự kiến đóng ban đầu:</span><strong id="fb-total-cost">205.000đ</strong></div>
+              </div>
               <ul class="finder-res-list" id="pf-res-list">
                 <li>✓ Miễn phí lắp đặt cho khách hàng đăng ký mới (thay vì phí hòa mạng 300.000đ)</li>
                 <li>✓ Tặng kèm Modem Wi-Fi 6 hai băng tần</li>

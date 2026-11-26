@@ -9,6 +9,7 @@ const fs = require("fs");
 const path = require("path");
 const dns = require("dns");
 const cheerio = require("cheerio");
+const { rebuildSitemap } = require("./lib/sitemap");
 
 // Force IPv4 resolution to prevent ETIMEDOUT on GitHub Actions / Ubuntu runners
 try {
@@ -570,7 +571,7 @@ function generateArticleHtml(article) {
 // Update news.html with new article cards
 function updateNewsListing(newArticles) {
   if (!fs.existsSync(NEWS_HTML_PATH) || newArticles.length === 0) return;
-  let content = fs.readFileSync(NEWS_HTML_PATH, "utf8");
+  let content = fs.readFileSync(NEWS_HTML_PATH, "utf8").replace(/^\uFEFF/, "");
 
   const cardsHtml = newArticles
     .map((art) => {
@@ -614,7 +615,7 @@ function updateNewsListing(newArticles) {
 function updateHomepageNews() {
   if (!fs.existsSync(INDEX_HTML_PATH) || !fs.existsSync(NEWS_HTML_PATH)) return;
 
-  const newsHtml = fs.readFileSync(NEWS_HTML_PATH, "utf8");
+  const newsHtml = fs.readFileSync(NEWS_HTML_PATH, "utf8").replace(/^\uFEFF/, "");
   const $news = cheerio.load(newsHtml);
 
   const topArticles = [];
@@ -713,162 +714,7 @@ function updateHomepageNews() {
 
 // Automatically regenerate clean, complete, verified sitemap.xml
 function generateFullSitemap() {
-  const todayIso = new Date().toISOString().split("T")[0];
-
-  const mainPages = [
-    {
-      loc: "https://fpttelecomvn.click/",
-      priority: "1.0",
-      changefreq: "daily",
-      lastmod: todayIso,
-    },
-    {
-      loc: "https://fpttelecomvn.click/pages/bang-gia.html",
-      priority: "0.9",
-      changefreq: "weekly",
-      lastmod: todayIso,
-    },
-    {
-      loc: "https://fpttelecomvn.click/pages/khu-vuc.html",
-      priority: "0.9",
-      changefreq: "weekly",
-      lastmod: todayIso,
-    },
-    {
-      loc: "https://fpttelecomvn.click/pages/news.html",
-      priority: "0.9",
-      changefreq: "daily",
-      lastmod: todayIso,
-    },
-    {
-      loc: "https://fpttelecomvn.click/pages/ve-chung-toi.html",
-      priority: "0.9",
-      changefreq: "monthly",
-      lastmod: todayIso,
-    },
-    {
-      loc: "https://fpttelecomvn.click/pages/chinh-sach.html",
-      priority: "0.8",
-      changefreq: "monthly",
-      lastmod: todayIso,
-    },
-    {
-      loc: "https://fpttelecomvn.click/pages/lien-he.html",
-      priority: "0.9",
-      changefreq: "monthly",
-      lastmod: todayIso,
-    },
-  ];
-
-  // Quét các trang khu vực địa phương (Local SEO)
-  const khuVucDir = path.join(REPO_ROOT, "pages", "khu-vuc");
-  const khuVucFiles = fs.existsSync(khuVucDir)
-    ? fs.readdirSync(khuVucDir).filter((f) => f.endsWith(".html"))
-    : [];
-  const localEntries = khuVucFiles.map((file) => ({
-    loc: `https://fpttelecomvn.click/pages/khu-vuc/${file}`,
-    lastmod: todayIso,
-    changefreq: "weekly",
-    priority: "0.9",
-  }));
-
-  // Quét bài viết tin tức (chỉ giữ bài indexable, bỏ qua bài noindex ngoài chủ đề)
-  const postFiles = fs.existsSync(POSTS_DIR)
-    ? fs.readdirSync(POSTS_DIR).filter((f) => {
-        if (!f.endsWith(".html")) return false;
-        const c = fs.readFileSync(path.join(POSTS_DIR, f), "utf8");
-        return !c.includes('content="noindex');
-      })
-    : [];
-
-  const postEntries = postFiles.map((file) => {
-    const fullPath = path.join(POSTS_DIR, file);
-    let mtimeIso = todayIso;
-    try {
-      mtimeIso = fs.statSync(fullPath).mtime.toISOString().split("T")[0];
-    } catch (e) {}
-
-    return {
-      loc: `https://fpttelecomvn.click/pages/posts/${file}`,
-      lastmod: mtimeIso,
-      changefreq: "monthly",
-      priority: "0.8",
-    };
-  });
-
-  // Scan all topic landing pages
-  const topicsDir = path.join(REPO_ROOT, "pages", "topics");
-  const topicFiles = fs.existsSync(topicsDir)
-    ? fs.readdirSync(topicsDir).filter((f) => f.endsWith(".html"))
-    : [];
-
-  const topicEntries = topicFiles.map((file) => {
-    const fullPath = path.join(topicsDir, file);
-    let mtimeIso = todayIso;
-    try {
-      mtimeIso = fs.statSync(fullPath).mtime.toISOString().split("T")[0];
-    } catch (e) {}
-
-    return {
-      loc: `https://fpttelecomvn.click/pages/topics/${file}`,
-      lastmod: mtimeIso,
-      changefreq: "weekly",
-      priority: "0.85",
-    };
-  });
-
-  const allUrls = [...mainPages, ...localEntries, ...topicEntries, ...postEntries];
-
-  const xmlLines = [
-    '<?xml version="1.0" encoding="UTF-8"?>',
-    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-    "  <!-- Core Static Pages -->",
-    ...mainPages.map(
-      (p) => `  <url>
-    <loc>${p.loc}</loc>
-    <lastmod>${p.lastmod}</lastmod>
-    <changefreq>${p.changefreq}</changefreq>
-    <priority>${p.priority}</priority>
-  </url>`,
-    ),
-    "",
-    `  <!-- Local SEO Regional Pages (${localEntries.length} regions) -->`,
-    ...localEntries.map(
-      (l) => `  <url>
-    <loc>${l.loc}</loc>
-    <lastmod>${l.lastmod}</lastmod>
-    <changefreq>${l.changefreq}</changefreq>
-    <priority>${l.priority}</priority>
-  </url>`,
-    ),
-    "",
-    `  <!-- Niche Programmatic Landing Pages (${topicEntries.length} topics) -->`,
-    ...topicEntries.map(
-      (t) => `  <url>
-    <loc>${t.loc}</loc>
-    <lastmod>${t.lastmod}</lastmod>
-    <changefreq>${t.changefreq}</changefreq>
-    <priority>${t.priority}</priority>
-  </url>`,
-    ),
-    "",
-    `  <!-- Dynamic Article & Promo Posts (${postEntries.length} indexable articles) -->`,
-    ...postEntries.map(
-      (p) => `  <url>
-    <loc>${p.loc}</loc>
-    <lastmod>${p.lastmod}</lastmod>
-    <changefreq>${p.changefreq}</changefreq>
-    <priority>${p.priority}</priority>
-  </url>`,
-    ),
-    "</urlset>",
-  ];
-
-  const xmlContent = xmlLines.join("\n") + "\n";
-  fs.writeFileSync(SITEMAP_PATH, xmlContent, "utf8");
-  console.log(
-    `🗺️  Regenerated sitemap.xml with ${allUrls.length} verified URLs.`,
-  );
+  rebuildSitemap(REPO_ROOT, "https://fpttelecomvn.click");
 }
 
 

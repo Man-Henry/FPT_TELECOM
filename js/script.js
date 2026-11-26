@@ -245,10 +245,81 @@ async function getUserLocation() {
   }
 }
 
-// Google Apps Script Web App Endpoint URL (Send lead to Google Sheet & notify Email)
+// Google Apps Script Web App Endpoint URL (Backup fallback only when Worker unreachable)
 const WORKER_LEAD_ENDPOINT = "https://man-chatbot.tvm19624.workers.dev/api/lead";
 const GOOGLE_SHEETS_ENDPOINT =
   "https://script.google.com/macros/s/AKfycbwvkgJ0GpdzEwh6Us5AFJ8uUlwuO3paCxqhSY8JhAzWur3Ws6KIuLxlrPN4-lqtBDeO/exec";
+const TURNSTILE_SITE_KEY = "0x4AAAAAAAEi6j9Y-0rZc7eU";
+
+function ensureTurnstileLoaded() {
+  const leadForm = document.getElementById("leadForm");
+  if (leadForm && !leadForm.querySelector(".cf-turnstile")) {
+    const submitBtn = leadForm.querySelector('button[type="submit"]');
+    const widget = document.createElement("div");
+    widget.className = "cf-turnstile";
+    widget.setAttribute("data-sitekey", TURNSTILE_SITE_KEY);
+    widget.setAttribute("data-size", "flexible");
+    widget.setAttribute("data-theme", "light");
+    widget.style.margin = "10px 0";
+    if (submitBtn && submitBtn.parentNode === leadForm) {
+      leadForm.insertBefore(widget, submitBtn);
+    } else {
+      leadForm.appendChild(widget);
+    }
+  }
+
+  const hasFormOrModal =
+    document.getElementById("leadForm") ||
+    document.getElementById("popupForm") ||
+    document.querySelector(".cf-turnstile");
+  if (!hasFormOrModal) return;
+
+  if (
+    typeof window.turnstile === "undefined" &&
+    !document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]')
+  ) {
+    const s = document.createElement("script");
+    s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+    s.async = true;
+    s.defer = true;
+    document.head.appendChild(s);
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", ensureTurnstileLoaded);
+} else {
+  ensureTurnstileLoaded();
+}
+
+function showFormFeedback(form, message, isError = false) {
+  let feedbackEl = form.querySelector(".form-feedback-msg, .success");
+  if (!feedbackEl) {
+    feedbackEl = document.createElement("div");
+    feedbackEl.className = "form-feedback-msg";
+    feedbackEl.setAttribute("role", "status");
+    feedbackEl.setAttribute("aria-live", "polite");
+    form.appendChild(feedbackEl);
+  }
+  feedbackEl.textContent = message || "";
+  feedbackEl.style.display = message ? "block" : "none";
+  feedbackEl.style.marginTop = "12px";
+  feedbackEl.style.padding = message ? "10px 14px" : "0";
+  feedbackEl.style.borderRadius = "10px";
+  feedbackEl.style.fontSize = "13.5px";
+  feedbackEl.style.fontWeight = "600";
+  if (isError) {
+    feedbackEl.classList.add("error");
+    feedbackEl.style.background = "#fef2f2";
+    feedbackEl.style.color = "#b91c1c";
+    feedbackEl.style.border = "1px solid #fecaca";
+  } else {
+    feedbackEl.classList.remove("error");
+    feedbackEl.style.background = "#f0fdf4";
+    feedbackEl.style.color = "#15803d";
+    feedbackEl.style.border = "1px solid #bbf7d0";
+  }
+}
 
 // Global form submission handler with event delegation (handles both #leadForm and #popupForm)
 document.addEventListener("submit", async (event) => {
@@ -257,35 +328,54 @@ document.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const submitButton = form.querySelector('button[type="submit"]');
-  const result = form.querySelector(".success");
   const originalLabel = submitButton ? submitButton.innerHTML : "Gửi";
 
   if (submitButton) {
     submitButton.disabled = true;
     submitButton.textContent = "Đang gửi...";
   }
-  if (result) {
-    result.textContent = "";
-    result.classList.remove("error");
-  }
+  showFormFeedback(form, "", false);
 
   const formData = new FormData(form);
-  const isSupportMode = formData.get("form_type") === "support" || !!formData.get("Nội dung hỗ trợ");
-  const name = formData.get("Họ tên") || formData.get("Họ Và Tên") || "";
-  const phone = isSupportMode
-    ? (formData.get("Thông tin khách hàng") || formData.get("Số điện thoại") || "")
-    : (formData.get("Số điện thoại") || "");
-  const address = formData.get("Địa chỉ") || formData.get("Khu vực") || "";
-  const pkg = isSupportMode ? "Yêu cầu hỗ trợ CSKH / Kỹ thuật" : (formData.get("Gói cước") || "Tư vấn chung");
-  const note = isSupportMode ? (formData.get("Nội dung hỗ trợ") || "") : (formData.get("Ghi chú") || "");
+  const isSupportMode =
+    formData.get("form_type") === "support" ||
+    !!formData.get("Nội dung hỗ trợ");
+  const name = (formData.get("Họ tên") || formData.get("Họ Và Tên") || "").trim();
+  const phone = (
+    isSupportMode
+      ? formData.get("Thông tin khách hàng") || formData.get("Số điện thoại") || ""
+      : formData.get("Số điện thoại") || ""
+  ).trim();
+  const address = (formData.get("Địa chỉ") || formData.get("Khu vực") || "").trim();
+  const pkg = isSupportMode
+    ? "Yêu cầu hỗ trợ CSKH / Kỹ thuật"
+    : formData.get("Gói cước") || "Tư vấn chung";
+  const note = isSupportMode
+    ? formData.get("Nội dung hỗ trợ") || ""
+    : formData.get("Ghi chú") || "";
   const timePref = formData.get("Thời gian liên hệ") || "Gọi ngay bây giờ";
 
-  // Chuẩn hóa và đồng bộ mọi alias trường dữ liệu cho cả Google Apps Script và Cloudflare Worker
+  // Validate SĐT nhanh trên Client trước khi gọi API
+  const cleanPhone = phone.replace(/\s+/g, "");
+  if (!/^(0|\+84)[3-9][0-9]{8}$/.test(cleanPhone)) {
+    showFormFeedback(
+      form,
+      "Số điện thoại chưa đúng định dạng 10 số Việt Nam (ví dụ: 0987654321). Vui lòng kiểm tra lại.",
+      true,
+    );
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.innerHTML = originalLabel;
+    }
+    return;
+  }
+
+  // Chuẩn hóa và đồng bộ mọi alias trường dữ liệu cho Cloudflare Worker & fallback GAS
   formData.set("Họ tên", name);
   formData.set("Họ Và Tên", name);
   formData.set("name", name);
-  formData.set("Số điện thoại", phone);
-  formData.set("phone", phone);
+  formData.set("Số điện thoại", cleanPhone);
+  formData.set("phone", cleanPhone);
   formData.set("Địa chỉ", address);
   formData.set("Khu vực", address);
   formData.set("address", address);
@@ -299,11 +389,17 @@ document.addEventListener("submit", async (event) => {
     formData.set("consent_nd13", "1");
   }
 
-  // Turnstile Bot Protection Token Extraction
-  let tsToken = formData.get("cf-turnstile-response");
-  if (!tsToken && typeof window.turnstile !== "undefined" && typeof window.turnstile.getResponse === "function") {
+  // Turnstile Bot Protection Token Extraction (tìm đúng widget bên trong form hiện tại trước)
+  const localTsInput = form.querySelector('input[name="cf-turnstile-response"]');
+  let tsToken = (localTsInput && localTsInput.value) || formData.get("cf-turnstile-response");
+  if (
+    !tsToken &&
+    typeof window.turnstile !== "undefined" &&
+    typeof window.turnstile.getResponse === "function"
+  ) {
     try {
-      tsToken = window.turnstile.getResponse();
+      const widgetEl = form.querySelector(".cf-turnstile");
+      tsToken = widgetEl ? window.turnstile.getResponse(widgetEl) : window.turnstile.getResponse();
     } catch (e) {}
   }
   if (tsToken) {
@@ -313,13 +409,8 @@ document.addEventListener("submit", async (event) => {
   // Honeypot check — silently reject bots
   const honeypot = form.querySelector('[name="website"]');
   if (honeypot && honeypot.value) {
-    if (result)
-      result.textContent =
-        "Cảm ơn bạn! FPT sẽ liên hệ hỗ trợ trong thời gian sớm nhất.";
-    if (typeof window.closeRegisterModal === "function")
-      window.closeRegisterModal();
-    if (typeof window.openSuccessModal === "function")
-      window.openSuccessModal(name, phone, pkg);
+    if (typeof window.closeRegisterModal === "function") window.closeRegisterModal();
+    if (typeof window.openSuccessModal === "function") window.openSuccessModal(name, cleanPhone, pkg);
     form.reset();
     if (submitButton) {
       submitButton.disabled = false;
@@ -335,70 +426,112 @@ document.addEventListener("submit", async (event) => {
         : "Chưa xác định";
     formData.set("Tọa độ", locationInfo);
 
-    // Chuẩn bị URLSearchParams để gửi cho Google Apps Script
-    const urlParams = new URLSearchParams();
-    for (const [key, value] of formData.entries()) {
-      urlParams.append(key, value);
+    // Gửi 1 cổng duy nhất qua Cloudflare Worker (/api/lead); Worker tự đồng bộ D1 + Telegram + Resend + Google Sheets
+    let workerSucceeded = false;
+    let workerClientError = null;
+    let workerJson = null;
+
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 7000);
+    try {
+      const workerRes = await fetch(WORKER_LEAD_ENDPOINT, {
+        method: "POST",
+        body: formData,
+        signal: controller.signal,
+      });
+      clearTimeout(tid);
+      workerJson = await workerRes.json().catch(() => null);
+
+      if (workerRes.ok && workerJson && workerJson.success !== false) {
+        workerSucceeded = true;
+      } else if (workerRes.status >= 400 && workerRes.status < 500) {
+        workerClientError = {
+          status: workerRes.status,
+          message:
+            (workerJson && workerJson.error) ||
+            "Thông tin đăng ký chưa hợp lệ hoặc cần xác thực bảo mật.",
+        };
+      }
+    } catch (workerErr) {
+      clearTimeout(tid);
+      console.warn("Worker lead unavailable, falling back to Google Sheets:", workerErr);
     }
 
-    // 1. GỬI TRỰC TIẾP ĐẾN GOOGLE APPS SCRIPT WEB APP (Bắt buộc chạy song song)
-    // Dùng mode: "no-cors" với Content-Type x-www-form-urlencoded để trình duyệt gửi thành công 100%,
-    // không bị chặn bởi chính sách CORS của Google Apps Script, đảm bảo ghi Google Sheet và gửi email về tvm19624@gmail.com.
-    const gasPromise = fetch(GOOGLE_SHEETS_ENDPOINT, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: urlParams.toString(),
-    }).catch((e) => console.warn("Google Sheets submission notice:", e));
-
-    // 2. GỬI ĐẾN CLOUDFLARE WORKER (Lưu trữ D1, chống spam, thông báo Telegram)
-    const workerPromise = fetch(WORKER_LEAD_ENDPOINT, {
-      method: "POST",
-      body: formData,
-    }).then(async (res) => {
-      if (res && res.ok) {
-        const respData = await res.json().catch(() => null);
-        console.log("Lead stored in Cloudflare D1:", respData);
+    // Không cho phép "báo thành công giả" khi Worker từ chối 400/403/429
+    if (workerClientError) {
+      showFormFeedback(form, workerClientError.message, true);
+      if (
+        workerClientError.status === 403 &&
+        typeof window.turnstile !== "undefined" &&
+        typeof window.turnstile.reset === "function"
+      ) {
+        try {
+          const widgetEl = form.querySelector(".cf-turnstile");
+          if (widgetEl) window.turnstile.reset(widgetEl);
+        } catch (e) {}
       }
-      return res;
-    }).catch((e) => console.warn("Worker lead submit notice:", e));
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "form_submit_error",
+        status_code: workerClientError.status,
+        package_name: pkg,
+      });
+      return;
+    }
 
-    // Đợi cả 2 kênh gửi đi hoàn tất (giới hạn tối đa 2.5s để khách hàng không phải chờ lâu)
-    await Promise.race([
-      Promise.allSettled([gasPromise, workerPromise]),
-      new Promise((resolve) => setTimeout(resolve, 2500)),
-    ]);
+    // Chỉ fallback gọi thẳng Google Apps Script khi Worker lỗi mạng hoặc 5xx
+    if (!workerSucceeded) {
+      const urlParams = new URLSearchParams();
+      for (const [key, value] of formData.entries()) {
+        urlParams.append(key, value);
+      }
+      await fetch(GOOGLE_SHEETS_ENDPOINT, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: urlParams.toString(),
+      });
+    }
 
-    if (result)
-      result.textContent =
-        "Cảm ơn bạn! FPT sẽ liên hệ tư vấn trong thời gian sớm nhất.";
+    showFormFeedback(
+      form,
+      (workerJson && workerJson.message) ||
+        "Cảm ơn bạn! FPT sẽ liên hệ tư vấn trong thời gian sớm nhất.",
+      false,
+    );
 
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
       event: "form_submit",
+      form_status: "success",
+      delivery_channel: workerSucceeded ? "cloudflare_worker" : "gas_fallback",
       package_name: pkg,
       time_preference: timePref,
     });
 
-    // Close Registration Modal if open
-    if (typeof window.closeRegisterModal === "function")
-      window.closeRegisterModal();
-
-    // Show Success Modal
-    if (typeof window.openSuccessModal === "function")
-      window.openSuccessModal(name, phone, pkg);
+    if (typeof window.closeRegisterModal === "function") window.closeRegisterModal();
+    if (typeof window.openSuccessModal === "function") window.openSuccessModal(name, cleanPhone, pkg);
 
     form.reset();
+    if (typeof window.turnstile !== "undefined" && typeof window.turnstile.reset === "function") {
+      try {
+        const widgetEl = form.querySelector(".cf-turnstile");
+        if (widgetEl) window.turnstile.reset(widgetEl);
+      } catch (e) {}
+    }
   } catch (error) {
     console.error("Form submit error:", error);
-    if (result) {
-      result.textContent =
-        "Cảm ơn bạn! FPT sẽ liên hệ tư vấn trong thời gian sớm nhất.";
-    }
-    if (typeof window.closeRegisterModal === "function")
-      window.closeRegisterModal();
-    if (typeof window.openSuccessModal === "function")
-      window.openSuccessModal(name, phone, pkg);
+    showFormFeedback(
+      form,
+      "Kết nối tạm thời gián đoạn. Quý khách vui lòng thử lại hoặc gọi ngay Hotline/Zalo 0358 513 269.",
+      true,
+    );
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "form_submit_error",
+      status_code: 0,
+      package_name: pkg,
+    });
   } finally {
     if (submitButton) {
       submitButton.disabled = false;
@@ -1195,6 +1328,14 @@ if (chatToggle && chatWidget) {
   const toggleChat = (isAutoOpen = false) => {
     const isOpen = chatWidget.classList.toggle("open");
 
+    if (isOpen) {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "chat_open",
+        trigger_source: isAutoOpen ? "auto_10s" : "user_click",
+      });
+    }
+
     if (isOpen && isAutoOpen && !hasPlayedSound) {
       playDing();
       hasPlayedSound = true;
@@ -1510,6 +1651,8 @@ if (chatToggle && chatWidget) {
     window.switchToLiveChat = async function () {
       if (chatMode === "live" || isClosed) return;
       chatMode = "live";
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event: "chat_live_switch" });
       appendMessage(
         "✅ Đã gửi yêu cầu kết nối trực tiếp với nhân viên hỗ trợ (Tiểu Mẫn FPT). Bạn vui lòng chờ trong giây lát nhé!",
         "bot",
@@ -1548,6 +1691,12 @@ if (chatToggle && chatWidget) {
     const sendMessage = async () => {
       const message = chatInput.value.trim();
       if (!message || isClosed) return;
+
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "chat_message_send",
+        chat_mode: chatMode,
+      });
 
       appendMessage(message, "user");
       chatHistory.push({ role: "user", text: message });
@@ -2402,7 +2551,8 @@ const modalsHTML = `
 
 document.body.insertAdjacentHTML("beforeend", modalsHTML);
 
-window.openRegisterModal = function (packageName) {
+window.openRegisterModal = function (packageName, prefillNote = "") {
+  ensureTurnstileLoaded();
   const modal = document.getElementById("registerModal");
   if (!modal) return;
   const title = document.getElementById("regModalTitle");
@@ -2412,7 +2562,18 @@ window.openRegisterModal = function (packageName) {
       : "Đăng ký dịch vụ FPT";
   const pkgInput = document.getElementById("regPackageName");
   if (pkgInput) pkgInput.value = packageName || "Khách hàng cần tư vấn";
+  if (prefillNote) {
+    const noteEl = modal.querySelector('textarea[name="Ghi chú"]');
+    if (noteEl && !noteEl.value) noteEl.value = prefillNote;
+  }
+  const errBox = modal.querySelector(".form-feedback-msg");
+  if (errBox) errBox.style.display = "none";
   modal.classList.add("show");
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: "register_modal_open",
+    package_name: packageName || "Tư vấn chung",
+  });
 };
 
 window.closeRegisterModal = function () {
@@ -2629,131 +2790,447 @@ document.addEventListener("click", (e) => {
 (function initRegionalPriceFinderAndSearch() {
   const finderRoot = document.getElementById("package-finder");
   if (finderRoot) {
+    /* @sync-pricing:region-catalog:start */
+    const PRICING_POLICIES = {
+    "standard_install_fee": 300000,
+    "new_customer_promo_install_fee": 0,
+    "extra_modem_monthly": 20000,
+    "extra_modem_min_prepay_months": 3,
+    "extra_box_first_fee": 550000,
+    "extra_cam_bundle_3_fee": 1000000,
+    "cloud_pricing": {
+        "1_cam_7d": 35000,
+        "1_cam_15d": 40000,
+        "1_cam_30d": 70000,
+        "max_7d": 50000,
+        "max_15d": 70000,
+        "max_30d": 100000
+    }
+};
     const REGION_CATALOG = {
-      hcm_ngoai: {
-        label: "TP.HCM Ngoại thành (Q5, Q6, Q8, Q9, Q12, Gò Vấp, Bình Tân, Thủ Đức cũ, 5 Huyện)",
-        page: "pages/khu-vuc/lap-mang-fpt-tp-hcm.html",
-        packages: {
-          net: { name: "Internet Sky (Ngoại thành TP.HCM)", price: "205.000đ", speed: "1 Gbps / 300 Mbps", note: "Giga 300Mbps chỉ 200.000đ/tháng. Miễn phí lắp đặt khách mới (thay vì phí hòa mạng 300K)." },
-          tv: { name: "Combo Sky V.VIP APP (Ngoại thành TP.HCM)", price: "239.000đ", speed: "1 Gbps + FPT Play Ngoại Hạng Anh", note: "Chọn bản APP cho Smart TV không tốn phí Box. Nếu lấy đầu thu V.VIP Box phụ thu 550.000đ/box." },
-          cam: { name: "Combo Giga + Camera AI (Ngoại thành TP.HCM)", price: "220.000đ", speed: "300 Mbps + Camera AI FPT (Cam 1: 0đ)", note: "Tặng 1 Camera (Cam 2+ tính 400K). Lưu ý cộng phí Cloud Camera hàng tháng từ 35.000đ - 100.000đ." },
-          game: { name: "F-Game / SpeedX1 Wi-Fi 7 (TP.HCM)", price: "250.000đ - 385.000đ", speed: "1 Gbps/300 Mbps (F-Game) hoặc 1 Gbps Wi-Fi 7", note: "SpeedX1 (385K) tặng sẵn Modem Wi-Fi 7 + 01 Mesh Wi-Fi 7 phủ sóng rộng." },
-        },
+      "hcm_ngoai": {
+            "label": "TP.HCM Ngoại thành (Q5, Q6, Q8, Q9, Q12, Gò Vấp, Bình Tân, Thủ Đức cũ, 5 Huyện)",
+            "page": "pages/khu-vuc/lap-mang-fpt-tp-hcm.html",
+            "default_install_fee": 0,
+            "box_fee": 550000,
+            "v_vvip_box_included": false,
+            "packages": {
+                  "net": {
+                        "name": "Internet Sky (Ngoại thành TP.HCM)",
+                        "price": "205.000đ",
+                        "price_value": 205000,
+                        "speed": "1 Gbps / 300 Mbps",
+                        "note": "Giga 300Mbps chỉ 200.000đ/tháng. Miễn phí lắp đặt khách mới (thay vì phí hòa mạng 300K) + Voucher 200K."
+                  },
+                  "tv": {
+                        "name": "Combo Sky V.VIP APP (Ngoại thành TP.HCM)",
+                        "price": "239.000đ",
+                        "price_value": 239000,
+                        "speed": "1 Gbps + FPT Play Ngoại Hạng Anh",
+                        "note": "Bản APP cài Smart TV không mất phí Box. Nếu lấy đầu thu V.VIP BOX phụ thu 550.000đ/box."
+                  },
+                  "cam": {
+                        "name": "Combo Giga + Camera AI (Ngoại thành TP.HCM)",
+                        "price": "220.000đ",
+                        "price_value": 220000,
+                        "speed": "300 Mbps + Camera AI FPT (Cam 1: 0đ)",
+                        "note": "Tặng 1 Camera (Cam 2+ tính 400K). Lưu ý cộng phí Cloud Camera hàng tháng từ 35.000đ - 100.000đ."
+                  },
+                  "game": {
+                        "name": "SpeedX1 - Công nghệ Wi-Fi 7 XGS-PON",
+                        "price": "385.000đ",
+                        "price_value": 385000,
+                        "speed": "1 Gbps Đối Xứng • Modem + 1 Mesh Wi-Fi 7",
+                        "note": "F-Game tham khảo 265K (bảng web) hoặc xác nhận NVKD; SpeedX1 (385K) tặng sẵn Modem Wi-Fi 7 + 01 Mesh Wi-Fi 7."
+                  }
+            }
       },
-      hcm_noi: {
-        label: "TP.HCM Nội thành (Q1, Q3, Q4, Q7, Q10, Q11, Tân Bình, Tân Phú, Phú Nhuận, Bình Thạnh, Q2 cũ)",
-        page: "pages/khu-vuc/lap-mang-fpt-tp-hcm.html",
-        packages: {
-          net: { name: "Internet Sky (Nội thành TP.HCM)", price: "265.000đ", speed: "1 Gbps / 300 Mbps", note: "Giga 300Mbps giá 255.000đ/tháng. Miễn phí lắp đặt khách mới (quy định 300K) + tặng Voucher 200K." },
-          tv: { name: "Combo Sky V.VIP APP (Nội thành TP.HCM)", price: "269.000đ", speed: "1 Gbps + FPT Play Ngoại Hạng Anh", note: "Bản APP cài trực tiếp Smart TV 0đ Box. Nếu cần đầu thu V.VIP BOX phụ thu 550.000đ/box." },
-          cam: { name: "Combo Sky + Camera AI (Nội thành TP.HCM)", price: "265.000đ", speed: "1 Gbps + Camera AI (Cam 1: 0đ)", note: "Hoặc Giga Cam 255K/tháng. Cần cộng phí Cloud Camera hàng tháng từ 35.000đ - 100.000đ." },
-          game: { name: "SpeedX1 - Công nghệ Wi-Fi 7 XGS-PON", price: "385.000đ", speed: "1 Gbps Đối Xứng • Modem + 1 Mesh Wi-Fi 7", note: "Tối ưu độ trễ cho game thủ, livestream và nhà nhiều tầng tại nội thành TP.HCM." },
-        },
+      "hcm_noi": {
+            "label": "TP.HCM Nội thành (Q1, Q3, Q4, Q7, Q10, Q11, Tân Bình, Tân Phú, Phú Nhuận, Bình Thạnh, Q2 cũ)",
+            "page": "pages/khu-vuc/lap-mang-fpt-tp-hcm.html",
+            "default_install_fee": 0,
+            "box_fee": 550000,
+            "v_vvip_box_included": false,
+            "packages": {
+                  "net": {
+                        "name": "Internet Sky (Nội thành TP.HCM)",
+                        "price": "265.000đ",
+                        "price_value": 265000,
+                        "speed": "1 Gbps / 300 Mbps",
+                        "note": "Giga 300Mbps giá 255.000đ/tháng. Miễn phí lắp đặt khách mới (quy định 300K) + Voucher 200K."
+                  },
+                  "tv": {
+                        "name": "Combo Sky V.VIP APP (Nội thành TP.HCM)",
+                        "price": "269.000đ",
+                        "price_value": 269000,
+                        "speed": "1 Gbps + FPT Play Ngoại Hạng Anh",
+                        "note": "Bản APP cài Smart TV 0đ Box. Nếu lấy đầu thu V.VIP BOX phụ thu 550.000đ/box."
+                  },
+                  "cam": {
+                        "name": "Combo Sky + Camera AI (Nội thành TP.HCM)",
+                        "price": "265.000đ",
+                        "price_value": 265000,
+                        "speed": "1 Gbps + Camera AI (Cam 1: 0đ)",
+                        "note": "Hoặc Giga Cam 255K/tháng. Cần cộng phí Cloud Camera hàng tháng từ 35.000đ - 100.000đ."
+                  },
+                  "game": {
+                        "name": "SpeedX1 - Công nghệ Wi-Fi 7 XGS-PON",
+                        "price": "385.000đ",
+                        "price_value": 385000,
+                        "speed": "1 Gbps Đối Xứng • Modem + 1 Mesh Wi-Fi 7",
+                        "note": "Tối ưu độ trễ cho game thủ, livestream và nhà nhiều tầng tại nội thành TP.HCM."
+                  }
+            }
       },
-      dong_nai_1: {
-        label: "Đồng Nai - DNI1 (Long Bình, Hố Nai, Tam Phước, Phước Tân)",
-        page: "pages/khu-vuc/lap-mang-fpt-dong-nai.html",
-        packages: {
-          net: { name: "Internet Sky Net (Đồng Nai DNI1)", price: "195.000đ", speed: "1 Gbps / 300 Mbps", note: "Trả trước tặng Voucher: TT3T 100K, TT6T 150K, TT12T 200K. Lưu ý nhà trọ trả sau DNI1 phụ thu +200K." },
-          tv: { name: "Combo Sky V.VIP (Đồng Nai - Box 0đ)", price: "239.000đ", speed: "1 Gbps + FPT Play Box 0đ (12T đầu)", note: "Miễn phí Box 0đ cho V.VIP (gói Combo VIP Box thường phí Box 100K). Sau 12 tháng về giá niêm yết 269K." },
-          cam: { name: "Triple Thể Thao V.VIP + Camera (Đồng Nai)", price: "249.000đ", speed: "1 Gbps + FPT Play Box 0đ + Cam 1: 0đ", note: "Ưu đãi 12 tháng đầu 249K (sau 12T: 279K). Cộng thêm phí Cloud Camera hàng tháng từ 35K - 100K." },
-          game: { name: "Internet F-Game (Đồng Nai)", price: "225.000đ", speed: "1 Gbps / 300 Mbps + Định tuyến Gaming", note: "Combo F-Game VIP APP/BOX giá 255.000đ/tháng. Hỗ trợ trả trước nhận thêm voucher." },
-        },
+      "dong_nai_1": {
+            "label": "Đồng Nai - DNI1 (Long Bình, Hố Nai, Tam Phước, Phước Tân)",
+            "page": "pages/khu-vuc/lap-mang-fpt-dong-nai.html",
+            "default_install_fee": 0,
+            "box_fee": 0,
+            "vip_box_fee": 100000,
+            "v_vvip_box_included": true,
+            "special_note": "Nhà trọ trả sau DNI1 phụ thu +200.000đ; vượt cáp >500m +200.000đ.",
+            "packages": {
+                  "net": {
+                        "name": "Internet Sky Net (Đồng Nai DNI1)",
+                        "price": "195.000đ",
+                        "price_value": 195000,
+                        "speed": "1 Gbps / 300 Mbps",
+                        "note": "Trả trước tặng Voucher: TT3T 100K, TT6T 150K, TT12T 200K. Lưu ý nhà trọ trả sau DNI1 phụ thu +200K."
+                  },
+                  "tv": {
+                        "name": "Combo Sky V.VIP (Đồng Nai - Box 0đ)",
+                        "price": "239.000đ",
+                        "price_value": 239000,
+                        "speed": "1 Gbps + FPT Play Box 0đ (12T đầu)",
+                        "note": "Miễn phí Box 0đ cho V.VIP (gói VIP Box thường phí Box 100K). Sau 12 tháng về giá niêm yết 269K."
+                  },
+                  "cam": {
+                        "name": "Triple Thể Thao V.VIP + Camera (Đồng Nai)",
+                        "price": "249.000đ",
+                        "price_value": 249000,
+                        "speed": "1 Gbps + FPT Play Box 0đ + Cam 1: 0đ",
+                        "note": "Ưu đãi 12 tháng đầu 249K (sau 12T: 279K). Cộng thêm phí Cloud Camera hàng tháng từ 35K - 100K."
+                  },
+                  "game": {
+                        "name": "Internet F-Game (Đồng Nai)",
+                        "price": "225.000đ",
+                        "price_value": 225000,
+                        "speed": "1 Gbps / 300 Mbps + Định tuyến Gaming",
+                        "note": "Combo F-Game VIP APP/BOX giá 255.000đ/tháng (VIP Box 100K). Hỗ trợ trả trước nhận thêm voucher."
+                  }
+            }
       },
-      dong_nai_234: {
-        label: "Đồng Nai - DNI2,3,4 (Biên Hòa còn lại, Long Thành, Nhơn Trạch...)",
-        page: "pages/khu-vuc/lap-mang-fpt-dong-nai.html",
-        packages: {
-          net: { name: "Internet Sky Net (Đồng Nai DNI2/3/4)", price: "195.000đ", speed: "1 Gbps / 300 Mbps", note: "Trả trước tặng Voucher 100K-200K. Có thể chọn Sky F1 (+1 AP Wi-Fi 6) từ gói trả trước 3 tháng." },
-          tv: { name: "Combo Sky VIP APP / V.VIP Box (Đồng Nai)", price: "205.000đ - 239.000đ", speed: "1 Gbps + Truyền hình FPT Play", note: "Combo VIP APP chỉ 205K; nâng V.VIP Ngoại Hạng Anh Box 0đ giá 239K (12 tháng đầu)." },
-          cam: { name: "Triple Thể Thao V.VIP + Camera (Đồng Nai)", price: "249.000đ", speed: "1 Gbps + Box 0đ + Camera 0đ", note: "Đã gồm miễn phí lắp đặt khách mới; cộng thêm cước Cloud lưu trữ hàng tháng 35K-100K." },
-          game: { name: "Internet F-Game (Đồng Nai)", price: "225.000đ", speed: "1 Gbps / 300 Mbps + Giảm Ping", note: "Miễn phí lắp đặt khách mới; hỗ trợ gói Fx kèm Access Point cho nhà rộng." },
-        },
+      "dong_nai_234": {
+            "label": "Đồng Nai - DNI2,3,4 (Biên Hòa còn lại, Long Thành, Nhơn Trạch...)",
+            "page": "pages/khu-vuc/lap-mang-fpt-dong-nai.html",
+            "default_install_fee": 0,
+            "box_fee": 0,
+            "vip_box_fee": 100000,
+            "v_vvip_box_included": true,
+            "special_note": "Nhà trọ trả sau DNI2 phụ thu +200.000đ; vượt cáp >500m +200.000đ.",
+            "packages": {
+                  "net": {
+                        "name": "Internet Sky Net (Đồng Nai DNI2/3/4)",
+                        "price": "195.000đ",
+                        "price_value": 195000,
+                        "speed": "1 Gbps / 300 Mbps",
+                        "note": "Trả trước tặng Voucher 100K-200K. Có thể chọn Sky F1 (+1 AP Wi-Fi 6) từ gói trả trước 3 tháng."
+                  },
+                  "tv": {
+                        "name": "Combo Sky V.VIP (Đồng Nai - Box 0đ)",
+                        "price": "239.000đ",
+                        "price_value": 239000,
+                        "speed": "1 Gbps + FPT Play Ngoại Hạng Anh",
+                        "note": "Combo VIP APP chỉ 205K; nâng V.VIP Ngoại Hạng Anh Box 0đ giá 239K (12 tháng đầu)."
+                  },
+                  "cam": {
+                        "name": "Triple Thể Thao V.VIP + Camera (Đồng Nai)",
+                        "price": "249.000đ",
+                        "price_value": 249000,
+                        "speed": "1 Gbps + Box 0đ + Camera 0đ",
+                        "note": "Đã gồm miễn phí lắp đặt khách mới; cộng thêm cước Cloud lưu trữ hàng tháng 35K-100K."
+                  },
+                  "game": {
+                        "name": "Internet F-Game (Đồng Nai)",
+                        "price": "225.000đ",
+                        "price_value": 225000,
+                        "speed": "1 Gbps / 300 Mbps + Giảm Ping",
+                        "note": "Miễn phí lắp đặt khách mới; hỗ trợ gói Fx kèm Access Point cho nhà rộng."
+                  }
+            }
       },
-      binh_duong_p: {
-        label: "Bình Dương - 8 Phường TT (Thủ Dầu Một, Lái Thiêu, Đông Hòa, Phú Lợi...)",
-        page: "pages/khu-vuc/lap-mang-fpt-binh-duong.html",
-        packages: {
-          net: { name: "Internet Sky Net (Bình Dương Phường)", price: "195.000đ", speed: "1 Gbps / 300 Mbps", note: "Trả trước 6 tháng được tặng thêm 01 Access Point Wi-Fi 6 / Mesh miễn phí." },
-          tv: { name: "Combo Sky VIP / V.VIP (Bình Dương)", price: "215.000đ - 279.000đ", speed: "1 Gbps + FPT Play 4K", note: "VIP Box tính phí Box 100K; nâng V.VIP Ngoại Hạng Anh được hỗ trợ Box 0đ." },
-          cam: { name: "Gói Meta Đề Xuất + Tặng Camera (Bình Dương)", price: "340.000đ", speed: "1 Gbps Đối Xứng + Tặng 1 Camera", note: "Trả trước 6 tháng tặng thêm AP Wi-Fi 6. Phí Cloud Camera tính từ 35K-100K/tháng." },
-          game: { name: "Internet F-Game (Bình Dương Phường)", price: "229.000đ", speed: "1 Gbps / 300 Mbps + Tối ưu Game", note: "Có gói Fx (+30K/tháng từ 6 tháng) kèm Mesh mở rộng cho nhà nhiều tầng." },
-        },
+      "binh_duong_p": {
+            "label": "Bình Dương - 8 Phường TT (Thủ Dầu Một, Lái Thiêu, Đông Hòa, Phú Lợi...)",
+            "page": "pages/khu-vuc/lap-mang-fpt-binh-duong.html",
+            "default_install_fee": 0,
+            "box_fee": 0,
+            "vip_box_fee": 100000,
+            "v_vvip_box_included": true,
+            "packages": {
+                  "net": {
+                        "name": "Internet Sky Net (Bình Dương Phường)",
+                        "price": "195.000đ",
+                        "price_value": 195000,
+                        "speed": "1 Gbps / 300 Mbps",
+                        "note": "Trả trước 6 tháng được tặng thêm 01 Access Point Wi-Fi 6 / Mesh miễn phí."
+                  },
+                  "tv": {
+                        "name": "Combo Sky VIP Box / V.VIP (Bình Dương)",
+                        "price": "215.000đ",
+                        "price_value": 215000,
+                        "speed": "1 Gbps + FPT Play 4K",
+                        "note": "VIP Box 215K (phí Box 100K); nâng V.VIP Ngoại Hạng Anh 279K (hiện hành 239K) được Box 0đ."
+                  },
+                  "cam": {
+                        "name": "Gói Meta Đề Xuất + Tặng Camera (Bình Dương)",
+                        "price": "340.000đ",
+                        "price_value": 340000,
+                        "speed": "1 Gbps Đối Xứng + Tặng 1 Camera",
+                        "note": "Trả trước 6 tháng tặng thêm AP Wi-Fi 6. Phí Cloud Camera tính từ 35K-100K/tháng."
+                  },
+                  "game": {
+                        "name": "Internet F-Game (Bình Dương Phường)",
+                        "price": "229.000đ",
+                        "price_value": 229000,
+                        "speed": "1 Gbps / 300 Mbps + Tối ưu Game",
+                        "note": "Có gói Fx (+30K/tháng từ 6 tháng) kèm Mesh mở rộng cho nhà nhiều tầng."
+                  }
+            }
       },
-      binh_duong_x: {
-        label: "Bình Dương - Khu vực Xã & P. còn lại (Dĩ An, Thuận Giao, An Phú, Bến Cát...)",
-        page: "pages/khu-vuc/lap-mang-fpt-binh-duong.html",
-        packages: {
-          net: { name: "Internet Sky Net (Bình Dương Xã)", price: "195.000đ", speed: "1 Gbps / 300 Mbps", note: "Riêng An Phú, Thuận Giao, Dĩ An, Hòa Lợi: nếu chọn trả sau phí lắp 500K — nên đóng trước 6T để được miễn phí + tặng AP." },
-          tv: { name: "Combo Sky VIP / V.VIP (Bình Dương Xã)", price: "215.000đ - 269.000đ", speed: "1 Gbps + Truyền hình FPT Play", note: "Combo VIP Box phí Box 100K; gói V.VIP Ngoại Hạng Anh Box 0đ." },
-          cam: { name: "Combo Sky Cam / Triple Cam (Bình Dương Xã)", price: "205.000đ - 225.000đ", speed: "1 Gbps + Tặng 1 Camera AI", note: "Giá đề xuất 205K (Net+Cam) hoặc 225K (Net+TV+Cam), cộng thêm phí Cloud 35K-100K/tháng." },
-          game: { name: "Internet F-Game (Bình Dương Xã)", price: "225.000đ", speed: "1 Gbps / 300 Mbps + Giảm Ping", note: "Trả trước 6 tháng tặng thêm Access Point Wi-Fi 6." },
-        },
+      "binh_duong_x": {
+            "label": "Bình Dương - Khu vực Xã & P. còn lại (Dĩ An, Thuận Giao, An Phú, Bến Cát...)",
+            "page": "pages/khu-vuc/lap-mang-fpt-binh-duong.html",
+            "default_install_fee": 0,
+            "postpaid_special_install_fee": 500000,
+            "box_fee": 0,
+            "vip_box_fee": 100000,
+            "v_vvip_box_included": true,
+            "packages": {
+                  "net": {
+                        "name": "Internet Sky Net (Bình Dương Xã)",
+                        "price": "195.000đ",
+                        "price_value": 195000,
+                        "speed": "1 Gbps / 300 Mbps",
+                        "note": "Riêng An Phú, Thuận Giao, Dĩ An, Hòa Lợi: trả sau phí lắp 500K — chọn đóng trước 6T để được miễn phí + tặng AP."
+                  },
+                  "tv": {
+                        "name": "Combo Sky VIP Box / V.VIP (Bình Dương Xã)",
+                        "price": "215.000đ",
+                        "price_value": 215000,
+                        "speed": "1 Gbps + Truyền hình FPT Play",
+                        "note": "VIP Box 215K (phí Box 100K); V.VIP Ngoại Hạng Anh 269K (hiện hành 239K) được Box 0đ."
+                  },
+                  "cam": {
+                        "name": "Combo Sky Camera Đề Xuất (Bình Dương Xã)",
+                        "price": "205.000đ",
+                        "price_value": 205000,
+                        "speed": "1 Gbps + Tặng 1 Camera AI",
+                        "note": "Combo Cam 205K hoặc Triple Cam 225K (tặng 1 Cam), cộng thêm phí Cloud 35K-100K/tháng."
+                  },
+                  "game": {
+                        "name": "Internet F-Game (Bình Dương Xã)",
+                        "price": "225.000đ",
+                        "price_value": 225000,
+                        "speed": "1 Gbps / 300 Mbps + Giảm Ping",
+                        "note": "Trả trước 6 tháng tặng thêm Access Point Wi-Fi 6."
+                  }
+            }
       },
-      vung_tau_p: {
-        label: "Bà Rịa - Vũng Tàu (Khu vực Phường)",
-        page: "pages/khu-vuc/lap-mang-fpt-vung-tau.html",
-        packages: {
-          net: { name: "Sky VIP Hệ Sinh Thái F1 (Vũng Tàu Phường)", price: "255.000đ", speed: "1 Gbps / 300 Mbps + Tặng Camera", note: "SKY Phường không bán gói Net cơ bản — khách lấy gói F1 được tặng kèm Camera (cộng Cloud 35K-100K) hoặc chọn F-Game 250K." },
-          tv: { name: "Combo Sky V.VIP (Vũng Tàu Phường)", price: "269.000đ", speed: "1 Gbps + FPT Play Box Ngoại Hạng Anh", note: "Phí Box đã bao gồm trong giá gói (không thu thêm 550K)." },
-          cam: { name: "Sky Triple V.VIP + Camera (Vũng Tàu)", price: "279.000đ", speed: "1 Gbps + FPT Play + Camera FPT", note: "Hoặc gói VIP F1 255K/tháng tặng Camera (Cloud từ 35K-100K/tháng)." },
-          game: { name: "Internet F-Game / Meta (Vũng Tàu)", price: "250.000đ - 300.000đ", speed: "1 Gbps/300 Mbps (F-Game) hoặc 1 Gbps Đối Xứng", note: "Áp dụng đồng nhất toàn Vũng Tàu. Miễn phí lắp đặt khách mới." },
-        },
+      "vung_tau_p": {
+            "label": "Bà Rịa - Vũng Tàu (Khu vực Phường)",
+            "page": "pages/khu-vuc/lap-mang-fpt-vung-tau.html",
+            "default_install_fee": 0,
+            "box_fee": 0,
+            "v_vvip_box_included": true,
+            "packages": {
+                  "net": {
+                        "name": "Sky VIP Hệ Sinh Thái F1 (Vũng Tàu Phường)",
+                        "price": "255.000đ",
+                        "price_value": 255000,
+                        "speed": "1 Gbps / 300 Mbps + Tặng Camera",
+                        "note": "SKY Phường không bán gói Net cơ bản — chọn VIP F1 255K (tặng Camera, +Cloud 35K-100K) hoặc F-Game 250K."
+                  },
+                  "tv": {
+                        "name": "Combo Sky V.VIP (Vũng Tàu Phường)",
+                        "price": "269.000đ",
+                        "price_value": 269000,
+                        "speed": "1 Gbps + FPT Play Box Ngoại Hạng Anh",
+                        "note": "Phí Box đã bao gồm trong giá gói (không thu thêm 550K)."
+                  },
+                  "cam": {
+                        "name": "Sky Triple V.VIP + Camera (Vũng Tàu)",
+                        "price": "279.000đ",
+                        "price_value": 279000,
+                        "speed": "1 Gbps + FPT Play + Camera FPT",
+                        "note": "Hoặc gói VIP F1 255K/tháng tặng Camera (Cloud từ 35K-100K/tháng)."
+                  },
+                  "game": {
+                        "name": "Internet F-Game (Vũng Tàu)",
+                        "price": "250.000đ",
+                        "price_value": 250000,
+                        "speed": "1 Gbps / 300 Mbps (hoặc Meta 1Gbps Đối Xứng 300K)",
+                        "note": "Áp dụng đồng nhất toàn Vũng Tàu. Miễn phí lắp đặt khách mới."
+                  }
+            }
       },
-      vung_tau_x: {
-        label: "Bà Rịa - Vũng Tàu (Khu vực Xã)",
-        page: "pages/khu-vuc/lap-mang-fpt-vung-tau.html",
-        packages: {
-          net: { name: "Internet Sky Net (Vũng Tàu Xã)", price: "195.000đ", speed: "1 Gbps / 300 Mbps", note: "Miễn phí lắp đặt khách mới (quy định 300K). Nhà rộng có thể lắp thêm AP/Mesh." },
-          tv: { name: "Combo Sky VIP APP / V.VIP (Vũng Tàu Xã)", price: "205.000đ - 269.000đ", speed: "1 Gbps + Truyền hình FPT Play", note: "VIP APP 205K, VIP Box 225K hoặc V.VIP Ngoại Hạng Anh 269K đã gồm Box." },
-          cam: { name: "Combo Sky Cam / VIP F1 (Vũng Tàu Xã)", price: "225.000đ - 255.000đ", speed: "1 Gbps + Tặng 1 Camera FPT", note: "Combo Nobox-Cam 225K hoặc VIP F1 255K (Cloud tính từ 35K-100K/tháng)." },
-          game: { name: "Internet F-Game / Meta (Vũng Tàu Xã)", price: "250.000đ - 300.000đ", speed: "1 Gbps/300 Mbps hoặc 1 Gbps Đối Xứng", note: "Độ trễ thấp, phù hợp game thủ và homestay đông khách." },
-        },
+      "vung_tau_x": {
+            "label": "Bà Rịa - Vũng Tàu (Khu vực Xã)",
+            "page": "pages/khu-vuc/lap-mang-fpt-vung-tau.html",
+            "default_install_fee": 0,
+            "box_fee": 0,
+            "v_vvip_box_included": true,
+            "packages": {
+                  "net": {
+                        "name": "Internet Sky Net (Vũng Tàu Xã)",
+                        "price": "195.000đ",
+                        "price_value": 195000,
+                        "speed": "1 Gbps / 300 Mbps",
+                        "note": "Miễn phí lắp đặt khách mới (quy định 300K). Nhà rộng có thể lắp thêm AP/Mesh."
+                  },
+                  "tv": {
+                        "name": "Combo Sky VIP APP / V.VIP (Vũng Tàu Xã)",
+                        "price": "205.000đ",
+                        "price_value": 205000,
+                        "speed": "1 Gbps + Truyền hình FPT Play",
+                        "note": "VIP APP 205K, VIP Box 225K hoặc V.VIP Ngoại Hạng Anh 269K đã gồm Box."
+                  },
+                  "cam": {
+                        "name": "Combo Sky Cam (Vũng Tàu Xã)",
+                        "price": "225.000đ",
+                        "price_value": 225000,
+                        "speed": "1 Gbps + Tặng 1 Camera FPT",
+                        "note": "Combo Nobox-Cam 225K hoặc VIP F1 255K (Cloud tính từ 35K-100K/tháng)."
+                  },
+                  "game": {
+                        "name": "Internet F-Game (Vũng Tàu Xã)",
+                        "price": "250.000đ",
+                        "price_value": 250000,
+                        "speed": "1 Gbps / 300 Mbps (Meta Đối Xứng 300K)",
+                        "note": "Độ trễ thấp, phù hợp game thủ và homestay đông khách."
+                  }
+            }
       },
-      tay_nam_bo: {
-        label: "Tiền Giang & Đồng Tháp (Mỹ Tho, Cao Lãnh, Sa Đéc, Cai Lậy...)",
-        page: "pages/khu-vuc/lap-mang-fpt-tien-giang-dong-thap.html",
-        packages: {
-          net: { name: "Internet Sky Net (Tiền Giang - Đồng Tháp)", price: "195.000đ", speed: "1 Gbps / 300 Mbps", note: "Miễn phí lắp đặt khách mới. Nhà rộng cần thêm modem phụ chỉ +20.000đ/tháng (từ TT3T)." },
-          tv: { name: "Combo V.VIP APP Giga / Sky (Tây Nam Bộ)", price: "220.000đ - 239.000đ", speed: "300 Mbps (220K) / 1 Gbps (239K) + Ngoại Hạng Anh", note: "Chỉ cần +10.000đ/tháng so với gói V.VIP để kèm thêm 01 Camera an ninh!" },
-          cam: { name: "Combo Sky An Tâm 7 (Đã gồm Cloud 7 ngày)", price: "255.000đ - 265.000đ", speed: "1 Gbps + Cam Play4 (255K) / IQ4S Ngoài Trời (265K)", note: "Gói An Tâm 7 đã bao gồm sẵn cước Cloud hàng tháng, không phát sinh chi phí ẩn!" },
-          game: { name: "Internet Sky / SpeedX1 Wi-Fi 7 (Tây Nam Bộ)", price: "195.000đ - 385.000đ", speed: "1 Gbps / Wi-Fi 7 XGS-PON", note: "Có thể mở rộng thêm modem phụ +20.000đ/tháng/modem khi đóng trước 3 tháng." },
-        },
+      "tay_nam_bo": {
+            "label": "Tiền Giang & Đồng Tháp (Mỹ Tho, Cao Lãnh, Sa Đéc, Cai Lậy...)",
+            "page": "pages/khu-vuc/lap-mang-fpt-tien-giang-dong-thap.html",
+            "default_install_fee": 0,
+            "box_fee": 550000,
+            "v_vvip_box_included": false,
+            "packages": {
+                  "net": {
+                        "name": "Internet Sky Net (Tiền Giang - Đồng Tháp)",
+                        "price": "195.000đ",
+                        "price_value": 195000,
+                        "speed": "1 Gbps / 300 Mbps",
+                        "note": "Miễn phí lắp đặt khách mới (quy định 300K). Nhà rộng thêm modem phụ chỉ +20.000đ/tháng (từ TT3T)."
+                  },
+                  "tv": {
+                        "name": "Combo Sky V.VIP APP (Tây Nam Bộ)",
+                        "price": "239.000đ",
+                        "price_value": 239000,
+                        "speed": "1 Gbps (Sky 239K / Giga 220K) + Ngoại Hạng Anh",
+                        "note": "Nâng V.VIP kèm Camera an ninh chỉ cần +10.000đ/tháng!"
+                  },
+                  "cam": {
+                        "name": "Combo Sky An Tâm 7 (Đã gồm Cloud 7 ngày)",
+                        "price": "225.000đ",
+                        "price_value": 225000,
+                        "speed": "1 Gbps + Cam Play4 Trong Nhà / IQ4S Ngoài Trời",
+                        "note": "Gói Sky An Tâm 7 (225K) đã gồm sẵn Cloud hàng tháng, không cộng thêm phí Cloud (bản F1/F2/F3: 245K/265K/285K).",
+                        "cloud_included": true
+                  },
+                  "game": {
+                        "name": "SpeedX1 Wi-Fi 7 XGS-PON (Tây Nam Bộ)",
+                        "price": "385.000đ",
+                        "price_value": 385000,
+                        "speed": "1 Gbps Đối Xứng Wi-Fi 7 (hoặc Sky 195K + Modem phụ)",
+                        "note": "Hoặc dùng Sky 195K + thêm modem phụ +20.000đ/tháng/modem khi đóng trước 3 tháng."
+                  }
+            }
       },
-      toan_quoc: {
-        label: "Tỉnh / Thành phố khác (Bảng giá niêm yết website toàn quốc)",
-        page: "pages/bang-gia.html",
-        packages: {
-          net: { name: "Internet Giga / Sky (Bảng giá Website)", price: "200.000đ - 230.000đ", speed: "300 Mbps (Giga) / 1 Gbps (Sky)", note: "Giga 200K, Sky 230K (giá niêm yết trên web; liên hệ 0358 513 269 để check khuyến mãi theo đúng tỉnh)." },
-          tv: { name: "Combo Giga / Sky V.VIP Ngoại Hạng Anh", price: "220.000đ - 239.000đ", speed: "300 Mbps / 1 Gbps + FPT Play", note: "Nội thành HN/HCM Sky V.VIP 269K; Tỉnh & Ngoại thành 239K (Giga V.VIP 220K)." },
-          cam: { name: "Combo An Tâm 7 / Combo Camera FPT", price: "255.000đ - 265.000đ", speed: "Internet 1 Gbps + Camera AI + Cloud 7 ngày", note: "Hoặc mua thiết bị Combo 1 triệu / 3 Camera với Cloud 35K-100K/tháng." },
-          game: { name: "F-Game / SpeedX1 Wi-Fi 7 XGS-PON", price: "250.000đ - 385.000đ", speed: "1 Gbps Gaming / Wi-Fi 7 + Mesh", note: "SpeedX1 tặng sẵn Modem Wi-Fi 7 + 1 Mesh. Gọi 0358 513 269 kiểm tra hạ tầng tại địa phương." },
-        },
-      },
-    };
+      "toan_quoc": {
+            "label": "Tỉnh / Thành phố khác (Bảng giá niêm yết website toàn quốc)",
+            "page": "pages/bang-gia.html",
+            "default_install_fee": 0,
+            "box_fee": 550000,
+            "v_vvip_box_included": false,
+            "packages": {
+                  "net": {
+                        "name": "Internet Giga / Sky (Bảng giá Website)",
+                        "price": "200.000đ",
+                        "price_value": 200000,
+                        "speed": "300 Mbps (Giga 200K) / 1 Gbps (Sky 205K)",
+                        "note": "Giá niêm yết trên website fpt.vn (giá ngoại thành; gọi 0358 513 269 kiểm tra ưu đãi riêng theo tỉnh)."
+                  },
+                  "tv": {
+                        "name": "Combo Sky V.VIP APP Ngoại Hạng Anh",
+                        "price": "239.000đ",
+                        "price_value": 239000,
+                        "speed": "1 Gbps + FPT Play (Giga V.VIP 220K)",
+                        "note": "Nội thành HN/HCM Sky V.VIP 269K; Tỉnh & Ngoại thành 239K (Giga V.VIP 220K)."
+                  },
+                  "cam": {
+                        "name": "Combo Sky An Tâm 7 (Play4 / IQ4S)",
+                        "price": "225.000đ",
+                        "price_value": 225000,
+                        "speed": "Internet 1 Gbps + Camera AI + Cloud 7 ngày",
+                        "note": "Gói An Tâm 7 (225K) đã gồm sẵn Cloud. Hoặc mua thêm Camera 1 triệu / 3 Camera (Cloud 35K-100K/tháng).",
+                        "cloud_included": true
+                  },
+                  "game": {
+                        "name": "Internet F-Game / SpeedX1 Wi-Fi 7",
+                        "price": "265.000đ",
+                        "price_value": 265000,
+                        "speed": "F-Game 265K (1Gbps Gaming) / SpeedX1 385K (Wi-Fi 7)",
+                        "note": "F-Game Ultra Fast giảm ping 16ms giá 265K; SpeedX1 385K tặng Modem Wi-Fi 7 + 1 Mesh."
+                  }
+            }
+      }
+};
+    /* @sync-pricing:region-catalog:end */
 
     const regionSel = document.getElementById("pf-region");
     const sizePills = finderRoot.querySelectorAll("[data-pf-size]");
     const needPills = finderRoot.querySelectorAll("[data-pf-need]");
+    const termPills = finderRoot.querySelectorAll("[data-pf-term]");
+    const modemSel = document.getElementById("pf-modem-opt");
+    const boxRow = document.getElementById("pf-box-row");
+    const boxSel = document.getElementById("pf-box-opt");
+    const cloudRow = document.getElementById("pf-cloud-row");
+    const cloudSel = document.getElementById("pf-cloud-opt");
+
     let selectedSize = "small";
     let selectedNeed = "net";
+    let selectedTerm = 1;
+    let lastQuoteSummary = "";
+
+    const fmtVnd = (n) => new Intl.NumberFormat("vi-VN").format(Math.max(0, Math.round(n))) + "đ";
 
     const updateRecommendation = () => {
       const regKey = regionSel ? regionSel.value : "hcm_ngoai";
       const reg = REGION_CATALOG[regKey] || REGION_CATALOG.toan_quoc;
       let pkg = reg.packages[selectedNeed] || reg.packages.net;
+      let monthlyBase = pkg.price_value || 200000;
       const bullets = [];
+
+      // Hiện / ẩn lựa chọn đầu thu Box & Cloud Camera theo nhu cầu
+      if (boxRow) boxRow.style.display = selectedNeed === "tv" && selectedSize !== "business" ? "block" : "none";
+      const needsCloudSelect = selectedNeed === "cam" && selectedSize !== "business" && !pkg.cloud_included;
+      if (cloudRow) cloudRow.style.display = needsCloudSelect ? "block" : "none";
 
       // Tùy biến thông minh theo quy mô (Business / Nhiều tầng)
       if (selectedSize === "business") {
         pkg = {
-          name: "Doanh Nghiệp Super300 Biz Plus / LUX 500",
-          price: "1.400.000đ - 800.000đ",
-          speed: "300 Mbps - 500 Mbps + IP Tĩnh & Cân bằng tải",
-          note: "Dành cho công ty, quán cafe, hộ kinh doanh cần IP Tĩnh, đường truyền quốc tế ổn định. Vui lòng gọi 0358 513 269 nhận báo giá doanh nghiệp theo khu vực.",
+          name: "Doanh Nghiệp Super300 Biz / LUX 500",
+          price: "450.000đ - 800.000đ",
+          price_value: 450000,
+          speed: "300 Mbps - 500 Mbps + IP Tĩnh (Plus 750K) & Cân bằng tải",
+          note: "Dành cho công ty, quán cafe, hộ kinh doanh cần IP Tĩnh, đường truyền quốc tế ổn định. Gọi 0358 513 269 nhận báo giá doanh nghiệp theo khu vực.",
         };
+        monthlyBase = 450000;
         bullets.push("Thiết bị Cân bằng tải chuyên dụng Mikrotik/Vigor + Access Point chịu tải cao");
-        bullets.push("Bản Plus có sẵn IP Tĩnh truy cập Server, Camera từ xa ổn định");
+        bullets.push("Bản Plus (Super300 Biz Plus 750K) tích hợp sẵn IP Tĩnh truy cập Server, Camera từ xa");
       } else {
         bullets.push("Hỗ trợ miễn phí lắp đặt cho khách hàng đăng ký mới (thay vì phí hòa mạng 300.000đ)");
         if (selectedSize === "multifloor") {
@@ -2765,6 +3242,48 @@ document.addEventListener("click", (e) => {
         }
       }
 
+      // Tính toán dự toán chi phí tháng đầu chuẩn chính sách
+      let extraModems = parseInt(modemSel ? modemSel.value : "0", 10) || 0;
+      let effectiveTerm = selectedTerm;
+      let forcedTermNote = "";
+      if (extraModems > 0 && effectiveTerm < 3) {
+        effectiveTerm = 3;
+        forcedTermNote = "Lắp thêm modem phụ bắt buộc đóng trước từ 3 tháng (đã tự quy đổi dự toán theo TT3T).";
+      }
+
+      let installFee = reg.default_install_fee || 0;
+      let installLabel = "0đ (Miễn phí - tiết kiệm 300.000đ)";
+      if (regKey === "binh_duong_x" && effectiveTerm === 1) {
+        installLabel = "0đ (Hoặc 500.000đ nếu thuộc P. An Phú/Thuận Giao/Dĩ An/Hòa Lợi trả sau)";
+      }
+
+      let oneTimeBoxFee = 0;
+      let boxNote = "";
+      if (selectedNeed === "tv" && selectedSize !== "business" && boxSel && boxSel.value === "box") {
+        if (reg.v_vvip_box_included && pkg.name.includes("V.VIP")) {
+          oneTimeBoxFee = 0;
+          boxNote = "Đầu thu V.VIP Box: 0đ theo chính sách vùng";
+        } else if (reg.vip_box_fee && !pkg.name.includes("V.VIP")) {
+          oneTimeBoxFee = reg.vip_box_fee;
+          boxNote = `Phí VIP Box: ${fmtVnd(oneTimeBoxFee)}`;
+        } else {
+          oneTimeBoxFee = reg.box_fee || 550000;
+          boxNote = oneTimeBoxFee > 0 ? `Phí Box TV: ${fmtVnd(oneTimeBoxFee)}` : "Box: 0đ gồm trong giá";
+        }
+      }
+
+      const monthlyCloudFee = needsCloudSelect && cloudSel ? (parseInt(cloudSel.value, 10) || 0) : 0;
+      const monthlyModemFee = extraModems * 20000;
+      const monthlyCombined = monthlyBase + monthlyCloudFee + monthlyModemFee;
+
+      // Ưu đãi Voucher trả trước Đồng Nai
+      let voucherDiscount = 0;
+      if ((regKey === "dong_nai_1" || regKey === "dong_nai_234") && effectiveTerm >= 3) {
+        voucherDiscount = effectiveTerm >= 12 ? 200000 : effectiveTerm >= 6 ? 150000 : 100000;
+      }
+
+      const totalInitial = Math.max(0, monthlyCombined * effectiveTerm + installFee + oneTimeBoxFee - voucherDiscount);
+
       const elName = document.getElementById("pf-res-name");
       const elSpeed = document.getElementById("pf-res-speed");
       const elPrice = document.getElementById("pf-res-price");
@@ -2773,21 +3292,69 @@ document.addEventListener("click", (e) => {
       const elRegionLink = document.getElementById("pf-res-region-link");
       const elCta = document.getElementById("pf-res-cta");
 
+      const elFbPlan = document.getElementById("fb-plan-cost");
+      const elFbInstall = document.getElementById("fb-install-cost");
+      const elFbAddonRow = document.getElementById("fb-addon-row");
+      const elFbAddonLabel = document.getElementById("fb-addon-label");
+      const elFbAddonCost = document.getElementById("fb-addon-cost");
+      const elFbTotal = document.getElementById("fb-total-cost");
+
       if (elName) elName.textContent = pkg.name;
       if (elSpeed) elSpeed.textContent = "⚡ " + pkg.speed;
       if (elPrice) elPrice.innerHTML = `${pkg.price} <small>/tháng (đã gồm VAT)</small>`;
-      if (elNote) elNote.textContent = "📌 Lưu ý vùng: " + pkg.note;
+
+      if (elFbPlan) elFbPlan.textContent = `${fmtVnd(monthlyBase)} × ${effectiveTerm}T = ${fmtVnd(monthlyBase * effectiveTerm)}`;
+      if (elFbInstall) elFbInstall.textContent = installLabel;
+
+      const addonsDesc = [];
+      const addonTotalAmount = oneTimeBoxFee + (monthlyCloudFee + monthlyModemFee) * effectiveTerm - voucherDiscount;
+      if (oneTimeBoxFee > 0) addonsDesc.push(boxNote);
+      if (monthlyCloudFee > 0) addonsDesc.push(`Cloud +${fmtVnd(monthlyCloudFee)}/T`);
+      if (pkg.cloud_included) addonsDesc.push("Cloud 7 ngày 0đ (đã gồm)");
+      if (monthlyModemFee > 0) addonsDesc.push(`${extraModems} Modem phụ +${fmtVnd(monthlyModemFee)}/T`);
+      if (voucherDiscount > 0) addonsDesc.push(`Voucher ĐN -${fmtVnd(voucherDiscount)}`);
+
+      if (elFbAddonRow && elFbAddonLabel && elFbAddonCost) {
+        if (addonsDesc.length > 0) {
+          elFbAddonRow.style.display = "flex";
+          elFbAddonLabel.textContent = addonsDesc.join(" • ");
+          elFbAddonCost.textContent = addonTotalAmount >= 0 ? `+${fmtVnd(addonTotalAmount)}` : `-${fmtVnd(Math.abs(addonTotalAmount))}`;
+        } else {
+          elFbAddonRow.style.display = "none";
+        }
+      }
+      if (elFbTotal) elFbTotal.textContent = fmtVnd(totalInitial);
+
+      if (elNote) {
+        elNote.textContent = "📌 " + [forcedTermNote, pkg.note].filter(Boolean).join(" ");
+      }
       if (elRegionLink) {
         elRegionLink.href = reg.page;
         elRegionLink.textContent = "Xem bảng giá chi tiết khu vực →";
       }
       if (elList) {
+        if ((regKey === "binh_duong_p" || regKey === "binh_duong_x") && effectiveTerm >= 6) {
+          bullets.push("Ưu đãi Bình Dương TT6T+: Tặng thêm 01 Access Point Wi-Fi 6 / Mesh");
+        }
         elList.innerHTML = bullets.map((b) => `<li>✓ ${b}</li>`).join("");
       }
+
+      lastQuoteSummary = `Dự toán từ web: Vùng=${reg.label} | Chu kỳ=${effectiveTerm} tháng | Tổng dự kiến=${fmtVnd(totalInitial)}${addonsDesc.length ? " (" + addonsDesc.join(", ") + ")" : ""}`;
+
       if (elCta) {
         elCta.onclick = () => {
+          window.dataLayer = window.dataLayer || [];
+          window.dataLayer.push({
+            event: "package_finder_cta",
+            region_key: regKey,
+            selected_size: selectedSize,
+            selected_need: selectedNeed,
+            prepay_months: effectiveTerm,
+            estimated_initial_vnd: totalInitial,
+            package_name: pkg.name,
+          });
           if (typeof window.openRegisterModal === "function") {
-            window.openRegisterModal(`${pkg.name} (${regKey})`);
+            window.openRegisterModal(`${pkg.name} (${effectiveTerm}T)`, lastQuoteSummary);
           } else {
             window.location.href = "pages/lien-he.html";
           }
@@ -2795,13 +3362,48 @@ document.addEventListener("click", (e) => {
       }
     };
 
-    if (regionSel) regionSel.addEventListener("change", updateRecommendation);
+    const pushFinderEvent = () => {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "package_finder_select",
+        region_key: regionSel ? regionSel.value : "hcm_ngoai",
+        selected_size: selectedSize,
+        selected_need: selectedNeed,
+        prepay_months: selectedTerm,
+      });
+    };
+
+    if (regionSel) {
+      regionSel.addEventListener("change", () => {
+        updateRecommendation();
+        pushFinderEvent();
+      });
+    }
+    [modemSel, boxSel, cloudSel].forEach((selEl) => {
+      if (selEl) {
+        selEl.addEventListener("change", () => {
+          updateRecommendation();
+          window.dataLayer = window.dataLayer || [];
+          window.dataLayer.push({ event: "calculator_estimate", region_key: regionSel ? regionSel.value : "hcm_ngoai" });
+        });
+      }
+    });
+    termPills.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        termPills.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        selectedTerm = parseInt(btn.getAttribute("data-pf-term") || "1", 10) || 1;
+        updateRecommendation();
+        pushFinderEvent();
+      });
+    });
     sizePills.forEach((btn) => {
       btn.addEventListener("click", () => {
         sizePills.forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
         selectedSize = btn.getAttribute("data-pf-size");
         updateRecommendation();
+        pushFinderEvent();
       });
     });
     needPills.forEach((btn) => {
@@ -2810,6 +3412,7 @@ document.addEventListener("click", (e) => {
         btn.classList.add("active");
         selectedNeed = btn.getAttribute("data-pf-need");
         updateRecommendation();
+        pushFinderEvent();
       });
     });
 
