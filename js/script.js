@@ -250,30 +250,39 @@ async function getUserLocation() {
 const WORKER_LEAD_ENDPOINT = "https://man-chatbot.tvm19624.workers.dev/api/lead";
 const GOOGLE_SHEETS_ENDPOINT =
   "https://script.google.com/macros/s/AKfycbwvkgJ0GpdzEwh6Us5AFJ8uUlwuO3paCxqhSY8JhAzWur3Ws6KIuLxlrPN4-lqtBDeO/exec";
-const TURNSTILE_SITE_KEY = "0x4AAAAAAAEi6j9Y-0rZc7eU";
+// Điền Sitekey thật từ Cloudflare Dashboard -> Turnstile để bật widget chống spam (để trống = tắt widget)
+const TURNSTILE_SITE_KEY = "";
 
 function ensureTurnstileLoaded() {
-  const leadForm = document.getElementById("leadForm");
-  if (leadForm && !leadForm.querySelector(".cf-turnstile")) {
-    const submitBtn = leadForm.querySelector('button[type="submit"]');
+  const targetForms = [
+    document.getElementById("leadForm"),
+    document.getElementById("popupForm"),
+  ].filter(Boolean);
+
+  if (!TURNSTILE_SITE_KEY) {
+    targetForms.forEach((form) => {
+      form.querySelectorAll(".cf-turnstile").forEach((el) => el.remove());
+    });
+    return;
+  }
+
+  targetForms.forEach((form) => {
+    if (form.querySelector(".cf-turnstile")) return;
+    const submitBtn = form.querySelector('button[type="submit"]');
     const widget = document.createElement("div");
     widget.className = "cf-turnstile";
     widget.setAttribute("data-sitekey", TURNSTILE_SITE_KEY);
     widget.setAttribute("data-size", "flexible");
     widget.setAttribute("data-theme", "light");
     widget.style.margin = "10px 0";
-    if (submitBtn && submitBtn.parentNode === leadForm) {
-      leadForm.insertBefore(widget, submitBtn);
+    if (submitBtn && submitBtn.parentNode === form) {
+      form.insertBefore(widget, submitBtn);
     } else {
-      leadForm.appendChild(widget);
+      form.appendChild(widget);
     }
-  }
+  });
 
-  const hasFormOrModal =
-    document.getElementById("leadForm") ||
-    document.getElementById("popupForm") ||
-    document.querySelector(".cf-turnstile");
-  if (!hasFormOrModal) return;
+  if (!targetForms.length && !document.querySelector(".cf-turnstile")) return;
 
   if (
     typeof window.turnstile === "undefined" &&
@@ -2581,8 +2590,6 @@ const modalsHTML = `
           <span>🔒 <strong>Miễn phí khảo sát 100%.</strong> Tôi đồng ý cho FPT Telecom xử lý thông tin để tư vấn dịch vụ theo <a href="${policyHref}" target="_blank">Nghị định 13/2023/NĐ-CP</a>.</span>
         </label>
       </div>
-
-      <div class="cf-turnstile" data-sitekey="0x4AAAAAAAEi6j9Y-0rZc7eU" data-size="flexible" data-theme="light" style="margin: 10px 0;"></div>
 
       <div class="form-note-text">💡 Giá cước có thể thay đổi theo từng khu vực</div>
       <button type="submit" class="btn btn-orange w-100" id="popupSubmitBtn">Xác nhận đăng ký</button>
