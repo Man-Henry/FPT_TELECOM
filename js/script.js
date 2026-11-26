@@ -157,7 +157,7 @@ if (!prefersReducedMotion) {
           if (
             rect.top >= 0 &&
             rect.bottom <=
-              (window.innerHeight || document.documentElement.clientHeight)
+            (window.innerHeight || document.documentElement.clientHeight)
           ) {
             const strength = card.classList.contains("tilt-hero") ? 4 : 7;
             const x = (gamma / 20) * 0.5;
@@ -251,7 +251,7 @@ const WORKER_LEAD_ENDPOINT = "https://man-chatbot.tvm19624.workers.dev/api/lead"
 const GOOGLE_SHEETS_ENDPOINT =
   "https://script.google.com/macros/s/AKfycbwvkgJ0GpdzEwh6Us5AFJ8uUlwuO3paCxqhSY8JhAzWur3Ws6KIuLxlrPN4-lqtBDeO/exec";
 // Điền Sitekey thật từ Cloudflare Dashboard -> Turnstile để bật widget chống spam (để trống = tắt widget)
-const TURNSTILE_SITE_KEY = "";
+const TURNSTILE_SITE_KEY = "0x4AAAAAAGUU6QBt_sxJK9-n";
 
 function ensureTurnstileLoaded() {
   const targetForms = [
@@ -415,7 +415,7 @@ document.addEventListener("submit", async (event) => {
     try {
       const widgetEl = form.querySelector(".cf-turnstile");
       tsToken = widgetEl ? window.turnstile.getResponse(widgetEl) : window.turnstile.getResponse();
-    } catch (e) {}
+    } catch (e) { }
   }
   if (tsToken) {
     formData.set("cf-turnstile-response", tsToken);
@@ -485,7 +485,7 @@ document.addEventListener("submit", async (event) => {
         try {
           const widgetEl = form.querySelector(".cf-turnstile");
           if (widgetEl) window.turnstile.reset(widgetEl);
-        } catch (e) {}
+        } catch (e) { }
       }
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
@@ -528,7 +528,7 @@ document.addEventListener("submit", async (event) => {
     showFormFeedback(
       form,
       (workerJson && workerJson.message) ||
-        "Cảm ơn bạn! FPT sẽ liên hệ tư vấn trong thời gian sớm nhất.",
+      "Cảm ơn bạn! FPT sẽ liên hệ tư vấn trong thời gian sớm nhất.",
       false,
     );
 
@@ -551,7 +551,7 @@ document.addEventListener("submit", async (event) => {
       try {
         const widgetEl = form.querySelector(".cf-turnstile");
         if (widgetEl) window.turnstile.reset(widgetEl);
-      } catch (e) {}
+      } catch (e) { }
     }
   } catch (error) {
     console.error("Form submit error:", error);
@@ -1353,7 +1353,7 @@ if (chatToggle && chatWidget) {
           console.warn("Trình duyệt chặn phát âm thanh tự động:", err),
         );
       }
-    } catch (e) {}
+    } catch (e) { }
   };
 
   let userInteractedWithChat = false;
@@ -1828,7 +1828,7 @@ if (chatToggle && chatWidget) {
                       try {
                         const j = JSON.parse(st.slice(5).trim());
                         if (j.response) extracted.push(j.response);
-                      } catch (e) {}
+                      } catch (e) { }
                     }
                     if (extracted.length > 0) rawChunk = extracted.join("");
                   }
@@ -1839,7 +1839,7 @@ if (chatToggle && chatWidget) {
                 if (parsed.cards && Array.isArray(parsed.cards)) {
                   streamCards = parsed.cards;
                 }
-              } catch (pErr) {}
+              } catch (pErr) { }
             }
           }
 
@@ -1854,7 +1854,7 @@ if (chatToggle && chatWidget) {
                 if ((!streamCards || streamCards.length === 0) && Array.isArray(parsedAcc.cards)) {
                   streamCards = parsedAcc.cards;
                 }
-              } catch (e) {}
+              } catch (e) { }
             }
             bubble.innerHTML = "";
             const parts = finalReply.split(/(\*\*.*?\*\*|\n)/g);
@@ -2364,7 +2364,7 @@ window.toggleSupportForm = function (btn) {
     // Switch to Support Mode
     if (regFields) regFields.style.display = "none";
     if (supportFields) supportFields.style.display = "block";
-    
+
     if (regPhone) { regPhone.required = false; regPhone.disabled = true; }
     if (regAddress) { regAddress.required = false; regAddress.disabled = true; }
     regSelects.forEach((s) => (s.disabled = true));
@@ -2867,402 +2867,402 @@ document.addEventListener("click", (e) => {
   if (finderRoot) {
     /* @sync-pricing:region-catalog:start */
     const PRICING_POLICIES = {
-    "standard_install_fee": 300000,
-    "new_customer_promo_install_fee": 0,
-    "extra_modem_monthly": 20000,
-    "extra_modem_min_prepay_months": 3,
-    "extra_box_first_fee": 550000,
-    "extra_cam_bundle_3_fee": 1000000,
-    "cloud_pricing": {
+      "standard_install_fee": 300000,
+      "new_customer_promo_install_fee": 0,
+      "extra_modem_monthly": 20000,
+      "extra_modem_min_prepay_months": 3,
+      "extra_box_first_fee": 550000,
+      "extra_cam_bundle_3_fee": 1000000,
+      "cloud_pricing": {
         "1_cam_7d": 35000,
         "1_cam_15d": 40000,
         "1_cam_30d": 70000,
         "max_7d": 50000,
         "max_15d": 70000,
         "max_30d": 100000
-    }
-};
+      }
+    };
     const REGION_CATALOG = {
       "hcm_ngoai": {
-            "label": "TP.HCM Ngoại thành (Q5, Q6, Q8, Q9, Q12, Gò Vấp, Bình Tân, Thủ Đức cũ, 5 Huyện)",
-            "page": "pages/khu-vuc/lap-mang-fpt-tp-hcm.html",
-            "default_install_fee": 0,
-            "box_fee": 550000,
-            "v_vvip_box_included": false,
-            "packages": {
-                  "net": {
-                        "name": "Internet Sky (Ngoại thành TP.HCM)",
-                        "price": "205.000đ",
-                        "price_value": 205000,
-                        "speed": "1 Gbps / 300 Mbps",
-                        "note": "Giga 300Mbps chỉ 200.000đ/tháng. Miễn phí lắp đặt khách mới (thay vì phí hòa mạng 300K) + Voucher 200K."
-                  },
-                  "tv": {
-                        "name": "Combo Sky V.VIP APP (Ngoại thành TP.HCM)",
-                        "price": "239.000đ",
-                        "price_value": 239000,
-                        "speed": "1 Gbps + FPT Play Ngoại Hạng Anh",
-                        "note": "Bản APP cài Smart TV không mất phí Box. Nếu lấy đầu thu V.VIP BOX phụ thu 550.000đ/box."
-                  },
-                  "cam": {
-                        "name": "Combo Giga + Camera AI (Ngoại thành TP.HCM)",
-                        "price": "220.000đ",
-                        "price_value": 220000,
-                        "speed": "300 Mbps + Camera AI FPT (Cam 1: 0đ)",
-                        "note": "Tặng 1 Camera (Cam 2+ tính 400K). Lưu ý cộng phí Cloud Camera hàng tháng từ 35.000đ - 100.000đ."
-                  },
-                  "game": {
-                        "name": "SpeedX1 - Công nghệ Wi-Fi 7 XGS-PON",
-                        "price": "385.000đ",
-                        "price_value": 385000,
-                        "speed": "1 Gbps Đối Xứng • Modem + 1 Mesh Wi-Fi 7",
-                        "note": "F-Game tham khảo 265K (bảng web) hoặc xác nhận NVKD; SpeedX1 (385K) tặng sẵn Modem Wi-Fi 7 + 01 Mesh Wi-Fi 7."
-                  }
-            }
+        "label": "TP.HCM Ngoại thành (Q5, Q6, Q8, Q9, Q12, Gò Vấp, Bình Tân, Thủ Đức cũ, 5 Huyện)",
+        "page": "pages/khu-vuc/lap-mang-fpt-tp-hcm.html",
+        "default_install_fee": 0,
+        "box_fee": 550000,
+        "v_vvip_box_included": false,
+        "packages": {
+          "net": {
+            "name": "Internet Sky (Ngoại thành TP.HCM)",
+            "price": "205.000đ",
+            "price_value": 205000,
+            "speed": "1 Gbps / 300 Mbps",
+            "note": "Giga 300Mbps chỉ 200.000đ/tháng. Miễn phí lắp đặt khách mới (thay vì phí hòa mạng 300K) + Voucher 200K."
+          },
+          "tv": {
+            "name": "Combo Sky V.VIP APP (Ngoại thành TP.HCM)",
+            "price": "239.000đ",
+            "price_value": 239000,
+            "speed": "1 Gbps + FPT Play Ngoại Hạng Anh",
+            "note": "Bản APP cài Smart TV không mất phí Box. Nếu lấy đầu thu V.VIP BOX phụ thu 550.000đ/box."
+          },
+          "cam": {
+            "name": "Combo Giga + Camera AI (Ngoại thành TP.HCM)",
+            "price": "220.000đ",
+            "price_value": 220000,
+            "speed": "300 Mbps + Camera AI FPT (Cam 1: 0đ)",
+            "note": "Tặng 1 Camera (Cam 2+ tính 400K). Lưu ý cộng phí Cloud Camera hàng tháng từ 35.000đ - 100.000đ."
+          },
+          "game": {
+            "name": "SpeedX1 - Công nghệ Wi-Fi 7 XGS-PON",
+            "price": "385.000đ",
+            "price_value": 385000,
+            "speed": "1 Gbps Đối Xứng • Modem + 1 Mesh Wi-Fi 7",
+            "note": "F-Game tham khảo 265K (bảng web) hoặc xác nhận NVKD; SpeedX1 (385K) tặng sẵn Modem Wi-Fi 7 + 01 Mesh Wi-Fi 7."
+          }
+        }
       },
       "hcm_noi": {
-            "label": "TP.HCM Nội thành (Q1, Q3, Q4, Q7, Q10, Q11, Tân Bình, Tân Phú, Phú Nhuận, Bình Thạnh, Q2 cũ)",
-            "page": "pages/khu-vuc/lap-mang-fpt-tp-hcm.html",
-            "default_install_fee": 0,
-            "box_fee": 550000,
-            "v_vvip_box_included": false,
-            "packages": {
-                  "net": {
-                        "name": "Internet Sky (Nội thành TP.HCM)",
-                        "price": "265.000đ",
-                        "price_value": 265000,
-                        "speed": "1 Gbps / 300 Mbps",
-                        "note": "Giga 300Mbps giá 255.000đ/tháng. Miễn phí lắp đặt khách mới (quy định 300K) + Voucher 200K."
-                  },
-                  "tv": {
-                        "name": "Combo Sky V.VIP APP (Nội thành TP.HCM)",
-                        "price": "269.000đ",
-                        "price_value": 269000,
-                        "speed": "1 Gbps + FPT Play Ngoại Hạng Anh",
-                        "note": "Bản APP cài Smart TV 0đ Box. Nếu lấy đầu thu V.VIP BOX phụ thu 550.000đ/box."
-                  },
-                  "cam": {
-                        "name": "Combo Sky + Camera AI (Nội thành TP.HCM)",
-                        "price": "265.000đ",
-                        "price_value": 265000,
-                        "speed": "1 Gbps + Camera AI (Cam 1: 0đ)",
-                        "note": "Hoặc Giga Cam 255K/tháng. Cần cộng phí Cloud Camera hàng tháng từ 35.000đ - 100.000đ."
-                  },
-                  "game": {
-                        "name": "SpeedX1 - Công nghệ Wi-Fi 7 XGS-PON",
-                        "price": "385.000đ",
-                        "price_value": 385000,
-                        "speed": "1 Gbps Đối Xứng • Modem + 1 Mesh Wi-Fi 7",
-                        "note": "Tối ưu độ trễ cho game thủ, livestream và nhà nhiều tầng tại nội thành TP.HCM."
-                  }
-            }
+        "label": "TP.HCM Nội thành (Q1, Q3, Q4, Q7, Q10, Q11, Tân Bình, Tân Phú, Phú Nhuận, Bình Thạnh, Q2 cũ)",
+        "page": "pages/khu-vuc/lap-mang-fpt-tp-hcm.html",
+        "default_install_fee": 0,
+        "box_fee": 550000,
+        "v_vvip_box_included": false,
+        "packages": {
+          "net": {
+            "name": "Internet Sky (Nội thành TP.HCM)",
+            "price": "265.000đ",
+            "price_value": 265000,
+            "speed": "1 Gbps / 300 Mbps",
+            "note": "Giga 300Mbps giá 255.000đ/tháng. Miễn phí lắp đặt khách mới (quy định 300K) + Voucher 200K."
+          },
+          "tv": {
+            "name": "Combo Sky V.VIP APP (Nội thành TP.HCM)",
+            "price": "269.000đ",
+            "price_value": 269000,
+            "speed": "1 Gbps + FPT Play Ngoại Hạng Anh",
+            "note": "Bản APP cài Smart TV 0đ Box. Nếu lấy đầu thu V.VIP BOX phụ thu 550.000đ/box."
+          },
+          "cam": {
+            "name": "Combo Sky + Camera AI (Nội thành TP.HCM)",
+            "price": "265.000đ",
+            "price_value": 265000,
+            "speed": "1 Gbps + Camera AI (Cam 1: 0đ)",
+            "note": "Hoặc Giga Cam 255K/tháng. Cần cộng phí Cloud Camera hàng tháng từ 35.000đ - 100.000đ."
+          },
+          "game": {
+            "name": "SpeedX1 - Công nghệ Wi-Fi 7 XGS-PON",
+            "price": "385.000đ",
+            "price_value": 385000,
+            "speed": "1 Gbps Đối Xứng • Modem + 1 Mesh Wi-Fi 7",
+            "note": "Tối ưu độ trễ cho game thủ, livestream và nhà nhiều tầng tại nội thành TP.HCM."
+          }
+        }
       },
       "dong_nai_1": {
-            "label": "Đồng Nai - DNI1 (Long Bình, Hố Nai, Tam Phước, Phước Tân)",
-            "page": "pages/khu-vuc/lap-mang-fpt-dong-nai.html",
-            "default_install_fee": 0,
-            "box_fee": 0,
-            "vip_box_fee": 100000,
-            "v_vvip_box_included": true,
-            "special_note": "Nhà trọ trả sau DNI1 phụ thu +200.000đ; vượt cáp >500m +200.000đ.",
-            "packages": {
-                  "net": {
-                        "name": "Internet Sky Net (Đồng Nai DNI1)",
-                        "price": "195.000đ",
-                        "price_value": 195000,
-                        "speed": "1 Gbps / 300 Mbps",
-                        "note": "Trả trước tặng Voucher: TT3T 100K, TT6T 150K, TT12T 200K. Lưu ý nhà trọ trả sau DNI1 phụ thu +200K."
-                  },
-                  "tv": {
-                        "name": "Combo Sky V.VIP (Đồng Nai - Box 0đ)",
-                        "price": "239.000đ",
-                        "price_value": 239000,
-                        "speed": "1 Gbps + FPT Play Box 0đ (12T đầu)",
-                        "note": "Miễn phí Box 0đ cho V.VIP (gói VIP Box thường phí Box 100K). Sau 12 tháng về giá niêm yết 269K."
-                  },
-                  "cam": {
-                        "name": "Triple Thể Thao V.VIP + Camera (Đồng Nai)",
-                        "price": "249.000đ",
-                        "price_value": 249000,
-                        "speed": "1 Gbps + FPT Play Box 0đ + Cam 1: 0đ",
-                        "note": "Ưu đãi 12 tháng đầu 249K (sau 12T: 279K). Cộng thêm phí Cloud Camera hàng tháng từ 35K - 100K."
-                  },
-                  "game": {
-                        "name": "Internet F-Game (Đồng Nai)",
-                        "price": "225.000đ",
-                        "price_value": 225000,
-                        "speed": "1 Gbps / 300 Mbps + Định tuyến Gaming",
-                        "note": "Combo F-Game VIP APP/BOX giá 255.000đ/tháng (VIP Box 100K). Hỗ trợ trả trước nhận thêm voucher."
-                  }
-            }
+        "label": "Đồng Nai - DNI1 (Long Bình, Hố Nai, Tam Phước, Phước Tân)",
+        "page": "pages/khu-vuc/lap-mang-fpt-dong-nai.html",
+        "default_install_fee": 0,
+        "box_fee": 0,
+        "vip_box_fee": 100000,
+        "v_vvip_box_included": true,
+        "special_note": "Nhà trọ trả sau DNI1 phụ thu +200.000đ; vượt cáp >500m +200.000đ.",
+        "packages": {
+          "net": {
+            "name": "Internet Sky Net (Đồng Nai DNI1)",
+            "price": "195.000đ",
+            "price_value": 195000,
+            "speed": "1 Gbps / 300 Mbps",
+            "note": "Trả trước tặng Voucher: TT3T 100K, TT6T 150K, TT12T 200K. Lưu ý nhà trọ trả sau DNI1 phụ thu +200K."
+          },
+          "tv": {
+            "name": "Combo Sky V.VIP (Đồng Nai - Box 0đ)",
+            "price": "239.000đ",
+            "price_value": 239000,
+            "speed": "1 Gbps + FPT Play Box 0đ (12T đầu)",
+            "note": "Miễn phí Box 0đ cho V.VIP (gói VIP Box thường phí Box 100K). Sau 12 tháng về giá niêm yết 269K."
+          },
+          "cam": {
+            "name": "Triple Thể Thao V.VIP + Camera (Đồng Nai)",
+            "price": "249.000đ",
+            "price_value": 249000,
+            "speed": "1 Gbps + FPT Play Box 0đ + Cam 1: 0đ",
+            "note": "Ưu đãi 12 tháng đầu 249K (sau 12T: 279K). Cộng thêm phí Cloud Camera hàng tháng từ 35K - 100K."
+          },
+          "game": {
+            "name": "Internet F-Game (Đồng Nai)",
+            "price": "225.000đ",
+            "price_value": 225000,
+            "speed": "1 Gbps / 300 Mbps + Định tuyến Gaming",
+            "note": "Combo F-Game VIP APP/BOX giá 255.000đ/tháng (VIP Box 100K). Hỗ trợ trả trước nhận thêm voucher."
+          }
+        }
       },
       "dong_nai_234": {
-            "label": "Đồng Nai - DNI2,3,4 (Biên Hòa còn lại, Long Thành, Nhơn Trạch...)",
-            "page": "pages/khu-vuc/lap-mang-fpt-dong-nai.html",
-            "default_install_fee": 0,
-            "box_fee": 0,
-            "vip_box_fee": 100000,
-            "v_vvip_box_included": true,
-            "special_note": "Nhà trọ trả sau DNI2 phụ thu +200.000đ; vượt cáp >500m +200.000đ.",
-            "packages": {
-                  "net": {
-                        "name": "Internet Sky Net (Đồng Nai DNI2/3/4)",
-                        "price": "195.000đ",
-                        "price_value": 195000,
-                        "speed": "1 Gbps / 300 Mbps",
-                        "note": "Trả trước tặng Voucher 100K-200K. Có thể chọn Sky F1 (+1 AP Wi-Fi 6) từ gói trả trước 3 tháng."
-                  },
-                  "tv": {
-                        "name": "Combo Sky V.VIP (Đồng Nai - Box 0đ)",
-                        "price": "239.000đ",
-                        "price_value": 239000,
-                        "speed": "1 Gbps + FPT Play Ngoại Hạng Anh",
-                        "note": "Combo VIP APP chỉ 205K; nâng V.VIP Ngoại Hạng Anh Box 0đ giá 239K (12 tháng đầu)."
-                  },
-                  "cam": {
-                        "name": "Triple Thể Thao V.VIP + Camera (Đồng Nai)",
-                        "price": "249.000đ",
-                        "price_value": 249000,
-                        "speed": "1 Gbps + Box 0đ + Camera 0đ",
-                        "note": "Đã gồm miễn phí lắp đặt khách mới; cộng thêm cước Cloud lưu trữ hàng tháng 35K-100K."
-                  },
-                  "game": {
-                        "name": "Internet F-Game (Đồng Nai)",
-                        "price": "225.000đ",
-                        "price_value": 225000,
-                        "speed": "1 Gbps / 300 Mbps + Giảm Ping",
-                        "note": "Miễn phí lắp đặt khách mới; hỗ trợ gói Fx kèm Access Point cho nhà rộng."
-                  }
-            }
+        "label": "Đồng Nai - DNI2,3,4 (Biên Hòa còn lại, Long Thành, Nhơn Trạch...)",
+        "page": "pages/khu-vuc/lap-mang-fpt-dong-nai.html",
+        "default_install_fee": 0,
+        "box_fee": 0,
+        "vip_box_fee": 100000,
+        "v_vvip_box_included": true,
+        "special_note": "Nhà trọ trả sau DNI2 phụ thu +200.000đ; vượt cáp >500m +200.000đ.",
+        "packages": {
+          "net": {
+            "name": "Internet Sky Net (Đồng Nai DNI2/3/4)",
+            "price": "195.000đ",
+            "price_value": 195000,
+            "speed": "1 Gbps / 300 Mbps",
+            "note": "Trả trước tặng Voucher 100K-200K. Có thể chọn Sky F1 (+1 AP Wi-Fi 6) từ gói trả trước 3 tháng."
+          },
+          "tv": {
+            "name": "Combo Sky V.VIP (Đồng Nai - Box 0đ)",
+            "price": "239.000đ",
+            "price_value": 239000,
+            "speed": "1 Gbps + FPT Play Ngoại Hạng Anh",
+            "note": "Combo VIP APP chỉ 205K; nâng V.VIP Ngoại Hạng Anh Box 0đ giá 239K (12 tháng đầu)."
+          },
+          "cam": {
+            "name": "Triple Thể Thao V.VIP + Camera (Đồng Nai)",
+            "price": "249.000đ",
+            "price_value": 249000,
+            "speed": "1 Gbps + Box 0đ + Camera 0đ",
+            "note": "Đã gồm miễn phí lắp đặt khách mới; cộng thêm cước Cloud lưu trữ hàng tháng 35K-100K."
+          },
+          "game": {
+            "name": "Internet F-Game (Đồng Nai)",
+            "price": "225.000đ",
+            "price_value": 225000,
+            "speed": "1 Gbps / 300 Mbps + Giảm Ping",
+            "note": "Miễn phí lắp đặt khách mới; hỗ trợ gói Fx kèm Access Point cho nhà rộng."
+          }
+        }
       },
       "binh_duong_p": {
-            "label": "Bình Dương - 8 Phường TT (Thủ Dầu Một, Lái Thiêu, Đông Hòa, Phú Lợi...)",
-            "page": "pages/khu-vuc/lap-mang-fpt-binh-duong.html",
-            "default_install_fee": 0,
-            "box_fee": 0,
-            "vip_box_fee": 100000,
-            "v_vvip_box_included": true,
-            "packages": {
-                  "net": {
-                        "name": "Internet Sky Net (Bình Dương Phường)",
-                        "price": "195.000đ",
-                        "price_value": 195000,
-                        "speed": "1 Gbps / 300 Mbps",
-                        "note": "Trả trước 6 tháng được tặng thêm 01 Access Point Wi-Fi 6 / Mesh miễn phí."
-                  },
-                  "tv": {
-                        "name": "Combo Sky VIP Box / V.VIP (Bình Dương)",
-                        "price": "215.000đ",
-                        "price_value": 215000,
-                        "speed": "1 Gbps + FPT Play 4K",
-                        "note": "VIP Box 215K (phí Box 100K); nâng V.VIP Ngoại Hạng Anh 279K (hiện hành 239K) được Box 0đ."
-                  },
-                  "cam": {
-                        "name": "Gói Meta Đề Xuất + Tặng Camera (Bình Dương)",
-                        "price": "340.000đ",
-                        "price_value": 340000,
-                        "speed": "1 Gbps Đối Xứng + Tặng 1 Camera",
-                        "note": "Trả trước 6 tháng tặng thêm AP Wi-Fi 6. Phí Cloud Camera tính từ 35K-100K/tháng."
-                  },
-                  "game": {
-                        "name": "Internet F-Game (Bình Dương Phường)",
-                        "price": "229.000đ",
-                        "price_value": 229000,
-                        "speed": "1 Gbps / 300 Mbps + Tối ưu Game",
-                        "note": "Có gói Fx (+30K/tháng từ 6 tháng) kèm Mesh mở rộng cho nhà nhiều tầng."
-                  }
-            }
+        "label": "Bình Dương - 8 Phường TT (Thủ Dầu Một, Lái Thiêu, Đông Hòa, Phú Lợi...)",
+        "page": "pages/khu-vuc/lap-mang-fpt-binh-duong.html",
+        "default_install_fee": 0,
+        "box_fee": 0,
+        "vip_box_fee": 100000,
+        "v_vvip_box_included": true,
+        "packages": {
+          "net": {
+            "name": "Internet Sky Net (Bình Dương Phường)",
+            "price": "195.000đ",
+            "price_value": 195000,
+            "speed": "1 Gbps / 300 Mbps",
+            "note": "Trả trước 6 tháng được tặng thêm 01 Access Point Wi-Fi 6 / Mesh miễn phí."
+          },
+          "tv": {
+            "name": "Combo Sky VIP Box / V.VIP (Bình Dương)",
+            "price": "215.000đ",
+            "price_value": 215000,
+            "speed": "1 Gbps + FPT Play 4K",
+            "note": "VIP Box 215K (phí Box 100K); nâng V.VIP Ngoại Hạng Anh 279K (hiện hành 239K) được Box 0đ."
+          },
+          "cam": {
+            "name": "Gói Meta Đề Xuất + Tặng Camera (Bình Dương)",
+            "price": "340.000đ",
+            "price_value": 340000,
+            "speed": "1 Gbps Đối Xứng + Tặng 1 Camera",
+            "note": "Trả trước 6 tháng tặng thêm AP Wi-Fi 6. Phí Cloud Camera tính từ 35K-100K/tháng."
+          },
+          "game": {
+            "name": "Internet F-Game (Bình Dương Phường)",
+            "price": "229.000đ",
+            "price_value": 229000,
+            "speed": "1 Gbps / 300 Mbps + Tối ưu Game",
+            "note": "Có gói Fx (+30K/tháng từ 6 tháng) kèm Mesh mở rộng cho nhà nhiều tầng."
+          }
+        }
       },
       "binh_duong_x": {
-            "label": "Bình Dương - Khu vực Xã & P. còn lại (Dĩ An, Thuận Giao, An Phú, Bến Cát...)",
-            "page": "pages/khu-vuc/lap-mang-fpt-binh-duong.html",
-            "default_install_fee": 0,
-            "postpaid_special_install_fee": 500000,
-            "box_fee": 0,
-            "vip_box_fee": 100000,
-            "v_vvip_box_included": true,
-            "packages": {
-                  "net": {
-                        "name": "Internet Sky Net (Bình Dương Xã)",
-                        "price": "195.000đ",
-                        "price_value": 195000,
-                        "speed": "1 Gbps / 300 Mbps",
-                        "note": "Riêng An Phú, Thuận Giao, Dĩ An, Hòa Lợi: trả sau phí lắp 500K — chọn đóng trước 6T để được miễn phí + tặng AP."
-                  },
-                  "tv": {
-                        "name": "Combo Sky VIP Box / V.VIP (Bình Dương Xã)",
-                        "price": "215.000đ",
-                        "price_value": 215000,
-                        "speed": "1 Gbps + Truyền hình FPT Play",
-                        "note": "VIP Box 215K (phí Box 100K); V.VIP Ngoại Hạng Anh 269K (hiện hành 239K) được Box 0đ."
-                  },
-                  "cam": {
-                        "name": "Combo Sky Camera Đề Xuất (Bình Dương Xã)",
-                        "price": "205.000đ",
-                        "price_value": 205000,
-                        "speed": "1 Gbps + Tặng 1 Camera AI",
-                        "note": "Combo Cam 205K hoặc Triple Cam 225K (tặng 1 Cam), cộng thêm phí Cloud 35K-100K/tháng."
-                  },
-                  "game": {
-                        "name": "Internet F-Game (Bình Dương Xã)",
-                        "price": "225.000đ",
-                        "price_value": 225000,
-                        "speed": "1 Gbps / 300 Mbps + Giảm Ping",
-                        "note": "Trả trước 6 tháng tặng thêm Access Point Wi-Fi 6."
-                  }
-            }
+        "label": "Bình Dương - Khu vực Xã & P. còn lại (Dĩ An, Thuận Giao, An Phú, Bến Cát...)",
+        "page": "pages/khu-vuc/lap-mang-fpt-binh-duong.html",
+        "default_install_fee": 0,
+        "postpaid_special_install_fee": 500000,
+        "box_fee": 0,
+        "vip_box_fee": 100000,
+        "v_vvip_box_included": true,
+        "packages": {
+          "net": {
+            "name": "Internet Sky Net (Bình Dương Xã)",
+            "price": "195.000đ",
+            "price_value": 195000,
+            "speed": "1 Gbps / 300 Mbps",
+            "note": "Riêng An Phú, Thuận Giao, Dĩ An, Hòa Lợi: trả sau phí lắp 500K — chọn đóng trước 6T để được miễn phí + tặng AP."
+          },
+          "tv": {
+            "name": "Combo Sky VIP Box / V.VIP (Bình Dương Xã)",
+            "price": "215.000đ",
+            "price_value": 215000,
+            "speed": "1 Gbps + Truyền hình FPT Play",
+            "note": "VIP Box 215K (phí Box 100K); V.VIP Ngoại Hạng Anh 269K (hiện hành 239K) được Box 0đ."
+          },
+          "cam": {
+            "name": "Combo Sky Camera Đề Xuất (Bình Dương Xã)",
+            "price": "205.000đ",
+            "price_value": 205000,
+            "speed": "1 Gbps + Tặng 1 Camera AI",
+            "note": "Combo Cam 205K hoặc Triple Cam 225K (tặng 1 Cam), cộng thêm phí Cloud 35K-100K/tháng."
+          },
+          "game": {
+            "name": "Internet F-Game (Bình Dương Xã)",
+            "price": "225.000đ",
+            "price_value": 225000,
+            "speed": "1 Gbps / 300 Mbps + Giảm Ping",
+            "note": "Trả trước 6 tháng tặng thêm Access Point Wi-Fi 6."
+          }
+        }
       },
       "vung_tau_p": {
-            "label": "Bà Rịa - Vũng Tàu (Khu vực Phường)",
-            "page": "pages/khu-vuc/lap-mang-fpt-vung-tau.html",
-            "default_install_fee": 0,
-            "box_fee": 0,
-            "v_vvip_box_included": true,
-            "packages": {
-                  "net": {
-                        "name": "Sky VIP Hệ Sinh Thái F1 (Vũng Tàu Phường)",
-                        "price": "255.000đ",
-                        "price_value": 255000,
-                        "speed": "1 Gbps / 300 Mbps + Tặng Camera",
-                        "note": "SKY Phường không bán gói Net cơ bản — chọn VIP F1 255K (tặng Camera, +Cloud 35K-100K) hoặc F-Game 250K."
-                  },
-                  "tv": {
-                        "name": "Combo Sky V.VIP (Vũng Tàu Phường)",
-                        "price": "269.000đ",
-                        "price_value": 269000,
-                        "speed": "1 Gbps + FPT Play Box Ngoại Hạng Anh",
-                        "note": "Phí Box đã bao gồm trong giá gói (không thu thêm 550K)."
-                  },
-                  "cam": {
-                        "name": "Sky Triple V.VIP + Camera (Vũng Tàu)",
-                        "price": "279.000đ",
-                        "price_value": 279000,
-                        "speed": "1 Gbps + FPT Play + Camera FPT",
-                        "note": "Hoặc gói VIP F1 255K/tháng tặng Camera (Cloud từ 35K-100K/tháng)."
-                  },
-                  "game": {
-                        "name": "Internet F-Game (Vũng Tàu)",
-                        "price": "250.000đ",
-                        "price_value": 250000,
-                        "speed": "1 Gbps / 300 Mbps (hoặc Meta 1Gbps Đối Xứng 300K)",
-                        "note": "Áp dụng đồng nhất toàn Vũng Tàu. Miễn phí lắp đặt khách mới."
-                  }
-            }
+        "label": "Bà Rịa - Vũng Tàu (Khu vực Phường)",
+        "page": "pages/khu-vuc/lap-mang-fpt-vung-tau.html",
+        "default_install_fee": 0,
+        "box_fee": 0,
+        "v_vvip_box_included": true,
+        "packages": {
+          "net": {
+            "name": "Sky VIP Hệ Sinh Thái F1 (Vũng Tàu Phường)",
+            "price": "255.000đ",
+            "price_value": 255000,
+            "speed": "1 Gbps / 300 Mbps + Tặng Camera",
+            "note": "SKY Phường không bán gói Net cơ bản — chọn VIP F1 255K (tặng Camera, +Cloud 35K-100K) hoặc F-Game 250K."
+          },
+          "tv": {
+            "name": "Combo Sky V.VIP (Vũng Tàu Phường)",
+            "price": "269.000đ",
+            "price_value": 269000,
+            "speed": "1 Gbps + FPT Play Box Ngoại Hạng Anh",
+            "note": "Phí Box đã bao gồm trong giá gói (không thu thêm 550K)."
+          },
+          "cam": {
+            "name": "Sky Triple V.VIP + Camera (Vũng Tàu)",
+            "price": "279.000đ",
+            "price_value": 279000,
+            "speed": "1 Gbps + FPT Play + Camera FPT",
+            "note": "Hoặc gói VIP F1 255K/tháng tặng Camera (Cloud từ 35K-100K/tháng)."
+          },
+          "game": {
+            "name": "Internet F-Game (Vũng Tàu)",
+            "price": "250.000đ",
+            "price_value": 250000,
+            "speed": "1 Gbps / 300 Mbps (hoặc Meta 1Gbps Đối Xứng 300K)",
+            "note": "Áp dụng đồng nhất toàn Vũng Tàu. Miễn phí lắp đặt khách mới."
+          }
+        }
       },
       "vung_tau_x": {
-            "label": "Bà Rịa - Vũng Tàu (Khu vực Xã)",
-            "page": "pages/khu-vuc/lap-mang-fpt-vung-tau.html",
-            "default_install_fee": 0,
-            "box_fee": 0,
-            "v_vvip_box_included": true,
-            "packages": {
-                  "net": {
-                        "name": "Internet Sky Net (Vũng Tàu Xã)",
-                        "price": "195.000đ",
-                        "price_value": 195000,
-                        "speed": "1 Gbps / 300 Mbps",
-                        "note": "Miễn phí lắp đặt khách mới (quy định 300K). Nhà rộng có thể lắp thêm AP/Mesh."
-                  },
-                  "tv": {
-                        "name": "Combo Sky VIP APP / V.VIP (Vũng Tàu Xã)",
-                        "price": "205.000đ",
-                        "price_value": 205000,
-                        "speed": "1 Gbps + Truyền hình FPT Play",
-                        "note": "VIP APP 205K, VIP Box 225K hoặc V.VIP Ngoại Hạng Anh 269K đã gồm Box."
-                  },
-                  "cam": {
-                        "name": "Combo Sky Cam (Vũng Tàu Xã)",
-                        "price": "225.000đ",
-                        "price_value": 225000,
-                        "speed": "1 Gbps + Tặng 1 Camera FPT",
-                        "note": "Combo Nobox-Cam 225K hoặc VIP F1 255K (Cloud tính từ 35K-100K/tháng)."
-                  },
-                  "game": {
-                        "name": "Internet F-Game (Vũng Tàu Xã)",
-                        "price": "250.000đ",
-                        "price_value": 250000,
-                        "speed": "1 Gbps / 300 Mbps (Meta Đối Xứng 300K)",
-                        "note": "Độ trễ thấp, phù hợp game thủ và homestay đông khách."
-                  }
-            }
+        "label": "Bà Rịa - Vũng Tàu (Khu vực Xã)",
+        "page": "pages/khu-vuc/lap-mang-fpt-vung-tau.html",
+        "default_install_fee": 0,
+        "box_fee": 0,
+        "v_vvip_box_included": true,
+        "packages": {
+          "net": {
+            "name": "Internet Sky Net (Vũng Tàu Xã)",
+            "price": "195.000đ",
+            "price_value": 195000,
+            "speed": "1 Gbps / 300 Mbps",
+            "note": "Miễn phí lắp đặt khách mới (quy định 300K). Nhà rộng có thể lắp thêm AP/Mesh."
+          },
+          "tv": {
+            "name": "Combo Sky VIP APP / V.VIP (Vũng Tàu Xã)",
+            "price": "205.000đ",
+            "price_value": 205000,
+            "speed": "1 Gbps + Truyền hình FPT Play",
+            "note": "VIP APP 205K, VIP Box 225K hoặc V.VIP Ngoại Hạng Anh 269K đã gồm Box."
+          },
+          "cam": {
+            "name": "Combo Sky Cam (Vũng Tàu Xã)",
+            "price": "225.000đ",
+            "price_value": 225000,
+            "speed": "1 Gbps + Tặng 1 Camera FPT",
+            "note": "Combo Nobox-Cam 225K hoặc VIP F1 255K (Cloud tính từ 35K-100K/tháng)."
+          },
+          "game": {
+            "name": "Internet F-Game (Vũng Tàu Xã)",
+            "price": "250.000đ",
+            "price_value": 250000,
+            "speed": "1 Gbps / 300 Mbps (Meta Đối Xứng 300K)",
+            "note": "Độ trễ thấp, phù hợp game thủ và homestay đông khách."
+          }
+        }
       },
       "tay_nam_bo": {
-            "label": "Tiền Giang & Đồng Tháp (Mỹ Tho, Cao Lãnh, Sa Đéc, Cai Lậy...)",
-            "page": "pages/khu-vuc/lap-mang-fpt-tien-giang-dong-thap.html",
-            "default_install_fee": 0,
-            "box_fee": 550000,
-            "v_vvip_box_included": false,
-            "packages": {
-                  "net": {
-                        "name": "Internet Sky Net (Tiền Giang - Đồng Tháp)",
-                        "price": "195.000đ",
-                        "price_value": 195000,
-                        "speed": "1 Gbps / 300 Mbps",
-                        "note": "Miễn phí lắp đặt khách mới (quy định 300K). Nhà rộng thêm modem phụ chỉ +20.000đ/tháng (từ TT3T)."
-                  },
-                  "tv": {
-                        "name": "Combo Sky V.VIP APP (Tây Nam Bộ)",
-                        "price": "239.000đ",
-                        "price_value": 239000,
-                        "speed": "1 Gbps (Sky 239K / Giga 220K) + Ngoại Hạng Anh",
-                        "note": "Nâng V.VIP kèm Camera an ninh chỉ cần +10.000đ/tháng!"
-                  },
-                  "cam": {
-                        "name": "Combo Sky An Tâm 7 (Đã gồm Cloud 7 ngày)",
-                        "price": "225.000đ",
-                        "price_value": 225000,
-                        "speed": "1 Gbps + Cam Play4 Trong Nhà / IQ4S Ngoài Trời",
-                        "note": "Gói Sky An Tâm 7 (225K) đã gồm sẵn Cloud hàng tháng, không cộng thêm phí Cloud (bản F1/F2/F3: 245K/265K/285K).",
-                        "cloud_included": true
-                  },
-                  "game": {
-                        "name": "SpeedX1 Wi-Fi 7 XGS-PON (Tây Nam Bộ)",
-                        "price": "385.000đ",
-                        "price_value": 385000,
-                        "speed": "1 Gbps Đối Xứng Wi-Fi 7 (hoặc Sky 195K + Modem phụ)",
-                        "note": "Hoặc dùng Sky 195K + thêm modem phụ +20.000đ/tháng/modem khi đóng trước 3 tháng."
-                  }
-            }
+        "label": "Tiền Giang & Đồng Tháp (Mỹ Tho, Cao Lãnh, Sa Đéc, Cai Lậy...)",
+        "page": "pages/khu-vuc/lap-mang-fpt-tien-giang-dong-thap.html",
+        "default_install_fee": 0,
+        "box_fee": 550000,
+        "v_vvip_box_included": false,
+        "packages": {
+          "net": {
+            "name": "Internet Sky Net (Tiền Giang - Đồng Tháp)",
+            "price": "195.000đ",
+            "price_value": 195000,
+            "speed": "1 Gbps / 300 Mbps",
+            "note": "Miễn phí lắp đặt khách mới (quy định 300K). Nhà rộng thêm modem phụ chỉ +20.000đ/tháng (từ TT3T)."
+          },
+          "tv": {
+            "name": "Combo Sky V.VIP APP (Tây Nam Bộ)",
+            "price": "239.000đ",
+            "price_value": 239000,
+            "speed": "1 Gbps (Sky 239K / Giga 220K) + Ngoại Hạng Anh",
+            "note": "Nâng V.VIP kèm Camera an ninh chỉ cần +10.000đ/tháng!"
+          },
+          "cam": {
+            "name": "Combo Sky An Tâm 7 (Đã gồm Cloud 7 ngày)",
+            "price": "225.000đ",
+            "price_value": 225000,
+            "speed": "1 Gbps + Cam Play4 Trong Nhà / IQ4S Ngoài Trời",
+            "note": "Gói Sky An Tâm 7 (225K) đã gồm sẵn Cloud hàng tháng, không cộng thêm phí Cloud (bản F1/F2/F3: 245K/265K/285K).",
+            "cloud_included": true
+          },
+          "game": {
+            "name": "SpeedX1 Wi-Fi 7 XGS-PON (Tây Nam Bộ)",
+            "price": "385.000đ",
+            "price_value": 385000,
+            "speed": "1 Gbps Đối Xứng Wi-Fi 7 (hoặc Sky 195K + Modem phụ)",
+            "note": "Hoặc dùng Sky 195K + thêm modem phụ +20.000đ/tháng/modem khi đóng trước 3 tháng."
+          }
+        }
       },
       "toan_quoc": {
-            "label": "Tỉnh / Thành phố khác (Bảng giá niêm yết website toàn quốc)",
-            "page": "pages/bang-gia.html",
-            "default_install_fee": 0,
-            "box_fee": 550000,
-            "v_vvip_box_included": false,
-            "packages": {
-                  "net": {
-                        "name": "Internet Giga / Sky (Bảng giá Website)",
-                        "price": "200.000đ",
-                        "price_value": 200000,
-                        "speed": "300 Mbps (Giga 200K) / 1 Gbps (Sky 205K)",
-                        "note": "Giá niêm yết trên website fpt.vn (giá ngoại thành; gọi 0358 513 269 kiểm tra ưu đãi riêng theo tỉnh)."
-                  },
-                  "tv": {
-                        "name": "Combo Sky V.VIP APP Ngoại Hạng Anh",
-                        "price": "239.000đ",
-                        "price_value": 239000,
-                        "speed": "1 Gbps + FPT Play (Giga V.VIP 220K)",
-                        "note": "Nội thành HN/HCM Sky V.VIP 269K; Tỉnh & Ngoại thành 239K (Giga V.VIP 220K)."
-                  },
-                  "cam": {
-                        "name": "Combo Sky An Tâm 7 (Play4 / IQ4S)",
-                        "price": "225.000đ",
-                        "price_value": 225000,
-                        "speed": "Internet 1 Gbps + Camera AI + Cloud 7 ngày",
-                        "note": "Gói An Tâm 7 (225K) đã gồm sẵn Cloud. Hoặc mua thêm Camera 1 triệu / 3 Camera (Cloud 35K-100K/tháng).",
-                        "cloud_included": true
-                  },
-                  "game": {
-                        "name": "Internet F-Game / SpeedX1 Wi-Fi 7",
-                        "price": "265.000đ",
-                        "price_value": 265000,
-                        "speed": "F-Game 265K (1Gbps Gaming) / SpeedX1 385K (Wi-Fi 7)",
-                        "note": "F-Game Ultra Fast giảm ping 16ms giá 265K; SpeedX1 385K tặng Modem Wi-Fi 7 + 1 Mesh."
-                  }
-            }
+        "label": "Tỉnh / Thành phố khác (Bảng giá niêm yết website toàn quốc)",
+        "page": "pages/bang-gia.html",
+        "default_install_fee": 0,
+        "box_fee": 550000,
+        "v_vvip_box_included": false,
+        "packages": {
+          "net": {
+            "name": "Internet Giga / Sky (Bảng giá Website)",
+            "price": "200.000đ",
+            "price_value": 200000,
+            "speed": "300 Mbps (Giga 200K) / 1 Gbps (Sky 205K)",
+            "note": "Giá niêm yết trên website fpt.vn (giá ngoại thành; gọi 0358 513 269 kiểm tra ưu đãi riêng theo tỉnh)."
+          },
+          "tv": {
+            "name": "Combo Sky V.VIP APP Ngoại Hạng Anh",
+            "price": "239.000đ",
+            "price_value": 239000,
+            "speed": "1 Gbps + FPT Play (Giga V.VIP 220K)",
+            "note": "Nội thành HN/HCM Sky V.VIP 269K; Tỉnh & Ngoại thành 239K (Giga V.VIP 220K)."
+          },
+          "cam": {
+            "name": "Combo Sky An Tâm 7 (Play4 / IQ4S)",
+            "price": "225.000đ",
+            "price_value": 225000,
+            "speed": "Internet 1 Gbps + Camera AI + Cloud 7 ngày",
+            "note": "Gói An Tâm 7 (225K) đã gồm sẵn Cloud. Hoặc mua thêm Camera 1 triệu / 3 Camera (Cloud 35K-100K/tháng).",
+            "cloud_included": true
+          },
+          "game": {
+            "name": "Internet F-Game / SpeedX1 Wi-Fi 7",
+            "price": "265.000đ",
+            "price_value": 265000,
+            "speed": "F-Game 265K (1Gbps Gaming) / SpeedX1 385K (Wi-Fi 7)",
+            "note": "F-Game Ultra Fast giảm ping 16ms giá 265K; SpeedX1 385K tặng Modem Wi-Fi 7 + 1 Mesh."
+          }
+        }
       }
-};
+    };
     /* @sync-pricing:region-catalog:end */
 
     const regionSel = document.getElementById("pf-region");
