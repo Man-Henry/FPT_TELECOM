@@ -440,8 +440,6 @@ document.addEventListener("submit", async (event) => {
         ? await getUserLocation()
         : "Chưa xác định";
     formData.set("Tọa độ", locationInfo);
-    // Đánh dấu client sẽ trực tiếp gửi sang Google Apps Script sau khi qua kiểm tra hợp lệ (chống ghi trùng nếu Worker cũng hỗ trợ GAS)
-    formData.set("gas_dispatched", "1");
 
     // 1. Gửi qua Cloudflare Worker (/api/lead) để lưu D1 + kiểm tra Turnstile + báo Telegram/Resend
     let workerSucceeded = false;
@@ -496,33 +494,35 @@ document.addEventListener("submit", async (event) => {
       return;
     }
 
-    // 2. Luôn gửi trực tiếp Google Apps Script Web App (ghi Google Sheet + gửi email tức thì tới tvm19624@gmail.com)
+    // 2. Fallback: Gửi GAS khi Worker không khả dụng (Worker đã gửi GAS khi thành công)
     let gasDispatched = false;
-    const gasSubmitKey = `${cleanPhone}|${pkg}`;
-    if (lastGasSubmitKey !== gasSubmitKey) {
-      const urlParams = new URLSearchParams();
-      for (const [key, value] of formData.entries()) {
-        if (key === "gas_dispatched" || key === "cf-turnstile-response") continue;
-        urlParams.append(key, value);
-      }
-      const gasController = new AbortController();
-      const gasTid = setTimeout(() => gasController.abort(), 4500);
-      try {
-        await fetch(GOOGLE_SHEETS_ENDPOINT, {
-          method: "POST",
-          mode: "no-cors",
-          keepalive: true,
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: urlParams.toString(),
-          signal: gasController.signal,
-        });
-        lastGasSubmitKey = gasSubmitKey;
-        gasDispatched = true;
-      } catch (gasErr) {
-        console.warn("Google Apps Script notice:", gasErr);
-      } finally {
-        clearTimeout(gasTid);
-      }
+    if (!workerSucceeded) {
+      const gasSubmitKey = `${cleanPhone}|${pkg}`;
+      if (lastGasSubmitKey !== gasSubmitKey) {
+        const urlParams = new URLSearchParams();
+        for (const [key, value] of formData.entries()) {
+          if (key === "cf-turnstile-response") continue;
+          urlParams.append(key, value);
+        }
+        const gasController = new AbortController();
+        const gasTid = setTimeout(() => gasController.abort(), 4500);
+        try {
+          await fetch(GOOGLE_SHEETS_ENDPOINT, {
+            method: "POST",
+            mode: "no-cors",
+            keepalive: true,
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: urlParams.toString(),
+            signal: gasController.signal,
+          });
+          lastGasSubmitKey = gasSubmitKey;
+          gasDispatched = true;
+        } catch (gasErr) {
+          console.warn("Google Apps Script notice:", gasErr);
+        } finally {
+          clearTimeout(gasTid);
+          }
+        }
     }
 
     showFormFeedback(

@@ -666,74 +666,8 @@ export default {
             console.error("Telegram lead notification error:", tgErr);
           }
 
-          // B. Gửi Email qua Resend API (Xử lý chuẩn sandbox onboarding@resend.dev vs domain riêng)
+          // B. Google Sheets + Email thông báo (qua Google Apps Script — kênh duy nhất gửi email tới tvm19624@gmail.com)
           try {
-            if (env.RESEND_API_KEY) {
-              const emailFrom =
-                env.EMAIL_FROM || "FPT Lead Alert <onboarding@resend.dev>";
-              const primaryEmailTo = env.EMAIL_TO || "tvm19624@gmail.com";
-              const isSandboxSender = emailFrom.includes("onboarding@resend.dev");
-              const recipients = isSandboxSender
-                ? [primaryEmailTo]
-                : Array.from(new Set([primaryEmailTo, "mantv2@fpt.com"]));
-
-              const emailHtml = `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
-                  <div style="background: #0056d6; color: #ffffff; padding: 24px; text-align: center;">
-                    <h2 style="margin: 0; font-size: 20px;">🔥 KHÁCH HÀNG MỚI ĐĂNG KÝ LẮP MẠNG FPT</h2>
-                    <p style="margin: 6px 0 0 0; opacity: 0.9; font-size: 14px;">Hệ thống FPT Telecom - Đại lý ủy quyền</p>
-                  </div>
-                  <div style="padding: 24px;">
-                    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-                      <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 10px 0; color: #64748b; width: 140px;">Họ và tên:</td><td style="padding: 10px 0; font-weight: bold; color: #0f172a;">${escapeHTML(name)}</td></tr>
-                      <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 10px 0; color: #64748b;">Số điện thoại:</td><td style="padding: 10px 0; font-weight: bold; color: #0056d6; font-size: 16px;">${escapeHTML(cleanPhone)}</td></tr>
-                      <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 10px 0; color: #64748b;">Gói cước:</td><td style="padding: 10px 0; font-weight: bold; color: #f97316;">${escapeHTML(pkg)}</td></tr>
-                      <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 10px 0; color: #64748b;">Địa chỉ:</td><td style="padding: 10px 0; color: #0f172a;">${escapeHTML(address)}</td></tr>
-                      <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 10px 0; color: #64748b;">Nhu cầu / Ghi chú:</td><td style="padding: 10px 0; color: #0f172a;">${escapeHTML(note)}</td></tr>
-                      <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 10px 0; color: #64748b;">Thời gian liên hệ:</td><td style="padding: 10px 0; color: #0f172a;">${escapeHTML(timePref)}</td></tr>
-                      <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 10px 0; color: #64748b;">Vị trí (GPS):</td><td style="padding: 10px 0; color: #0f172a;">${escapeHTML(location)}</td></tr>
-                      <tr><td style="padding: 10px 0; color: #64748b;">Nghị định 13:</td><td style="padding: 10px 0; color: #16a34a; font-weight: bold;">${consentNd13 ? "Đã đồng ý" : "Chưa"}</td></tr>
-                    </table>
-                    <div style="margin-top: 24px; text-align: center;">
-                      <a href="tel:${cleanPhone}" style="display: inline-block; background: #ea580c; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 15px;">📞 GỌI KHÁCH HÀNG NGAY</a>
-                    </div>
-                  </div>
-                  <div style="background: #f8fafc; padding: 12px; text-align: center; color: #94a3b8; font-size: 12px; border-top: 1px solid #f1f5f9;">
-                    Mã đơn: #${leadId || "NEW"} | IP: ${clientIP}
-                  </div>
-                </div>
-              `;
-              const sendResend = (toList) =>
-                fetch("https://api.resend.com/emails", {
-                  method: "POST",
-                  headers: {
-                    Authorization: `Bearer ${env.RESEND_API_KEY}`,
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    from: emailFrom,
-                    to: toList,
-                    subject: `🔥 [FPT LEAD] ${name} - ${cleanPhone} (${pkg})`,
-                    html: emailHtml,
-                  }),
-                });
-
-              const resendRes = await sendResend(recipients);
-              if (!resendRes.ok) {
-                const errText = await resendRes.text().catch(() => "");
-                console.error("Resend email rejected:", resendRes.status, errText);
-                if (recipients.length > 1) {
-                  await sendResend([primaryEmailTo]);
-                }
-              }
-            }
-          } catch (resendErr) {
-            console.error("Resend email error:", resendErr);
-          }
-
-          // C. Google Sheets Backup (Chỉ chạy từ Worker khi Client chưa tự gửi trực tiếp)
-          try {
-            if (String(body.gas_dispatched || "") !== "1") {
               const gasUrl =
                 env.GOOGLE_SHEETS_ENDPOINT ||
                 "https://script.google.com/macros/s/AKfycbwvkgJ0GpdzEwh6Us5AFJ8uUlwuO3paCxqhSY8JhAzWur3Ws6KIuLxlrPN4-lqtBDeO/exec";
@@ -759,9 +693,8 @@ export default {
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: formParams.toString(),
               });
-            }
           } catch (gasErr) {
-            console.error("Google Sheets backup error:", gasErr);
+            console.error("Google Sheets + Email error:", gasErr);
           }
         };
 

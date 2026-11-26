@@ -122,9 +122,10 @@ function main() {
   assert(
     !scriptJs.includes("0x4AAAAAAAEi6j9Y-0rZc7eU") &&
       !scriptMin.includes("0x4AAAAAAAEi6j9Y-0rZc7eU") &&
-      scriptMin.includes("worker_and_gas") &&
+      scriptMin.includes("cloudflare_worker") &&
+      scriptMin.includes("gas_fallback") &&
       scriptMin.includes("calculator_estimate"),
-    "js/script.min.js freshly built without invalid Turnstile placeholder, with dual Worker+GAS email dispatch, and GTM calculator",
+    "js/script.min.js freshly built without invalid Turnstile placeholder, with Worker+GAS fallback email, and GTM calculator",
   );
   assert(
     cssMin.includes("finder-breakdown") && cssMin.includes("finder-pills-4"),
