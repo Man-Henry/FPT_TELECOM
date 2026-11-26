@@ -121,9 +121,9 @@ function main() {
 
   assert(
     scriptMin.includes("challenges.cloudflare.com/turnstile") &&
-      scriptMin.includes("gas_fallback") &&
+      scriptMin.includes("worker_and_gas") &&
       scriptMin.includes("calculator_estimate"),
-    "js/script.min.js freshly built with Turnstile, single-channel + fallback, and GTM calculator",
+    "js/script.min.js freshly built with Turnstile, dual Worker+GAS email dispatch, and GTM calculator",
   );
   assert(
     cssMin.includes("finder-breakdown") && cssMin.includes("finder-pills-4"),

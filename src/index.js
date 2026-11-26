@@ -666,9 +666,17 @@ export default {
             console.error("Telegram lead notification error:", tgErr);
           }
 
-          // B. Gửi Email qua Resend API (Gửi đến tvm19624@gmail.com, mantv2@fpt.com)
+          // B. Gửi Email qua Resend API (Xử lý chuẩn sandbox onboarding@resend.dev vs domain riêng)
           try {
             if (env.RESEND_API_KEY) {
+              const emailFrom =
+                env.EMAIL_FROM || "FPT Lead Alert <onboarding@resend.dev>";
+              const primaryEmailTo = env.EMAIL_TO || "tvm19624@gmail.com";
+              const isSandboxSender = emailFrom.includes("onboarding@resend.dev");
+              const recipients = isSandboxSender
+                ? [primaryEmailTo]
+                : Array.from(new Set([primaryEmailTo, "mantv2@fpt.com"]));
+
               const emailHtml = `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
                   <div style="background: #0056d6; color: #ffffff; padding: 24px; text-align: center;">
@@ -695,52 +703,63 @@ export default {
                   </div>
                 </div>
               `;
-              await fetch("https://api.resend.com/emails", {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${env.RESEND_API_KEY}`,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  from:
-                    env.EMAIL_FROM || "FPT Lead Alert <onboarding@resend.dev>",
-                  to: [
-                    env.EMAIL_TO || "tvm19624@gmail.com",
-                    "mantv2@fpt.com",
-                  ],
-                  subject: `🔥 [FPT LEAD] ${name} - ${cleanPhone} (${pkg})`,
-                  html: emailHtml,
-                }),
-              });
+              const sendResend = (toList) =>
+                fetch("https://api.resend.com/emails", {
+                  method: "POST",
+                  headers: {
+                    Authorization: `Bearer ${env.RESEND_API_KEY}`,
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    from: emailFrom,
+                    to: toList,
+                    subject: `🔥 [FPT LEAD] ${name} - ${cleanPhone} (${pkg})`,
+                    html: emailHtml,
+                  }),
+                });
+
+              const resendRes = await sendResend(recipients);
+              if (!resendRes.ok) {
+                const errText = await resendRes.text().catch(() => "");
+                console.error("Resend email rejected:", resendRes.status, errText);
+                if (recipients.length > 1) {
+                  await sendResend([primaryEmailTo]);
+                }
+              }
             }
           } catch (resendErr) {
             console.error("Resend email error:", resendErr);
           }
 
-          // C. Google Sheets Backup (Ghi song song)
+          // C. Google Sheets Backup (Chỉ chạy từ Worker khi Client chưa tự gửi trực tiếp)
           try {
-            const gasUrl =
-              env.GOOGLE_SHEETS_ENDPOINT ||
-              "https://script.google.com/macros/s/AKfycbwvkgJ0GpdzEwh6Us5AFJ8uUlwuO3paCxqhSY8JhAzWur3Ws6KIuLxlrPN4-lqtBDeO/exec";
-            const formParams = new URLSearchParams();
-            formParams.append("Họ tên", name);
-            formParams.append("Họ Và Tên", name);
-            formParams.append("Số điện thoại", cleanPhone);
-            formParams.append("Địa chỉ", address);
-            formParams.append("Khu vực", address);
-            formParams.append("Gói cước", pkg);
-            formParams.append("Ghi chú", note);
-            formParams.append("Thời gian liên hệ", timePref);
-            formParams.append("Tọa độ", location);
-            formParams.append("Trang đăng ký", "https://fpttelecomvn.click/");
-            formParams.append("consent_nd13", consentNd13 ? "1" : "0");
-            formParams.append("IP", clientIP);
+            if (String(body.gas_dispatched || "") !== "1") {
+              const gasUrl =
+                env.GOOGLE_SHEETS_ENDPOINT ||
+                "https://script.google.com/macros/s/AKfycbwvkgJ0GpdzEwh6Us5AFJ8uUlwuO3paCxqhSY8JhAzWur3Ws6KIuLxlrPN4-lqtBDeO/exec";
+              const formParams = new URLSearchParams();
+              formParams.append("Họ tên", name);
+              formParams.append("Họ Và Tên", name);
+              formParams.append("Số điện thoại", cleanPhone);
+              formParams.append("Địa chỉ", address);
+              formParams.append("Khu vực", address);
+              formParams.append("Gói cước", pkg);
+              formParams.append("Ghi chú", note);
+              formParams.append("Thời gian liên hệ", timePref);
+              formParams.append("Tọa độ", location);
+              formParams.append(
+                "Trang đăng ký",
+                clip(body["Trang đăng ký"] || "https://fpttelecomvn.click/", 300),
+              );
+              formParams.append("consent_nd13", consentNd13 ? "1" : "0");
+              formParams.append("IP", clientIP);
 
-            await fetch(gasUrl, {
-              method: "POST",
-              headers: { "Content-Type": "application/x-www-form-urlencoded" },
-              body: formParams.toString(),
-            });
+              await fetch(gasUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: formParams.toString(),
+              });
+            }
           } catch (gasErr) {
             console.error("Google Sheets backup error:", gasErr);
           }

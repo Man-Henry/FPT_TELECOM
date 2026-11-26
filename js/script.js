@@ -323,6 +323,7 @@ function showFormFeedback(form, message, isError = false) {
 }
 
 // Global form submission handler with event delegation (handles both #leadForm and #popupForm)
+let lastGasSubmitKey = "";
 document.addEventListener("submit", async (event) => {
   const form = event.target.closest("#leadForm, #popupForm");
   if (!form) return;
@@ -357,7 +358,7 @@ document.addEventListener("submit", async (event) => {
   const timePref = formData.get("Thời gian liên hệ") || "Gọi ngay bây giờ";
 
   // Validate SĐT nhanh trên Client trước khi gọi API (hỗ trợ Mã hợp đồng ở chế độ Yêu cầu hỗ trợ)
-  const cleanPhone = phone.replace(/\s+/g, "");
+  const cleanPhone = phone.replace(/[\s.-]+/g, "");
   const isPhoneValid = /^(0|\+84)[3-9][0-9]{8}$/.test(cleanPhone);
   const isContractValid = isSupportMode && /^[A-Za-z0-9._/-]{5,30}$/.test(cleanPhone);
   if (!isPhoneValid && !isContractValid) {
@@ -430,8 +431,10 @@ document.addEventListener("submit", async (event) => {
         ? await getUserLocation()
         : "Chưa xác định";
     formData.set("Tọa độ", locationInfo);
+    // Đánh dấu client sẽ trực tiếp gửi sang Google Apps Script sau khi qua kiểm tra hợp lệ (chống ghi trùng nếu Worker cũng hỗ trợ GAS)
+    formData.set("gas_dispatched", "1");
 
-    // Gửi 1 cổng duy nhất qua Cloudflare Worker (/api/lead); Worker tự đồng bộ D1 + Telegram + Resend + Google Sheets
+    // 1. Gửi qua Cloudflare Worker (/api/lead) để lưu D1 + kiểm tra Turnstile + báo Telegram/Resend
     let workerSucceeded = false;
     let workerClientError = null;
     let workerJson = null;
@@ -459,7 +462,7 @@ document.addEventListener("submit", async (event) => {
       }
     } catch (workerErr) {
       clearTimeout(tid);
-      console.warn("Worker lead unavailable, falling back to Google Sheets:", workerErr);
+      console.warn("Worker lead unavailable, continuing with Google Sheets:", workerErr);
     }
 
     // Không cho phép "báo thành công giả" khi Worker từ chối 400/403/429
@@ -484,18 +487,33 @@ document.addEventListener("submit", async (event) => {
       return;
     }
 
-    // Chỉ fallback gọi thẳng Google Apps Script khi Worker lỗi mạng hoặc 5xx
-    if (!workerSucceeded) {
+    // 2. Luôn gửi trực tiếp Google Apps Script Web App (ghi Google Sheet + gửi email tức thì tới tvm19624@gmail.com)
+    let gasDispatched = false;
+    const gasSubmitKey = `${cleanPhone}|${pkg}`;
+    if (lastGasSubmitKey !== gasSubmitKey) {
       const urlParams = new URLSearchParams();
       for (const [key, value] of formData.entries()) {
+        if (key === "gas_dispatched" || key === "cf-turnstile-response") continue;
         urlParams.append(key, value);
       }
-      await fetch(GOOGLE_SHEETS_ENDPOINT, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: urlParams.toString(),
-      });
+      const gasController = new AbortController();
+      const gasTid = setTimeout(() => gasController.abort(), 4500);
+      try {
+        await fetch(GOOGLE_SHEETS_ENDPOINT, {
+          method: "POST",
+          mode: "no-cors",
+          keepalive: true,
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: urlParams.toString(),
+          signal: gasController.signal,
+        });
+        lastGasSubmitKey = gasSubmitKey;
+        gasDispatched = true;
+      } catch (gasErr) {
+        console.warn("Google Apps Script notice:", gasErr);
+      } finally {
+        clearTimeout(gasTid);
+      }
     }
 
     showFormFeedback(
@@ -509,7 +527,9 @@ document.addEventListener("submit", async (event) => {
     window.dataLayer.push({
       event: "form_submit",
       form_status: "success",
-      delivery_channel: workerSucceeded ? "cloudflare_worker" : "gas_fallback",
+      delivery_channel: workerSucceeded
+        ? (gasDispatched ? "worker_and_gas" : "cloudflare_worker")
+        : "gas_fallback",
       package_name: pkg,
       time_preference: timePref,
     });
@@ -2541,7 +2561,7 @@ const modalsHTML = `
       </div>
       <div class="form-group">
         <label>Số điện thoại</label>
-        <input type="tel" name="Số điện thoại" placeholder="Ví dụ: 0987654321" pattern="[0-9]{10,11}" required>
+        <input type="tel" name="Số điện thoại" placeholder="Ví dụ: 0987654321" pattern="[0-9+\s.-]{10,16}" required>
       </div>
       <div class="form-group">
         <label>Địa chỉ lắp đặt</label>

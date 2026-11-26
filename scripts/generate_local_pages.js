@@ -497,7 +497,7 @@ ${schemaJson}
             </div>
             <div>
               <label style="display:block;font-size:13px;font-weight:700;margin-bottom:6px;">Số điện thoại *</label>
-              <input type="tel" name="Số điện thoại" placeholder="Ví dụ: 0987654321" pattern="[0-9]{10,11}" required style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;" />
+              <input type="tel" name="Số điện thoại" placeholder="Ví dụ: 0987654321" pattern="[0-9+\s.-]{10,16}" required style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;" />
             </div>
           </div>
           <div style="margin-bottom:14px;">
