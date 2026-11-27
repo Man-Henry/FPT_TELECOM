@@ -705,7 +705,7 @@ export default {
           try {
             const gasUrl =
               env.GOOGLE_SHEETS_ENDPOINT ||
-              "https://script.google.com/macros/s/AKfycbwvkgJ0GpdzEwh6Us5AFJ8uUlwuO3paCxqhSY8JhAzWur3Ws6KIuLxlrPN4-lqtBDeO/exec";
+              "https://script.google.com/macros/s/AKfycbznch_chFoRv_DMHsj5ve3kyfHvIQLN3VVoAb8LWd762342idAn9BwIoi_kkPG0hi14og/exec";
             const formParams = new URLSearchParams();
             formParams.append("Họ tên", name);
             formParams.append("Họ Và Tên", name);

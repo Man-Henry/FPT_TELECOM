@@ -249,7 +249,7 @@ async function getUserLocation() {
 // Google Apps Script Web App Endpoint URL (Backup fallback only when Worker unreachable)
 const WORKER_LEAD_ENDPOINT = "https://man-chatbot.tvm19624.workers.dev/api/lead";
 const GOOGLE_SHEETS_ENDPOINT =
-  "https://script.google.com/macros/s/AKfycbwvkgJ0GpdzEwh6Us5AFJ8uUlwuO3paCxqhSY8JhAzWur3Ws6KIuLxlrPN4-lqtBDeO/exec";
+  "https://script.google.com/macros/s/AKfycbznch_chFoRv_DMHsj5ve3kyfHvIQLN3VVoAb8LWd762342idAn9BwIoi_kkPG0hi14og/exec";
 // Điền Sitekey thật từ Cloudflare Dashboard -> Turnstile để bật widget chống spam (để trống = tắt widget)
 const TURNSTILE_SITE_KEY = "0x4AAAAAAGUU6QBt_sxJK9-n";
 

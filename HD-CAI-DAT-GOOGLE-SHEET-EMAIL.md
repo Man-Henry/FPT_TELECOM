@@ -10,7 +10,7 @@ Hệ thống đã được lập trình sẵn để tự động bắt thông ti
 - **Hotline liên hệ trên email & web:** `0358 513 269`
 - **Google Apps Script Web App Endpoint:**
   ```text
-  https://script.google.com/macros/s/AKfycbwvkgJ0GpdzEwh6Us5AFJ8uUlwuO3paCxqhSY8JhAzWur3Ws6KIuLxlrPN4-lqtBDeO/exec
+  https://script.google.com/macros/s/AKfycbznch_chFoRv_DMHsj5ve3kyfHvIQLN3VVoAb8LWd762342idAn9BwIoi_kkPG0hi14og/exec
   ```
 
 ---
