@@ -232,13 +232,17 @@ const json = (data, status = 200, extraHeaders = {}) =>
   });
 
 async function verifyTurnstile(token, clientIP, secretKey) {
-  if (!secretKey) return { success: true, bypassed: true };
-  if (!token) return { success: false, error: "missing_token" };
+  const cleanSecret = typeof secretKey === "string" ? secretKey.trim() : "";
+  const cleanToken = typeof token === "string" ? token.trim() : "";
+  if (!cleanSecret) return { success: true, bypassed: true };
+  if (!cleanToken) return { success: false, error: "missing_token" };
   try {
     const formData = new URLSearchParams();
-    formData.append("secret", secretKey);
-    formData.append("response", token);
-    formData.append("remoteip", clientIP);
+    formData.append("secret", cleanSecret);
+    formData.append("response", cleanToken);
+    if (clientIP && clientIP !== "unknown") {
+      formData.append("remoteip", clientIP);
+    }
 
     const res = await fetch(
       "https://challenges.cloudflare.com/turnstile/v0/siteverify",
@@ -472,13 +476,44 @@ export default {
             env.TURNSTILE_SECRET_KEY,
           );
           if (!tsResult.success) {
-            return json(
-              {
-                error:
-                  "Xác thực bảo mật Turnstile không hợp lệ hoặc phát hiện Bot spam. Vui lòng thử lại!",
-              },
-              403,
-            );
+            const errorCodes = Array.isArray(tsResult["error-codes"])
+              ? tsResult["error-codes"]
+              : [];
+            const reasonCode =
+              tsResult.error || errorCodes.join(",") || "unknown";
+            console.warn("[Turnstile] verify failed:", {
+              reasonCode,
+              hasToken: Boolean(turnstileToken),
+              hostname: tsResult.hostname || "",
+            });
+            let userMsg =
+              "Xác thực bảo mật Turnstile không hợp lệ hoặc phát hiện Bot spam. Vui lòng thử lại!";
+            if (
+              reasonCode.includes("invalid-input-secret") ||
+              reasonCode.includes("missing-input-secret")
+            ) {
+              userMsg =
+                "Cấu hình TURNSTILE_SECRET_KEY trên Worker chưa khớp hoặc không hợp lệ (" +
+                reasonCode +
+                ").";
+            } else if (
+              reasonCode === "missing_token" ||
+              reasonCode.includes("missing-input-response")
+            ) {
+              userMsg =
+                "Chưa nhận được mã xác thực Turnstile (" +
+                reasonCode +
+                "). Vui lòng nhấn Ctrl+F5 tải lại trang hoặc đợi 2 giây rồi thử lại.";
+            } else if (reasonCode.includes("timeout-or-duplicate")) {
+              userMsg =
+                "Mã xác thực Turnstile đã hết hạn hoặc đã dùng. Vui lòng xác nhận lại và bấm gửi!";
+            } else if (reasonCode !== "unknown") {
+              userMsg =
+                "Xác thực bảo mật Turnstile không hợp lệ (" +
+                reasonCode +
+                "). Vui lòng tải lại trang hoặc kiểm tra lại cặp Sitekey/Secret Key!";
+            }
+            return json({ error: userMsg, code: reasonCode }, 403);
           }
         }
 

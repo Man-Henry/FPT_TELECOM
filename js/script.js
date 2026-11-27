@@ -264,10 +264,20 @@ function renderPendingTurnstiles() {
   document.querySelectorAll(".cf-turnstile").forEach((el) => {
     if (el.dataset.tsWidgetId || el.querySelector("iframe")) return;
     try {
+      delete el.dataset.tsError;
       const wid = window.turnstile.render(el, {
         sitekey: el.getAttribute("data-sitekey") || TURNSTILE_SITE_KEY,
         size: el.getAttribute("data-size") || "flexible",
         theme: el.getAttribute("data-theme") || "light",
+        callback: () => {
+          delete el.dataset.tsError;
+        },
+        "expired-callback": () => {
+          el.dataset.tsError = "expired";
+        },
+        "error-callback": (errCode) => {
+          el.dataset.tsError = String(errCode || "widget_error");
+        },
       });
       if (wid !== undefined && wid !== null) {
         el.dataset.tsWidgetId = String(wid);
@@ -435,8 +445,12 @@ document.addEventListener("submit", async (event) => {
   }
 
   // Turnstile Bot Protection Token Extraction (tìm đúng widget bên trong form hiện tại trước)
-  const widgetEl = form.querySelector(".cf-turnstile");
-  const widgetId =
+  let widgetEl = form.querySelector(".cf-turnstile");
+  if (TURNSTILE_SITE_KEY && !widgetEl) {
+    ensureTurnstileLoaded();
+    widgetEl = form.querySelector(".cf-turnstile");
+  }
+  const getWidgetId = () =>
     widgetEl && widgetEl.dataset && widgetEl.dataset.tsWidgetId
       ? widgetEl.dataset.tsWidgetId
       : "";
@@ -450,8 +464,9 @@ document.addEventListener("submit", async (event) => {
       typeof window.turnstile.getResponse === "function"
     ) {
       try {
-        token = widgetId
-          ? window.turnstile.getResponse(widgetId)
+        const wid = getWidgetId();
+        token = wid
+          ? window.turnstile.getResponse(wid)
           : widgetEl
             ? window.turnstile.getResponse(widgetEl)
             : window.turnstile.getResponse();
@@ -461,16 +476,22 @@ document.addEventListener("submit", async (event) => {
   };
 
   let tsToken = readTurnstileToken();
-  if (TURNSTILE_SITE_KEY && widgetEl && !tsToken) {
-    renderPendingTurnstiles();
-    await new Promise((resolve) => setTimeout(resolve, 1200));
-    tsToken = readTurnstileToken();
-    if (!tsToken && typeof window.turnstile !== "undefined") {
-      showFormFeedback(
-        form,
-        "Đang hoàn tất xác thực bảo mật Cloudflare, vui lòng đợi 1–2 giây rồi bấm gửi lại.",
-        true,
-      );
+  if (TURNSTILE_SITE_KEY && !tsToken) {
+    ensureTurnstileLoaded();
+    for (let attempt = 0; attempt < 10 && !tsToken; attempt++) {
+      renderPendingTurnstiles();
+      if (widgetEl && widgetEl.dataset && widgetEl.dataset.tsError) break;
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      tsToken = readTurnstileToken();
+    }
+    if (!tsToken) {
+      const tsErr = widgetEl && widgetEl.dataset ? widgetEl.dataset.tsError : "";
+      const errMsg = tsErr
+        ? "Widget bảo mật Turnstile báo lỗi (" +
+          tsErr +
+          "). Vui lòng tải lại trang hoặc kiểm tra Sitekey trên tên miền này."
+        : "Chưa hoàn tất xác thực bảo mật Cloudflare. Vui lòng đợi 1–2 giây, nhấn Ctrl+F5 hoặc tắt trình chặn script rồi bấm gửi lại.";
+      showFormFeedback(form, errMsg, true);
       if (submitButton) {
         submitButton.disabled = false;
         submitButton.innerHTML = originalLabel;
@@ -501,7 +522,8 @@ document.addEventListener("submit", async (event) => {
       typeof window.turnstile.reset === "function"
     ) {
       try {
-        const target = widgetId || widgetEl;
+        if (widgetEl && widgetEl.dataset) delete widgetEl.dataset.tsError;
+        const target = getWidgetId() || widgetEl;
         if (target) window.turnstile.reset(target);
       } catch (e) {}
     }
