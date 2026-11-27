@@ -11,6 +11,10 @@
 // Cấu hình email nhận thông báo khi có khách hàng đăng ký mới
 var NOTIFY_EMAIL = "tvm19624@gmail.com";
 
+// (Tùy chọn) Dán ID Google Sheet nếu tạo Apps Script độc lập tại script.google.com
+// Để trống "" nếu bạn tạo Apps Script từ trong Google Sheet (Tiện ích mở rộng -> Apps Script)
+var SPREADSHEET_ID = "";
+
 // Tên Sheet lưu trữ danh sách khách hàng
 var SHEET_NAME = "Khách Hàng Đăng Ký";
 
@@ -31,35 +35,28 @@ function doGet(e) {
  * Xử lý POST request khi khách hàng gửi Form từ website
  */
 function doPost(e) {
-  // Sử dụng LockService để tránh xung đột dữ liệu khi nhiều người gửi cùng lúc
+  var data = parseCustomerData(e);
+  var timestamp = Utilities.formatDate(
+    new Date(),
+    "GMT+7",
+    "dd/MM/yyyy HH:mm:ss"
+  );
+
+  var sheetSaved = false;
+  var sheetUrl = "";
+  var sheetError = "";
+
+  // 1. Ghi dữ liệu vào Google Sheet (cô lập lỗi Sheet để không làm mất Email thông báo)
   var lock = LockService.getScriptLock();
+  var lockAcquired = false;
   try {
-    lock.waitLock(30000); // Đợi tối đa 30 giây
-  } catch (lockError) {
-    return ContentService.createTextOutput(
-      JSON.stringify({
-        result: "error",
-        error: "Hệ thống đang bận xử lý yêu cầu khác, vui lòng thử lại sau giây lát!",
-      })
-    ).setMimeType(ContentService.MimeType.JSON);
-  }
+    lock.waitLock(15000);
+    lockAcquired = true;
 
-  try {
     var sheet = getOrCreateSheet();
-    var data = parseCustomerData(e);
-
-    // Thời gian đăng ký (Múi giờ Việt Nam GMT+7)
-    var timestamp = Utilities.formatDate(
-      new Date(),
-      "GMT+7",
-      "dd/MM/yyyy HH:mm:ss"
-    );
-
-    // Tính STT
     var lastRow = sheet.getLastRow();
     var stt = lastRow >= 1 ? lastRow : 1;
 
-    // Ghi dữ liệu vào Google Sheet
     sheet.appendRow([
       stt,
       timestamp,
@@ -74,27 +71,39 @@ function doPost(e) {
       "Mới tiếp nhận",
     ]);
 
-    // Gửi email thông báo tức thì đến tvm19624@gmail.com
-    sendEmailNotification(data, timestamp);
-
-    // Trả về kết quả JSON thành công
-    return ContentService.createTextOutput(
-      JSON.stringify({
-        result: "success",
-        message: "Đăng ký thành công! Đã lưu thông tin và gửi thông báo.",
-      })
-    ).setMimeType(ContentService.MimeType.JSON);
+    sheetSaved = true;
+    try {
+      var ss = openTargetSpreadsheet();
+      if (ss) sheetUrl = ss.getUrl();
+    } catch (urlErr) {}
   } catch (err) {
-    Logger.log("Lỗi xử lý doPost: " + err.toString());
-    return ContentService.createTextOutput(
-      JSON.stringify({
-        result: "error",
-        error: "Đã xảy ra lỗi xử lý hệ thống, vui lòng thử lại sau.",
-      })
-    ).setMimeType(ContentService.MimeType.JSON);
+    sheetError = err.toString();
+    Logger.log("Lỗi ghi Google Sheet: " + sheetError);
   } finally {
-    lock.releaseLock();
+    if (lockAcquired) {
+      try {
+        lock.releaseLock();
+      } catch (releaseErr) {}
+    }
   }
+
+  // 2. Luôn gửi email thông báo tức thì đến tvm19624@gmail.com (ngay cả khi Sheet gặp lỗi)
+  var emailResult = sendEmailNotification(data, timestamp, sheetUrl);
+  var ok = emailResult.sent || sheetSaved;
+
+  return ContentService.createTextOutput(
+    JSON.stringify({
+      result: ok ? "success" : "error",
+      emailSent: emailResult.sent,
+      sheetSaved: sheetSaved,
+      sheetError: sheetError || undefined,
+      emailError: emailResult.error || undefined,
+      message: ok
+        ? "Đăng ký thành công! Đã tiếp nhận thông tin."
+        : "Không thể lưu Sheet hoặc gửi Email: " + (emailResult.error || sheetError),
+      error: ok ? undefined : (sheetError || emailResult.error),
+    })
+  ).setMimeType(ContentService.MimeType.JSON);
 }
 
 /**
@@ -176,11 +185,23 @@ function parseCustomerData(e) {
   };
 }
 
+function openTargetSpreadsheet() {
+  if (typeof SPREADSHEET_ID === "string" && SPREADSHEET_ID.trim() !== "") {
+    return SpreadsheetApp.openById(SPREADSHEET_ID.trim());
+  }
+  return SpreadsheetApp.getActiveSpreadsheet();
+}
+
 /**
  * Lấy Sheet hoặc tự động tạo mới kèm theo Header chuẩn
  */
 function getOrCreateSheet() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = openTargetSpreadsheet();
+  if (!ss) {
+    throw new Error(
+      "Chưa liên kết Google Sheet (SpreadsheetApp.getActiveSpreadsheet() = null). Hãy mở Apps Script từ Google Sheet hoặc điền SPREADSHEET_ID."
+    );
+  }
   var sheet = ss.getSheetByName(SHEET_NAME);
 
   if (!sheet) {
@@ -236,13 +257,19 @@ function getOrCreateSheet() {
 /**
  * Gửi email thông báo HTML chuyên nghiệp về tvm19624@gmail.com
  */
-function sendEmailNotification(data, timestamp) {
+function sendEmailNotification(data, timestamp, optSheetUrl) {
   try {
     var rawPhone = data.phone.replace(/[^0-9+]/g, "");
     var callUrl = "tel:" + rawPhone;
     var zaloPhone = rawPhone.replace(/^\+84/, "0");
     var zaloUrl = "https://zalo.me/" + zaloPhone;
-    var sheetUrl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
+    var sheetUrl = optSheetUrl || "";
+    if (!sheetUrl) {
+      try {
+        var ss = openTargetSpreadsheet();
+        if (ss) sheetUrl = ss.getUrl();
+      } catch (ignoreUrlErr) {}
+    }
 
     var subject =
       "🔥 [FPT TELECOM] KHÁCH HÀNG MỚI ĐĂNG KÝ: " +
@@ -340,14 +367,16 @@ function sendEmailNotification(data, timestamp) {
       "</td>" +
       "</tr>" +
       "</table>" +
-      "<!-- Button Open Sheet -->" +
-      '<div style="text-align: center; margin-top: 15px;">' +
-      '<a href="' +
-      sheetUrl +
-      '" target="_blank" style="display: inline-block; background-color: #0F9D58; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 600; padding: 10px 22px; border-radius: 6px;">' +
-      "📊 Mở Bảng Tính Google Sheet Quản Lý" +
-      "</a>" +
-      "</div>" +
+      (sheetUrl
+        ? "<!-- Button Open Sheet -->" +
+          '<div style="text-align: center; margin-top: 15px;">' +
+          '<a href="' +
+          sheetUrl +
+          '" target="_blank" style="display: inline-block; background-color: #0F9D58; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 600; padding: 10px 22px; border-radius: 6px;">' +
+          "📊 Mở Bảng Tính Google Sheet Quản Lý" +
+          "</a>" +
+          "</div>"
+        : "") +
       "</div>" +
       "<!-- Footer -->" +
       '<div style="background-color: #f1f5f9; padding: 14px 20px; text-align: center; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b;">' +
@@ -365,8 +394,10 @@ function sendEmailNotification(data, timestamp) {
     });
 
     Logger.log("Đã gửi email thông báo thành công tới: " + NOTIFY_EMAIL);
+    return { sent: true, error: "" };
   } catch (mailError) {
     Logger.log("Lỗi gửi email: " + mailError.toString());
+    return { sent: false, error: mailError.toString() };
   }
 }
 

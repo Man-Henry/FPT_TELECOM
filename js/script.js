@@ -253,6 +253,31 @@ const GOOGLE_SHEETS_ENDPOINT =
 // Điền Sitekey thật từ Cloudflare Dashboard -> Turnstile để bật widget chống spam (để trống = tắt widget)
 const TURNSTILE_SITE_KEY = "0x4AAAAAAGUU6QBt_sxJK9-n";
 
+function renderPendingTurnstiles() {
+  if (
+    !TURNSTILE_SITE_KEY ||
+    typeof window.turnstile === "undefined" ||
+    typeof window.turnstile.render !== "function"
+  ) {
+    return;
+  }
+  document.querySelectorAll(".cf-turnstile").forEach((el) => {
+    if (el.dataset.tsWidgetId || el.querySelector("iframe")) return;
+    try {
+      const wid = window.turnstile.render(el, {
+        sitekey: el.getAttribute("data-sitekey") || TURNSTILE_SITE_KEY,
+        size: el.getAttribute("data-size") || "flexible",
+        theme: el.getAttribute("data-theme") || "light",
+      });
+      if (wid !== undefined && wid !== null) {
+        el.dataset.tsWidgetId = String(wid);
+      }
+    } catch (e) {}
+  });
+}
+
+window.__onTurnstileLoad = renderPendingTurnstiles;
+
 function ensureTurnstileLoaded() {
   const targetForms = [
     document.getElementById("leadForm"),
@@ -284,12 +309,17 @@ function ensureTurnstileLoaded() {
 
   if (!targetForms.length && !document.querySelector(".cf-turnstile")) return;
 
+  if (typeof window.turnstile !== "undefined") {
+    renderPendingTurnstiles();
+    return;
+  }
+
   if (
-    typeof window.turnstile === "undefined" &&
     !document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]')
   ) {
     const s = document.createElement("script");
-    s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+    s.src =
+      "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=__onTurnstileLoad";
     s.async = true;
     s.defer = true;
     document.head.appendChild(s);
@@ -405,17 +435,48 @@ document.addEventListener("submit", async (event) => {
   }
 
   // Turnstile Bot Protection Token Extraction (tìm đúng widget bên trong form hiện tại trước)
-  const localTsInput = form.querySelector('input[name="cf-turnstile-response"]');
-  let tsToken = (localTsInput && localTsInput.value) || formData.get("cf-turnstile-response");
-  if (
-    !tsToken &&
-    typeof window.turnstile !== "undefined" &&
-    typeof window.turnstile.getResponse === "function"
-  ) {
-    try {
-      const widgetEl = form.querySelector(".cf-turnstile");
-      tsToken = widgetEl ? window.turnstile.getResponse(widgetEl) : window.turnstile.getResponse();
-    } catch (e) { }
+  const widgetEl = form.querySelector(".cf-turnstile");
+  const widgetId =
+    widgetEl && widgetEl.dataset && widgetEl.dataset.tsWidgetId
+      ? widgetEl.dataset.tsWidgetId
+      : "";
+  const readTurnstileToken = () => {
+    const localTsInput = form.querySelector('input[name="cf-turnstile-response"]');
+    let token =
+      (localTsInput && localTsInput.value) || formData.get("cf-turnstile-response");
+    if (
+      !token &&
+      typeof window.turnstile !== "undefined" &&
+      typeof window.turnstile.getResponse === "function"
+    ) {
+      try {
+        token = widgetId
+          ? window.turnstile.getResponse(widgetId)
+          : widgetEl
+            ? window.turnstile.getResponse(widgetEl)
+            : window.turnstile.getResponse();
+      } catch (e) {}
+    }
+    return token || "";
+  };
+
+  let tsToken = readTurnstileToken();
+  if (TURNSTILE_SITE_KEY && widgetEl && !tsToken) {
+    renderPendingTurnstiles();
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+    tsToken = readTurnstileToken();
+    if (!tsToken && typeof window.turnstile !== "undefined") {
+      showFormFeedback(
+        form,
+        "Đang hoàn tất xác thực bảo mật Cloudflare, vui lòng đợi 1–2 giây rồi bấm gửi lại.",
+        true,
+      );
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalLabel;
+      }
+      return;
+    }
   }
   if (tsToken) {
     formData.set("cf-turnstile-response", tsToken);
@@ -434,6 +495,18 @@ document.addEventListener("submit", async (event) => {
     return;
   }
 
+  const resetTurnstileWidget = () => {
+    if (
+      typeof window.turnstile !== "undefined" &&
+      typeof window.turnstile.reset === "function"
+    ) {
+      try {
+        const target = widgetId || widgetEl;
+        if (target) window.turnstile.reset(target);
+      } catch (e) {}
+    }
+  };
+
   try {
     const locationInfo =
       typeof getUserLocation === "function"
@@ -441,7 +514,7 @@ document.addEventListener("submit", async (event) => {
         : "Chưa xác định";
     formData.set("Tọa độ", locationInfo);
 
-    // 1. Gửi qua Cloudflare Worker (/api/lead) để lưu D1 + kiểm tra Turnstile + báo Telegram/Resend
+    // 1. Gửi qua Cloudflare Worker (/api/lead) để lưu D1 + kiểm tra Turnstile + báo Telegram + gửi GAS (email)
     let workerSucceeded = false;
     let workerClientError = null;
     let workerJson = null;
@@ -475,15 +548,8 @@ document.addEventListener("submit", async (event) => {
     // Không cho phép "báo thành công giả" khi Worker từ chối 400/403/429
     if (workerClientError) {
       showFormFeedback(form, workerClientError.message, true);
-      if (
-        workerClientError.status === 403 &&
-        typeof window.turnstile !== "undefined" &&
-        typeof window.turnstile.reset === "function"
-      ) {
-        try {
-          const widgetEl = form.querySelector(".cf-turnstile");
-          if (widgetEl) window.turnstile.reset(widgetEl);
-        } catch (e) { }
+      if (workerClientError.status === 403) {
+        resetTurnstileWidget();
       }
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
@@ -494,7 +560,7 @@ document.addEventListener("submit", async (event) => {
       return;
     }
 
-    // 2. Fallback: Gửi GAS khi Worker không khả dụng (Worker đã gửi GAS khi thành công)
+    // 2. Fallback: Gửi GAS trực tiếp khi Worker không khả dụng (khi Worker OK thì Worker đã tự gọi GAS)
     let gasDispatched = false;
     if (!workerSucceeded) {
       const gasSubmitKey = `${cleanPhone}|${pkg}`;
@@ -505,7 +571,7 @@ document.addEventListener("submit", async (event) => {
           urlParams.append(key, value);
         }
         const gasController = new AbortController();
-        const gasTid = setTimeout(() => gasController.abort(), 4500);
+        const gasTid = setTimeout(() => gasController.abort(), 15000);
         try {
           await fetch(GOOGLE_SHEETS_ENDPOINT, {
             method: "POST",
@@ -521,8 +587,8 @@ document.addEventListener("submit", async (event) => {
           console.warn("Google Apps Script notice:", gasErr);
         } finally {
           clearTimeout(gasTid);
-          }
         }
+      }
     }
 
     showFormFeedback(
@@ -547,12 +613,7 @@ document.addEventListener("submit", async (event) => {
     if (typeof window.openSuccessModal === "function") window.openSuccessModal(name, cleanPhone, pkg);
 
     form.reset();
-    if (typeof window.turnstile !== "undefined" && typeof window.turnstile.reset === "function") {
-      try {
-        const widgetEl = form.querySelector(".cf-turnstile");
-        if (widgetEl) window.turnstile.reset(widgetEl);
-      } catch (e) { }
-    }
+    resetTurnstileWidget();
   } catch (error) {
     console.error("Form submit error:", error);
     showFormFeedback(

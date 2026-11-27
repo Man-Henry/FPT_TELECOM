@@ -15,11 +15,14 @@ Hệ thống đã được lập trình sẵn để tự động bắt thông ti
 
 ---
 
-## 🔧 Hướng dẫn cập nhật mã Google Apps Script (Nếu cần chỉnh sửa):
+## 🔧 Hướng dẫn cập nhật mã Google Apps Script (hoặc xử lý lỗi "không có quyền truy cập vào tài liệu"):
 
-### Bước 1: Mở Google Sheet
-1. Mở trang tính Google Sheet của bạn (ví dụ: `FPT Telecom - Khách Hàng 2026`).
+> ⚠️ **Lưu ý quan trọng:** Nếu endpoint báo lỗi `"Exception: Bạn không có quyền truy cập vào tài liệu yêu cầu."`, nguyên nhân là bản Web App hiện tại bị mất liên kết/quyền với Google Sheet cũ (hoặc Sheet cũ đã bị xóa/đổi quyền). Làm theo đúng 3 bước dưới đây để cấp quyền lại:
+
+### Bước 1: Mở Google Sheet (hoặc tạo Sheet mới)
+1. Mở trang tính Google Sheet của bạn (ví dụ: `FPT Telecom - Khách Hàng 2026`). Nếu không tìm thấy Sheet cũ, hãy tạo một **Google Sheet mới hoàn toàn** trên Google Drive của tài khoản `tvm19624@gmail.com`.
 2. Trên thanh công cụ, chọn: **Tiện ích mở rộng** *(Extensions)* ➔ **Apps Script**.
+   *(Nếu bạn tạo dự án Apps Script độc lập tại `script.google.com`, hãy copy ID trên URL của Google Sheet dán vào biến `var SPREADSHEET_ID = "...";` ở đầu `Code.gs`.)*
 
 ### Bước 2: Dán mã mới nhất
 1. Mở tệp [`google-apps-script/Code.gs`](./google-apps-script/Code.gs) trong kho lưu trữ này.
@@ -28,16 +31,15 @@ Hệ thống đã được lập trình sẵn để tự động bắt thông ti
    ```javascript
    var NOTIFY_EMAIL = "tvm19624@gmail.com";
    ```
-4. Nhấn **Lưu** 💾 *(Ctrl + S)*.
+4. Nhấn **Lưu** 💾 *(Ctrl + S)*, sau đó chọn hàm **`testSubmit`** trên thanh công cụ và bấm **Chạy (Run)** để cấp quyền Google Sheet + Gmail cho script.
 
-### Bước 3: Triển khai lại phiên bản mới (Nếu có chỉnh sửa code trên Sheet)
-1. Nhấn nút xanh **Triển khai** *(Deploy)* ở góc trên bên phải ➔ Chọn **Quản lý phiên bản triển khai** *(Manage deployments)*.
-2. Nhấn biểu tượng cây bút ✏️ (Chỉnh sửa) ở bản triển khai hiện tại.
-3. Tại mục **Phiên bản** *(Version)*, chọn **Phiên bản mới** *(New version)*.
-4. Đảm bảo:
-   - **Thực thi dưới dạng** *(Execute as)*: `Tôi (địa chỉ email của bạn)`
+### Bước 3: Triển khai lại phiên bản mới
+1. Nhấn nút xanh **Triển khai** *(Deploy)* ở góc trên bên phải ➔ Chọn **Quản lý phiên bản triển khai** *(Manage deployments)* (hoặc **Tạo bản triển khai mới / New deployment** nếu tạo từ Sheet mới).
+2. Chọn loại **Ứng dụng web** *(Web app)*. Nếu sửa bản cũ, nhấn biểu tượng cây bút ✏️ và tại mục **Phiên bản** *(Version)* chọn **Phiên bản mới** *(New version)*.
+3. Đảm bảo:
+   - **Thực thi dưới dạng** *(Execute as)*: `Tôi (tvm19624@gmail.com)`
    - **Ai có quyền truy cập** *(Who has access)*: `Bất kỳ ai (Anyone)` ⚠️ *(Bắt buộc)*
-5. Nhấn **Triển khai** *(Deploy)*.
+4. Nhấn **Triển khai** *(Deploy)*. Nếu URL `/exec` thay đổi (do tạo Sheet/project mới), hãy cập nhật URL mới vào `GOOGLE_SHEETS_ENDPOINT` trong [js/script.js](./js/script.js) và [src/index.js](./src/index.js).
 
 ---
 
