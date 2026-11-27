@@ -537,7 +537,26 @@ export default {
           body["Thời gian liên hệ"] || body.time_pref || "Gọi ngay bây giờ",
           100,
         );
-        const location = clip(body["Tọa độ"] || body.location || "Chưa xác định", 200);
+        let rawLocation = clip(body["Tọa độ"] || body.location || "", 200).trim();
+        const cf = request.cf || {};
+        const cfPlace = [cf.city, cf.region, cf.country].filter(Boolean).join(", ");
+        const cfMap =
+          cf.latitude && cf.longitude
+            ? `https://www.google.com/maps?q=${cf.latitude},${cf.longitude}`
+            : "";
+        const needsCfFallback =
+          !rawLocation ||
+          rawLocation === "Chưa xác định" ||
+          rawLocation === "Xác nhận theo địa chỉ khách nhập" ||
+          rawLocation.startsWith("Không lấy được vị trí") ||
+          (!rawLocation.includes("maps?q=") && Boolean(cfMap));
+        if (needsCfFallback && (cfPlace || cfMap)) {
+          rawLocation = clip(
+            [cfPlace ? `IP: ${cfPlace}` : "", cfMap].filter(Boolean).join(" | "),
+            200,
+          );
+        }
+        const location = rawLocation || "Chưa xác định";
 
         // Validate Consent NĐ 13 (Requirement 1.2.3 & 1.4.3)
         const consentVal = body.consent_nd13;

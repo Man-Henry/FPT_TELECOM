@@ -229,21 +229,62 @@ document.querySelectorAll('a[href="#contact"]').forEach((link) =>
 );
 
 async function getUserLocation() {
-  try {
-    const controller = new AbortController();
-    const tid = setTimeout(() => controller.abort(), 1200);
-    const res = await fetch("https://get.geojs.io/v1/ip/geo.json", {
-      signal: controller.signal,
-    });
-    clearTimeout(tid);
-    const data = await res.json();
-    if (data.city || data.region) {
-      return `IP: ${data.city || ""}, ${data.region || ""}`.trim();
+  const getIpLocation = async (reason) => {
+    try {
+      const controller = new AbortController();
+      const tid = setTimeout(() => controller.abort(), 2500);
+      const res = await fetch("https://get.geojs.io/v1/ip/geo.json", {
+        signal: controller.signal,
+      });
+      clearTimeout(tid);
+      const data = await res.json();
+      const area = [data.city, data.region].filter(Boolean).join(", ");
+      if (data.latitude && data.longitude) {
+        const prefix = area ? `IP: ${area}` : "IP";
+        return `${prefix} | https://www.google.com/maps?q=${data.latitude},${data.longitude} (${reason})`;
+      }
+      if (area) {
+        return `IP: ${area} (${reason})`;
+      }
+      return `Không lấy được vị trí (${reason})`;
+    } catch (e) {
+      return `Không lấy được vị trí (${reason})`;
     }
-    return "Xác nhận theo địa chỉ khách nhập";
-  } catch (e) {
-    return "Xác nhận theo địa chỉ khách nhập";
+  };
+
+  if (typeof navigator === "undefined" || !navigator.geolocation) {
+    return getIpLocation("Trình duyệt không hỗ trợ GPS");
   }
+
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (val) => {
+      if (settled) return;
+      settled = true;
+      resolve(val);
+    };
+    const guardTid = setTimeout(() => {
+      finish(getIpLocation("Quá thời gian chờ quyền GPS"));
+    }, 7000);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        clearTimeout(guardTid);
+        finish(
+          `GPS: https://www.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`,
+        );
+      },
+      (error) => {
+        clearTimeout(guardTid);
+        let reason = "Lỗi GPS chưa rõ";
+        if (error && error.code === 1) reason = "Khách chặn quyền GPS";
+        else if (error && error.code === 2) reason = "Không định vị được GPS";
+        else if (error && error.code === 3) reason = "GPS phản hồi quá lâu";
+        finish(getIpLocation(reason));
+      },
+      { enableHighAccuracy: true, timeout: 6000, maximumAge: 60000 },
+    );
+  });
 }
 
 // Google Apps Script Web App Endpoint URL (Backup fallback only when Worker unreachable)

@@ -445,6 +445,30 @@
               tdPkg.appendChild(pkgBadge);
               tdPkg.appendChild(addrDiv);
               if (noteDiv.textContent) tdPkg.appendChild(noteDiv);
+              if (lead.location && lead.location !== "Chưa xác định") {
+                const locDiv = document.createElement("div");
+                locDiv.style.cssText = "font-size:11.5px;color:#0369a1;margin-top:4px;word-break:break-word;";
+                const mapMatch = String(lead.location).match(/https:\/\/www\.google\.com\/maps\?q=[-0-9.,]+/);
+                if (mapMatch) {
+                  const mapLink = document.createElement("a");
+                  mapLink.href = mapMatch[0];
+                  mapLink.target = "_blank";
+                  mapLink.rel = "noopener noreferrer";
+                  mapLink.style.cssText = "color:#0369a1;font-weight:700;text-decoration:underline;margin-right:6px;";
+                  mapLink.textContent = lead.location.startsWith("GPS:") ? "📍 Mở GPS trên Maps" : "🗺️ Mở vị trí IP trên Maps";
+                  locDiv.appendChild(mapLink);
+                  const cleanText = lead.location.replace(mapMatch[0], "").replace(/^\s*\|\s*|\s*\|\s*$/g, "").trim();
+                  if (cleanText) {
+                    const span = document.createElement("span");
+                    span.style.color = "#64748b";
+                    span.textContent = `(${cleanText})`;
+                    locDiv.appendChild(span);
+                  }
+                } else {
+                  locDiv.textContent = `📍 ${lead.location}`;
+                }
+                tdPkg.appendChild(locDiv);
+              }
 
               // Col 4: Status selector
               const tdStatus = document.createElement("td");
@@ -675,7 +699,7 @@
         document.getElementById("leadStatusFilter").addEventListener("change", loadLeads);
         document.getElementById("exportCsvBtn").addEventListener("click", () => {
           const rows = [
-            ["ID", "Thời gian", "Họ tên", "Số điện thoại", "Gói cước", "Địa chỉ", "Ghi chú khách", "Trạng thái", "Ghi chú NV"],
+            ["ID", "Thời gian", "Họ tên", "Số điện thoại", "Gói cước", "Địa chỉ", "Vị trí / Tọa độ", "Ghi chú khách", "Trạng thái", "Ghi chú NV"],
             ...currentLeadsCache.map((l) => [
               l.id,
               l.created_at ? new Date(l.created_at).toLocaleString("vi-VN") : "",
@@ -683,6 +707,7 @@
               l.phone ? "'" + l.phone : "",
               l.package,
               l.address,
+              l.location || "",
               l.note,
               STATUS_LABELS[l.status || "new"] || l.status,
               l.staff_note || "",
