@@ -198,7 +198,7 @@
     <priority>0.85</priority>
   </url>
 
-  <!-- Dynamic News & Promotion Articles (29 indexable articles) -->
+  <!-- Dynamic News & Promotion Articles (31 indexable articles) -->
   <url>
     <loc>https://fpttelecomvn.click/pages/posts/binh-chon-cho-fpt-telecom-tro-thanh-thuong-hieu-duoc-yeu-thich-nhat-tai-van-xuan-2026.html</loc>
     <lastmod>2026-11-27</lastmod>
@@ -231,6 +231,18 @@
   </url>
   <url>
     <loc>https://fpttelecomvn.click/pages/posts/dang-ky-internet-fpt-thang-112026-nhan-30000-diem-fgold-doi-qua-nhu-y.html</loc>
+    <lastmod>2026-11-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://fpttelecomvn.click/pages/posts/dau-tu-tuyen-cap-vts-fpt-telecom-mo-rong-chien-luoc-dau-tu-ha-tang-ket-noi-quoc-te.html</loc>
+    <lastmod>2026-11-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://fpttelecomvn.click/pages/posts/dem-nguoc-03-ngay-cuoi-but-pha-dua-fpt-telecom-chinh-phuc-giai-thuong-van-xuan-2026.html</loc>
     <lastmod>2026-11-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
